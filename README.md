@@ -1,0 +1,2 @@
+# TuyTantatana
+Tuy xizmatlari uchun

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.tuytantana.uz/api';
 
 // ===== Umumiy fetch helper =====
 const jsonPost = (url, data, token) =>
@@ -84,4 +84,4 @@ export const api = {
   adminBookings: (token, params = '') => authGet(`${API_BASE}/admin/bookings?${params}`, token),
 };
 
-export const IMAGE_BASE = 'http://localhost:8000';
+export const IMAGE_BASE = process.env.NEXT_PUBLIC_IMAGE_URL || 'https://api.tuytantana.uz';

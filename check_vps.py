@@ -1,0 +1,10 @@
+import paramiko
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect('169.58.49.5', username='root', password='Ferrari3377274')
+stdin, stdout, stderr = ssh.exec_command('ls -la /root/tuy-tantana')
+print("STDOUT:")
+print(stdout.read().decode())
+print("STDERR:")
+print(stderr.read().decode())
+ssh.close()

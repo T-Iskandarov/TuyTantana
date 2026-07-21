@@ -63,6 +63,8 @@ export const api = {
     }).then((r) => r.json());
   },
 
+  setMainImage: (imageId, token) => authPost(`${API_BASE}/upload/${imageId}/main`, {}, token),
+
   deleteImage: (imageId, token) => authDelete(`${API_BASE}/upload/${imageId}`, token),
 
   // ===== Bookings (User) =====

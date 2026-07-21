@@ -61,6 +61,20 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     }
   };
 
+  const handleSetMainImage = async (imgId) => {
+    try {
+      const res = await api.setMainImage(imgId, token);
+      if (res.success) {
+        setExistingImages(prev => prev.map(img => ({ ...img, is_main: img.id === imgId })));
+        toast.success("Asosiy rasm o'rnatildi!");
+      } else {
+        toast.error(res.message || "Xatolik yuz berdi");
+      }
+    } catch {
+      toast.error("Tarmoq xatosi");
+    }
+  };
+
   const handleChange = (e) => {
     if (e.target.name === 'region') {
       const firstDistrict = regionsAndDistricts[e.target.value][0];
@@ -221,9 +235,15 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
         {existingImages.length > 0 && (
           <div className="flex flex-wrap gap-3 mb-3">
             {existingImages.map(img => (
-              <div key={img.id} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+              <div key={img.id} className={`relative w-24 h-24 rounded-lg overflow-hidden border ${img.is_main ? 'border-[#7C3AED] ring-2 ring-[#7C3AED]' : 'border-gray-200'}`}>
                 <img src={img.image_path?.startsWith('http') ? img.image_path : `${IMAGE_BASE}${img.image_path}`} alt="Xizmat" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => handleRemoveExistingImage(img.id)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-colors">X</button>
+                <button type="button" onClick={() => handleRemoveExistingImage(img.id)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-colors">X</button>
+                {!img.is_main && (
+                  <button type="button" onClick={() => handleSetMainImage(img.id)} className="absolute bottom-1 left-1 right-1 bg-white/90 text-[#7C3AED] py-1 rounded text-[10px] font-bold shadow-sm hover:bg-[#7C3AED] hover:text-white transition-colors">Asosiy qilish</button>
+                )}
+                {img.is_main && (
+                  <div className="absolute top-1 left-1 bg-[#7C3AED] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">★</div>
+                )}
               </div>
             ))}
           </div>

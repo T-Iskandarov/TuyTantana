@@ -254,10 +254,29 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
           multiple
           accept="image/jpeg,image/png,image/webp"
           onChange={(e) => setFiles(Array.from(e.target.files || []))}
-          className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#7C3AED]/10 file:text-[#7C3AED] hover:file:bg-[#7C3AED]/20 file:transition-colors file:cursor-pointer"
+          className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#7C3AED]/10 file:text-[#7C3AED] hover:file:bg-[#7C3AED]/20 file:transition-colors file:cursor-pointer mb-3"
         />
+        
         {files.length > 0 && (
-          <p className="text-xs text-gray-500 mt-1">{files.length} ta rasm tanlandi</p>
+          <div className="flex flex-wrap gap-3">
+            {files.map((f, i) => (
+              <div key={i} className={`relative w-24 h-24 rounded-lg overflow-hidden border ${i === 0 && existingImages.length === 0 ? 'border-[#7C3AED] ring-2 ring-[#7C3AED]' : 'border-gray-200'}`}>
+                <img src={URL.createObjectURL(f)} alt="Preview" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-colors">X</button>
+                {!(i === 0 && existingImages.length === 0) && (
+                  <button type="button" onClick={() => {
+                    const newFiles = [...files];
+                    const selected = newFiles.splice(i, 1)[0];
+                    newFiles.unshift(selected);
+                    setFiles(newFiles);
+                  }} className="absolute bottom-1 left-1 right-1 bg-white/90 text-[#7C3AED] py-1 rounded text-[10px] font-bold shadow-sm hover:bg-[#7C3AED] hover:text-white transition-colors">Asosiy qilish</button>
+                )}
+                {(i === 0 && existingImages.length === 0) && (
+                  <div className="absolute top-1 left-1 bg-[#7C3AED] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">★</div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

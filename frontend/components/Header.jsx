@@ -15,8 +15,11 @@ const LANG_OPTIONS = [
 ];
 
 export default function Header() {
-  const { user, logout, loading } = useAuth();
+  const { user, token, logout, loading } = useAuth();
   const { lang, changeLang, t } = useLanguage();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState({ open: false, mode: 'login' });
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
@@ -28,15 +31,15 @@ export default function Header() {
   const notifRef = useRef(null);
 
   useEffect(() => {
-    if (user && user.token) {
-      api.getNotifications(user.token).then(res => {
+    if (user && token) {
+      api.getNotifications(token).then(res => {
         if (res.success) {
           setUnreadCount(res.unread_count || 0);
           setNotifications(res.data || []);
         }
       }).catch(() => {});
     }
-  }, [user, pathname]);
+  }, [user, token, pathname]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -64,7 +67,7 @@ export default function Header() {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     setUnreadCount(prev => Math.max(0, prev - 1));
     try {
-      await api.markNotificationAsRead(id, user.token);
+      await api.markNotificationAsRead(id, token);
     } catch {
       // ignore
     }

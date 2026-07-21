@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/services/', include('services.urls')),
     path('api/bookings', include('bookings.urls')),
     path('api/bookings/', include('bookings.urls')),
+    path('api/notifications/', include('notifications.urls')),
     path('api/upload/<int:pk>', UploadImageViewSet.as_view({'post': 'create'})),
     path('api/upload/<int:pk>/delete', UploadImageViewSet.as_view({'delete': 'destroy'})),
     path('api/upload/<int:pk>/main', UploadImageViewSet.as_view({'post': 'set_main'})),

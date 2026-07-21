@@ -1,0 +1,786 @@
+{
+  "Bektemir tumani": {
+    "lat": 41.3111,
+    "lng": 69.3297
+  },
+  "Chilonzor tumani": {
+    "lat": 41.3375,
+    "lng": 69.328
+  },
+  "Mirobod tumani": {
+    "lat": 41.3616,
+    "lng": 69.3121
+  },
+  "Mirzo Ulug'bek tumani": {
+    "lat": 41.3759,
+    "lng": 69.2843
+  },
+  "Sergeli tumani": {
+    "lat": 41.3748,
+    "lng": 69.2506
+  },
+  "Olmazor tumani": {
+    "lat": 41.356,
+    "lng": 69.2196
+  },
+  "Uchtepa tumani": {
+    "lat": 41.3224,
+    "lng": 69.2005
+  },
+  "Shayxontohur tumani": {
+    "lat": 41.2813,
+    "lng": 69.2001
+  },
+  "Yashnobod tumani": {
+    "lat": 41.243,
+    "lng": 69.2209
+  },
+  "Yunusobod tumani": {
+    "lat": 41.2182,
+    "lng": 69.2597
+  },
+  "Yakkasaroy tumani": {
+    "lat": 41.2152,
+    "lng": 69.3081
+  },
+  "Yangihayot tumani": {
+    "lat": 41.237,
+    "lng": 69.3541
+  },
+  "Nurafshon shahri": {
+    "lat": 41.2213,
+    "lng": 69.9097
+  },
+  "Olmaliq shahri": {
+    "lat": 41.2477,
+    "lng": 69.908
+  },
+  "Angren shahri": {
+    "lat": 41.2718,
+    "lng": 69.8921
+  },
+  "Bekobod shahri": {
+    "lat": 41.2861,
+    "lng": 69.8643
+  },
+  "Chirchiq shahri": {
+    "lat": 41.285,
+    "lng": 69.8306
+  },
+  "Yangiyo'l shahri": {
+    "lat": 41.2662,
+    "lng": 69.7996
+  },
+  "Ohangaron shahri": {
+    "lat": 41.2326,
+    "lng": 69.7805
+  },
+  "Bekobod tumani": {
+    "lat": 41.1915,
+    "lng": 69.7801
+  },
+  "Bo'ka tumani": {
+    "lat": 41.1532,
+    "lng": 69.8009
+  },
+  "Bo'stonliq tumani": {
+    "lat": 41.1284,
+    "lng": 69.8397
+  },
+  "Zangiota tumani": {
+    "lat": 41.1254,
+    "lng": 69.8881
+  },
+  "Qibray tumani": {
+    "lat": 41.1472,
+    "lng": 69.9341
+  },
+  "Quyichirchiq tumani": {
+    "lat": 41.1906,
+    "lng": 69.9653
+  },
+  "Parkent tumani": {
+    "lat": 41.246,
+    "lng": 69.972
+  },
+  "Piskent tumani": {
+    "lat": 41.3001,
+    "lng": 69.9502
+  },
+  "O'rtachirchiq tumani": {
+    "lat": 41.3385,
+    "lng": 69.903
+  },
+  "Chinoz tumani": {
+    "lat": 41.3499,
+    "lng": 69.8408
+  },
+  "Yuqorichirchiq tumani": {
+    "lat": 41.3291,
+    "lng": 69.7784
+  },
+  "Yangiyo'l tumani": {
+    "lat": 41.279,
+    "lng": 69.7321
+  },
+  "Toshkent tumani": {
+    "lat": 41.2104,
+    "lng": 69.7151
+  },
+  "Andijon shahri": {
+    "lat": 40.8154,
+    "lng": 72.3337
+  },
+  "Xonobod shahri": {
+    "lat": 40.8418,
+    "lng": 72.332
+  },
+  "Andijon tumani": {
+    "lat": 40.8659,
+    "lng": 72.3161
+  },
+  "Asaka tumani": {
+    "lat": 40.8802,
+    "lng": 72.2883
+  },
+  "Baliqchi tumani": {
+    "lat": 40.8791,
+    "lng": 72.2546
+  },
+  "Bo'z tumani": {
+    "lat": 40.8603,
+    "lng": 72.2236
+  },
+  "Buloqboshi tumani": {
+    "lat": 40.8267,
+    "lng": 72.2045
+  },
+  "Jalaquduq tumani": {
+    "lat": 40.7856,
+    "lng": 72.2041
+  },
+  "Izboskan tumani": {
+    "lat": 40.7473,
+    "lng": 72.2249
+  },
+  "Marxamat tumani": {
+    "lat": 40.7225,
+    "lng": 72.2637
+  },
+  "Oltinko'l tumani": {
+    "lat": 40.7195,
+    "lng": 72.3121
+  },
+  "Paxtaobod tumani": {
+    "lat": 40.7413,
+    "lng": 72.3581
+  },
+  "Ulug'nor tumani": {
+    "lat": 40.7847,
+    "lng": 72.3893
+  },
+  "Xo'jaobod tumani": {
+    "lat": 40.8401,
+    "lng": 72.396
+  },
+  "Shahrixon tumani": {
+    "lat": 40.8942,
+    "lng": 72.3742
+  },
+  "Qo'rg'ontepa tumani": {
+    "lat": 40.9326,
+    "lng": 72.327
+  },
+  "Buxoro shahri": {
+    "lat": 39.7681,
+    "lng": 64.5056
+  },
+  "Kogon shahri": {
+    "lat": 39.7945,
+    "lng": 64.5039
+  },
+  "Buxoro tumani": {
+    "lat": 39.8186,
+    "lng": 64.488
+  },
+  "Vobkent tumani": {
+    "lat": 39.8329,
+    "lng": 64.4602
+  },
+  "Jondor tumani": {
+    "lat": 39.8318,
+    "lng": 64.4265
+  },
+  "Kogon tumani": {
+    "lat": 39.813,
+    "lng": 64.3955
+  },
+  "Olot tumani": {
+    "lat": 39.7794,
+    "lng": 64.3764
+  },
+  "Peshku tumani": {
+    "lat": 39.7383,
+    "lng": 64.376
+  },
+  "Romitan tumani": {
+    "lat": 39.7,
+    "lng": 64.3968
+  },
+  "Shofirkon tumani": {
+    "lat": 39.6752,
+    "lng": 64.4356
+  },
+  "Qorovulbozor tumani": {
+    "lat": 39.6722,
+    "lng": 64.484
+  },
+  "Qorako'l tumani": {
+    "lat": 39.694,
+    "lng": 64.53
+  },
+  "G'ijduvon tumani": {
+    "lat": 39.7374,
+    "lng": 64.5612
+  },
+  "Farg'ona shahri": {
+    "lat": 40.3842,
+    "lng": 71.8343
+  },
+  "Marg'ilon shahri": {
+    "lat": 40.4106,
+    "lng": 71.8326
+  },
+  "Qo'qon shahri": {
+    "lat": 40.4347,
+    "lng": 71.8167
+  },
+  "Quvasoy shahri": {
+    "lat": 40.449,
+    "lng": 71.7889
+  },
+  "Oltiariq tumani": {
+    "lat": 40.4479,
+    "lng": 71.7552
+  },
+  "Bag'dod tumani": {
+    "lat": 40.4291,
+    "lng": 71.7242
+  },
+  "Beshariq tumani": {
+    "lat": 40.3955,
+    "lng": 71.7051
+  },
+  "Buvayda tumani": {
+    "lat": 40.3544,
+    "lng": 71.7047
+  },
+  "Dang'ara tumani": {
+    "lat": 40.3161,
+    "lng": 71.7255
+  },
+  "Yozyovon tumani": {
+    "lat": 40.2913,
+    "lng": 71.7643
+  },
+  "Quva tumani": {
+    "lat": 40.2883,
+    "lng": 71.8127
+  },
+  "Qo'shtepa tumani": {
+    "lat": 40.3101,
+    "lng": 71.8587
+  },
+  "Rishton tumani": {
+    "lat": 40.3535,
+    "lng": 71.8899
+  },
+  "So'x tumani": {
+    "lat": 40.4089,
+    "lng": 71.8966
+  },
+  "Toshloq tumani": {
+    "lat": 40.463,
+    "lng": 71.8748
+  },
+  "O'zbekiston tumani": {
+    "lat": 40.5014,
+    "lng": 71.8276
+  },
+  "Farg'ona tumani": {
+    "lat": 40.5128,
+    "lng": 71.7654
+  },
+  "Furqat tumani": {
+    "lat": 40.492,
+    "lng": 71.703
+  },
+  "Jizzax shahri": {
+    "lat": 40.1158,
+    "lng": 67.8922
+  },
+  "Arnasoy tumani": {
+    "lat": 40.1422,
+    "lng": 67.8905
+  },
+  "Baxmal tumani": {
+    "lat": 40.1663,
+    "lng": 67.8746
+  },
+  "G'allaorol tumani": {
+    "lat": 40.1806,
+    "lng": 67.8468
+  },
+  "Do'stlik tumani": {
+    "lat": 40.1795,
+    "lng": 67.8131
+  },
+  "Zarbdor tumani": {
+    "lat": 40.1607,
+    "lng": 67.7821
+  },
+  "Zafarobod tumani": {
+    "lat": 40.1271,
+    "lng": 67.763
+  },
+  "Zomin tumani": {
+    "lat": 40.086,
+    "lng": 67.7626
+  },
+  "Mirzacho'l tumani": {
+    "lat": 40.0477,
+    "lng": 67.7834
+  },
+  "Paxtakor tumani": {
+    "lat": 40.0229,
+    "lng": 67.8222
+  },
+  "Forish tumani": {
+    "lat": 40.0199,
+    "lng": 67.8706
+  },
+  "Sharof Rashidov tumani": {
+    "lat": 40.0417,
+    "lng": 67.9166
+  },
+  "Yangiobod tumani": {
+    "lat": 40.0851,
+    "lng": 67.9478
+  },
+  "Urganch shahri": {
+    "lat": 41.55,
+    "lng": 60.6833
+  },
+  "Xiva shahri": {
+    "lat": 41.5764,
+    "lng": 60.6816
+  },
+  "Bog'ot tumani": {
+    "lat": 41.6005,
+    "lng": 60.6657
+  },
+  "Gurlan tumani": {
+    "lat": 41.6148,
+    "lng": 60.6379
+  },
+  "Qo'shko'pir tumani": {
+    "lat": 41.6137,
+    "lng": 60.6042
+  },
+  "Urganch tumani": {
+    "lat": 41.5949,
+    "lng": 60.5732
+  },
+  "Xazarasp tumani": {
+    "lat": 41.5613,
+    "lng": 60.5541
+  },
+  "Xiva tumani": {
+    "lat": 41.5202,
+    "lng": 60.5537
+  },
+  "Xonqa tumani": {
+    "lat": 41.4819,
+    "lng": 60.5745
+  },
+  "Shovot tumani": {
+    "lat": 41.4571,
+    "lng": 60.6133
+  },
+  "Yangiariq tumani": {
+    "lat": 41.4541,
+    "lng": 60.6617
+  },
+  "Yangibozor tumani": {
+    "lat": 41.4759,
+    "lng": 60.7077
+  },
+  "Namangan shahri": {
+    "lat": 41.0011,
+    "lng": 71.7173
+  },
+  "Mingbuloq tumani": {
+    "lat": 41.0275,
+    "lng": 71.7156
+  },
+  "Kosonsoy tumani": {
+    "lat": 41.0516,
+    "lng": 71.6997
+  },
+  "Namangan tumani": {
+    "lat": 41.0659,
+    "lng": 71.6719
+  },
+  "Norin tumani": {
+    "lat": 41.0648,
+    "lng": 71.6382
+  },
+  "Pop tumani": {
+    "lat": 41.046,
+    "lng": 71.6072
+  },
+  "To'raqo'rg'on tumani": {
+    "lat": 41.0124,
+    "lng": 71.5881
+  },
+  "Uychi tumani": {
+    "lat": 40.9713,
+    "lng": 71.5877
+  },
+  "Uchqo'rg'on tumani": {
+    "lat": 40.933,
+    "lng": 71.6085
+  },
+  "Chortoq tumani": {
+    "lat": 40.9082,
+    "lng": 71.6473
+  },
+  "Chust tumani": {
+    "lat": 40.9052,
+    "lng": 71.6957
+  },
+  "Yangiqo'rg'on tumani": {
+    "lat": 40.927,
+    "lng": 71.7417
+  },
+  "Navoiy shahri": {
+    "lat": 40.0844,
+    "lng": 65.4292
+  },
+  "Zarafshon shahri": {
+    "lat": 40.1108,
+    "lng": 65.4275
+  },
+  "Karmana tumani": {
+    "lat": 40.1349,
+    "lng": 65.4116
+  },
+  "Konimex tumani": {
+    "lat": 40.1492,
+    "lng": 65.3838
+  },
+  "Qiziltepa tumani": {
+    "lat": 40.1481,
+    "lng": 65.3501
+  },
+  "Navbahor tumani": {
+    "lat": 40.1293,
+    "lng": 65.3191
+  },
+  "Nurota tumani": {
+    "lat": 40.0957,
+    "lng": 65.3
+  },
+  "Tomdi tumani": {
+    "lat": 40.0546,
+    "lng": 65.2996
+  },
+  "Uchquduq tumani": {
+    "lat": 40.0163,
+    "lng": 65.3204
+  },
+  "Xatirchi tumani": {
+    "lat": 39.9915,
+    "lng": 65.3592
+  },
+  "Qarshi shahri": {
+    "lat": 38.8615,
+    "lng": 65.8451
+  },
+  "Shaxrisabz shahri": {
+    "lat": 38.8879,
+    "lng": 65.8434
+  },
+  "Dehqonobod tumani": {
+    "lat": 38.912,
+    "lng": 65.8275
+  },
+  "Kasbi tumani": {
+    "lat": 38.9263,
+    "lng": 65.7997
+  },
+  "Kitob tumani": {
+    "lat": 38.9252,
+    "lng": 65.766
+  },
+  "Koson tumani": {
+    "lat": 38.9064,
+    "lng": 65.735
+  },
+  "Mirishkor tumani": {
+    "lat": 38.8728,
+    "lng": 65.7159
+  },
+  "Muborak tumani": {
+    "lat": 38.8317,
+    "lng": 65.7155
+  },
+  "Nishon tumani": {
+    "lat": 38.7934,
+    "lng": 65.7363
+  },
+  "Chiroqchi tumani": {
+    "lat": 38.7686,
+    "lng": 65.7751
+  },
+  "Shaxrisabz tumani": {
+    "lat": 38.7656,
+    "lng": 65.8235
+  },
+  "Yakkabog' tumani": {
+    "lat": 38.7874,
+    "lng": 65.8695
+  },
+  "Qamashi tumani": {
+    "lat": 38.8308,
+    "lng": 65.9007
+  },
+  "Qarshi tumani": {
+    "lat": 38.8862,
+    "lng": 65.9074
+  },
+  "Samarqand shahri": {
+    "lat": 39.627,
+    "lng": 67.0249
+  },
+  "Kattaqo'rg'on shahri": {
+    "lat": 39.6534,
+    "lng": 67.0232
+  },
+  "Bulung'ur tumani": {
+    "lat": 39.6775,
+    "lng": 67.0073
+  },
+  "Jomboy tumani": {
+    "lat": 39.6918,
+    "lng": 66.9795
+  },
+  "Ishtixon tumani": {
+    "lat": 39.6907,
+    "lng": 66.9458
+  },
+  "Kattaqo'rg'on tumani": {
+    "lat": 39.6719,
+    "lng": 66.9148
+  },
+  "Narpay tumani": {
+    "lat": 39.6383,
+    "lng": 66.8957
+  },
+  "Nurobod tumani": {
+    "lat": 39.5972,
+    "lng": 66.8953
+  },
+  "Oqdaryo tumani": {
+    "lat": 39.5589,
+    "lng": 66.9161
+  },
+  "Paxtachi tumani": {
+    "lat": 39.5341,
+    "lng": 66.9549
+  },
+  "Payariq tumani": {
+    "lat": 39.5311,
+    "lng": 67.0033
+  },
+  "Pastdarg'om tumani": {
+    "lat": 39.5529,
+    "lng": 67.0493
+  },
+  "Samarqand tumani": {
+    "lat": 39.5963,
+    "lng": 67.0805
+  },
+  "Toyloq tumani": {
+    "lat": 39.6517,
+    "lng": 67.0872
+  },
+  "Qo'shrabot tumani": {
+    "lat": 39.7058,
+    "lng": 67.0654
+  },
+  "Guliston shahri": {
+    "lat": 40.8415,
+    "lng": 68.7118
+  },
+  "Yangiyer shahri": {
+    "lat": 40.8679,
+    "lng": 68.7101
+  },
+  "Shirin shahri": {
+    "lat": 40.892,
+    "lng": 68.6942
+  },
+  "Oqoltin tumani": {
+    "lat": 40.9063,
+    "lng": 68.6664
+  },
+  "Boyovut tumani": {
+    "lat": 40.9052,
+    "lng": 68.6327
+  },
+  "Guliston tumani": {
+    "lat": 40.8864,
+    "lng": 68.6017
+  },
+  "Sirdaryo tumani": {
+    "lat": 40.8528,
+    "lng": 68.5826
+  },
+  "Xavos tumani": {
+    "lat": 40.8117,
+    "lng": 68.5822
+  },
+  "Mirzaobod tumani": {
+    "lat": 40.7734,
+    "lng": 68.603
+  },
+  "Sayxunobod tumani": {
+    "lat": 40.7486,
+    "lng": 68.6418
+  },
+  "Sardoba tumani": {
+    "lat": 40.7456,
+    "lng": 68.6902
+  },
+  "Termiz shahri": {
+    "lat": 37.94,
+    "lng": 67.6209
+  },
+  "Angor tumani": {
+    "lat": 37.9664,
+    "lng": 67.6192
+  },
+  "Boysun tumani": {
+    "lat": 37.9905,
+    "lng": 67.6033
+  },
+  "Denov tumani": {
+    "lat": 38.0048,
+    "lng": 67.5755
+  },
+  "Jarqo'rg'on tumani": {
+    "lat": 38.0037,
+    "lng": 67.5418
+  },
+  "Qiziriq tumani": {
+    "lat": 37.9849,
+    "lng": 67.5108
+  },
+  "Qumqo'rg'on tumani": {
+    "lat": 37.9513,
+    "lng": 67.4917
+  },
+  "Muzrabot tumani": {
+    "lat": 37.9102,
+    "lng": 67.4913
+  },
+  "Oltinsoy tumani": {
+    "lat": 37.8719,
+    "lng": 67.5121
+  },
+  "Sariosiyo tumani": {
+    "lat": 37.8471,
+    "lng": 67.5509
+  },
+  "Termiz tumani": {
+    "lat": 37.8441,
+    "lng": 67.5993
+  },
+  "Uzun tumani": {
+    "lat": 37.8659,
+    "lng": 67.6453
+  },
+  "Sherobod tumani": {
+    "lat": 37.9093,
+    "lng": 67.6765
+  },
+  "Sho'rchi tumani": {
+    "lat": 37.9647,
+    "lng": 67.6832
+  },
+  "Nukus shahri": {
+    "lat": 42.4619,
+    "lng": 59.6666
+  },
+  "Amudaryo tumani": {
+    "lat": 42.4883,
+    "lng": 59.6649
+  },
+  "Beruniy tumani": {
+    "lat": 42.5124,
+    "lng": 59.649
+  },
+  "Kegeyli tumani": {
+    "lat": 42.5267,
+    "lng": 59.6212
+  },
+  "Qonliko'l tumani": {
+    "lat": 42.5256,
+    "lng": 59.5875
+  },
+  "Qorao'zak tumani": {
+    "lat": 42.5068,
+    "lng": 59.5565
+  },
+  "Qo'ng'irot tumani": {
+    "lat": 42.4732,
+    "lng": 59.5374
+  },
+  "Mo'ynoq tumani": {
+    "lat": 42.4321,
+    "lng": 59.537
+  },
+  "Nukus tumani": {
+    "lat": 42.3938,
+    "lng": 59.5578
+  },
+  "Taxiatosh tumani": {
+    "lat": 42.369,
+    "lng": 59.5966
+  },
+  "Taxtako'pir tumani": {
+    "lat": 42.366,
+    "lng": 59.645
+  },
+  "To'rtko'l tumani": {
+    "lat": 42.3878,
+    "lng": 59.691
+  },
+  "Xo'jayli tumani": {
+    "lat": 42.4312,
+    "lng": 59.7222
+  },
+  "Chimboy tumani": {
+    "lat": 42.4866,
+    "lng": 59.7289
+  },
+  "Shumanay tumani": {
+    "lat": 42.5407,
+    "lng": 59.7071
+  },
+  "Ellikqal'a tumani": {
+    "lat": 42.5791,
+    "lng": 59.6599
+  }
+}

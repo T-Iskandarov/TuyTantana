@@ -102,4 +102,9 @@ export const api = {
   updateBookingStatus: (id, status, token) => jsonPut(`/bookings/${id}/status`, { status }, token),
   blockDate: (data, token) => jsonPost('/bookings/block', data, token),
   unblockDate: (data, token) => jsonPost('/bookings/unblock', data, token),
+
+  // Notifications
+  getNotifications: (token) => authGet('/notifications/', token),
+  markNotificationAsRead: (id, token) => jsonPost(`/notifications/${id}/read/`, {}, token),
+  markAllNotificationsAsRead: (token) => jsonPost('/notifications/read-all/', {}, token),
 };

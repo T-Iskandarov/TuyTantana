@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders, Heart, Users, Bank, Camera, Microphone, Scissors, Car, ClipboardText, SquaresFour } from 'phosphor-react-native';
@@ -57,6 +58,18 @@ export default function HomeScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const { user, token } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        api.getNotifications(token).then(res => {
+          if (res.success) setUnreadCount(res.unread_count);
+        }).catch(() => {});
+      }
+    }, [token])
+  );
   
   // Filter states
   const [showFilter, setShowFilter] = useState(false);
@@ -200,9 +213,15 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.logoSubtitle}>TO'Y XIZMATLARI BIR JOYDA</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.notifBtn}>
+        <TouchableOpacity style={styles.notifBtn} onPress={() => {
+          if (!user) {
+            navigation.navigate('Login');
+            return;
+          }
+          navigation.navigate('Notifications');
+        }}>
           <Bell size={24} color={COLORS.primary} />
-          <View style={styles.notifBadge} />
+          {unreadCount > 0 && <View style={styles.notifBadge} />}
         </TouchableOpacity>
       </View>
 

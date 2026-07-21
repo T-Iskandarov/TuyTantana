@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from .models import Booking
 from .serializers import BookingSerializer
 from services.models import Service
+from notifications.models import Notification
 import datetime
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -58,6 +59,13 @@ class BookingViewSet(viewsets.ModelViewSet):
                 existing.user = request.user
                 existing.status = 'PENDING'
                 existing.save()
+                
+                Notification.objects.create(
+                    user=service.provider,
+                    title="Yangi bron!",
+                    message=f"Sizning '{service.name}' xizmatingizga {booking_date.strftime('%d.%m.%Y')} sanasi uchun yangi bron tushdi."
+                )
+
                 serializer = self.get_serializer(existing)
                 return Response({
                     'success': True,
@@ -74,6 +82,13 @@ class BookingViewSet(viewsets.ModelViewSet):
                 date=booking_date,
                 status='PENDING'
             )
+            
+            Notification.objects.create(
+                user=service.provider,
+                title="Yangi bron!",
+                message=f"Sizning '{service.name}' xizmatingizga {booking_date.strftime('%d.%m.%Y')} sanasi uchun yangi bron tushdi."
+            )
+
             serializer = self.get_serializer(booking)
             return Response({
                 'success': True,
@@ -105,6 +120,15 @@ def update_booking_status(request, pk):
     if new_status in ['CONFIRMED', 'CANCELLED']:
         booking.status = new_status
         booking.save()
+        
+        # Mijozga bildirishnoma yuborish
+        status_text = "tasdiqlandi" if new_status == 'CONFIRMED' else "bekor qilindi"
+        Notification.objects.create(
+            user=booking.user,
+            title=f"Bron {status_text}!",
+            message=f"Sizning '{booking.service.name}' xizmatiga qilingan broningiz ({booking.date.strftime('%d.%m.%Y')}) {status_text}."
+        )
+        
         return Response({'success': True, 'message': 'Yangilandi', 'data': BookingSerializer(booking).data})
     return Response({'success': False, 'message': 'Xato status'}, status=400)
 

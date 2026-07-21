@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
@@ -257,6 +257,41 @@ export default function AddServiceScreen({ navigation, route }) {
     }
   };
 
+  const memoizedMap = useMemo(() => {
+    return (
+      <View style={styles.mapContainer}>
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={{
+            latitude: form.location_lat,
+            longitude: form.location_lng,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          }}
+          onPress={(e) => setForm(prev => ({
+            ...prev,
+            location_lat: e.nativeEvent.coordinate.latitude,
+            location_lng: e.nativeEvent.coordinate.longitude
+          }))}
+        >
+          <Marker
+            coordinate={{
+              latitude: form.location_lat,
+              longitude: form.location_lng,
+            }}
+            draggable
+            onDragEnd={(e) => setForm(prev => ({
+              ...prev,
+              location_lat: e.nativeEvent.coordinate.latitude,
+              location_lng: e.nativeEvent.coordinate.longitude
+            }))}
+          />
+        </MapView>
+      </View>
+    );
+  }, [form.location_lat, form.location_lng]);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -325,36 +360,7 @@ export default function AddServiceScreen({ navigation, route }) {
           </View>
 
           <Text style={styles.label}>Xaritada belgilang *</Text>
-          <View style={styles.mapContainer}>
-            <MapView
-              ref={mapRef}
-              style={styles.map}
-              initialRegion={{
-                latitude: form.location_lat,
-                longitude: form.location_lng,
-                latitudeDelta: 0.05,
-                longitudeDelta: 0.05,
-              }}
-              onPress={(e) => setForm({
-                ...form,
-                location_lat: e.nativeEvent.coordinate.latitude,
-                location_lng: e.nativeEvent.coordinate.longitude
-              })}
-            >
-              <Marker
-                coordinate={{
-                  latitude: form.location_lat,
-                  longitude: form.location_lng,
-                }}
-                draggable
-                onDragEnd={(e) => setForm({
-                  ...form,
-                  location_lat: e.nativeEvent.coordinate.latitude,
-                  location_lng: e.nativeEvent.coordinate.longitude
-                })}
-              />
-            </MapView>
-          </View>
+          {memoizedMap}
 
           <Text style={styles.label}>Narxi (so'm) *</Text>
           <TextInput
@@ -469,7 +475,10 @@ export default function AddServiceScreen({ navigation, route }) {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color={COLORS.white} />
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ActivityIndicator color={COLORS.white} style={{ marginRight: 8 }} />
+                <Text style={styles.submitBtnText}>Yuklanmoqda, kuting...</Text>
+              </View>
             ) : (
               <Text style={styles.submitBtnText}>Saqlash</Text>
             )}

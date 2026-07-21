@@ -146,3 +146,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .leaflet-popup-tip {
   background: #FFFFFF !important;
 }
+
+/* Hide scrollbar for elements with scrollbar-hide class */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -433,9 +433,9 @@ export default function ServiceDetailPage({ params: paramsPromise }) {
           </div>
 
           {/* O'ng tomon (Qattiq yopishtirilgan / Sticky): Narx va Bron */}
-          <div className="lg:col-span-1 sticky top-20">
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
-              <div className="flex items-end justify-between mb-8">
+          <div className="lg:col-span-1 sticky top-24 z-10">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-hide">
+              <div className="flex items-end justify-between mb-6">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">{t('service_price')}</p>
                   <p className="text-3xl font-bold text-[#7C3AED]">{formatPrice(service.price)} <span className="text-base text-gray-500 font-normal">{t('currency_uzs')}</span></p>

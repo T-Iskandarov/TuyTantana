@@ -182,8 +182,14 @@ class UploadImageViewSet(viewsets.ViewSet):
             
         images = request.FILES.getlist('images')
         saved_images = []
-        for img in images:
-            obj = ServiceImage.objects.create(service=service, image_path=img)
+        is_first_image = not service.images.exists()
+        
+        for index, img in enumerate(images):
+            obj = ServiceImage.objects.create(
+                service=service, 
+                image_path=img,
+                is_main=(is_first_image and index == 0)
+            )
             saved_images.append(ServiceImageSerializer(obj).data)
             
         return Response({
@@ -191,6 +197,28 @@ class UploadImageViewSet(viewsets.ViewSet):
             'message': f"{len(images)} ta rasm yuklandi",
             'data': saved_images
         }, status=201)
+
+    @action(detail=True, methods=['post'])
+    def set_main(self, request, pk=None):
+        try:
+            img = ServiceImage.objects.get(id=pk)
+        except ServiceImage.DoesNotExist:
+            return Response({'success': False, 'message': 'Rasm topilmadi'}, status=404)
+            
+        if img.service.provider != request.user:
+            return Response({'success': False, 'message': 'Huquq yo\'q'}, status=403)
+            
+        # Barcha rasmlarni asosiy emas qilib qo'yish
+        ServiceImage.objects.filter(service=img.service).update(is_main=False)
+        # Faqat tanlangan rasmni asosiy qilish
+        img.is_main = True
+        img.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Asosiy rasm o\'rnatildi',
+            'data': ServiceImageSerializer(img).data
+        })
 
     def destroy(self, request, pk=None):
         try:

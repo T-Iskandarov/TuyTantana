@@ -31,7 +31,11 @@ class Service(models.Model):
 class ServiceImage(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='images')
     image_path = models.ImageField(upload_to='services/')
+    is_main = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_main', 'id']
 
 class Review(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='reviews')

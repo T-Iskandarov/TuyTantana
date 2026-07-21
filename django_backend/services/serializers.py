@@ -7,7 +7,7 @@ class ServiceImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServiceImage
-        fields = ['id', 'image_path', 'created_at']
+        fields = ['id', 'image_path', 'is_main', 'created_at']
 
     def get_image_path(self, obj):
         # Return path starting with /uploads/ instead of full URL

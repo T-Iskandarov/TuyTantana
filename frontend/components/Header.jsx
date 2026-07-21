@@ -17,20 +17,23 @@ const LANG_OPTIONS = [
 export default function Header() {
   const { user, logout, loading } = useAuth();
   const { lang, changeLang, t } = useLanguage();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState({ open: false, mode: 'login' });
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
   const pathname = usePathname();
   const desktopLangRef = useRef(null);
   const mobileLangRef = useRef(null);
   const userMenuRef = useRef(null);
+  const notifRef = useRef(null);
 
   useEffect(() => {
     if (user && user.token) {
       api.getNotifications(user.token).then(res => {
-        if (res.success) setUnreadCount(res.unread_count || 0);
+        if (res.success) {
+          setUnreadCount(res.unread_count || 0);
+          setNotifications(res.data || []);
+        }
       }).catch(() => {});
     }
   }, [user, pathname]);
@@ -46,10 +49,26 @@ export default function Header() {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
       }
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const markAsRead = async (id) => {
+    const notif = notifications.find(n => n.id === id);
+    if (notif?.is_read) return;
+
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+    try {
+      await api.markNotificationAsRead(id, user.token);
+    } catch {
+      // ignore
+    }
+  };
 
   const navLinks = [
     { label: t('nav_home'), href: '/' },
@@ -128,12 +147,43 @@ export default function Header() {
                 <div className="w-5 h-5 border-2 border-[#7C3AED]/30 border-t-[#7C3AED] rounded-full animate-spin" />
               ) : user ? (
                 <div className="flex items-center gap-1">
-                  <a href="/notifications" className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-600 hover:text-[#7C3AED]">
-                    <Bell className="w-6 h-6" weight="duotone" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                  <div className="relative" ref={notifRef}>
+                    <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-600 hover:text-[#7C3AED]">
+                      <Bell className="w-6 h-6" weight="duotone" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                      )}
+                    </button>
+                    {notifOpen && (
+                      <div className="absolute top-full mt-2 right-0 w-80 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-fadeIn origin-top-right z-50">
+                        <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                          <span className="font-bold text-gray-900">Bildirishnomalar</span>
+                          <a href="/notifications" onClick={() => setNotifOpen(false)} className="text-xs font-semibold text-[#7C3AED] hover:text-[#6D28D9]">Barchasi</a>
+                        </div>
+                        <div className="max-h-[360px] overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="p-6 text-center text-sm text-gray-500 flex flex-col items-center">
+                              <Bell className="w-8 h-8 text-gray-300 mb-2" weight="duotone" />
+                              Xabarlar yo'q
+                            </div>
+                          ) : (
+                            notifications.slice(0, 5).map(notif => (
+                              <div key={notif.id} onClick={() => markAsRead(notif.id)} className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${notif.is_read ? 'bg-white' : 'bg-[#7C3AED]/5'}`}>
+                                <div className="flex justify-between items-start mb-1">
+                                  <span className={`text-sm font-semibold pr-4 leading-tight ${notif.is_read ? 'text-gray-700' : 'text-[#7C3AED]'}`}>{notif.title}</span>
+                                  {!notif.is_read && <span className="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-0.5 shadow-sm shadow-red-500/20"></span>}
+                                </div>
+                                <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">{notif.message}</p>
+                                <span className="text-[10px] font-medium text-gray-400">
+                                  {new Date(notif.created_at).toLocaleString('uz-UZ', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}
+                                </span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
                     )}
-                  </a>
+                  </div>
                   <div className="relative pl-4 border-l border-gray-200" ref={userMenuRef}>
                     <button 
                     onClick={() => setUserMenuOpen(!userMenuOpen)}

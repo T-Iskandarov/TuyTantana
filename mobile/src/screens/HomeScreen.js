@@ -63,11 +63,21 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+      let intervalId;
       if (token) {
-        api.getNotifications(token).then(res => {
-          if (res.success) setUnreadCount(res.unread_count);
-        }).catch(() => {});
+        const fetchCount = () => {
+          api.getNotifications(token).then(res => {
+            if (res.success) setUnreadCount(res.unread_count);
+          }).catch(() => {});
+        };
+        
+        fetchCount();
+        // Poll every 10 seconds while the screen is focused
+        intervalId = setInterval(fetchCount, 10000);
       }
+      return () => {
+        if (intervalId) clearInterval(intervalId);
+      };
     }, [token])
   );
   

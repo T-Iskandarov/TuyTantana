@@ -66,17 +66,19 @@ export default function NotificationsScreen({ navigation }) {
 
     return (
       <TouchableOpacity 
-        style={[styles.notifCard, isUnread && styles.unreadCard]}
+        style={[styles.notifCard, isUnread ? styles.unreadCard : styles.readCard]}
         onPress={() => handleMarkAsRead(item.id)}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
       >
-        <View style={styles.notifIconContainer}>
-          <Bell size={20} color={isUnread ? COLORS.primary : '#9ca3af'} />
-          {isUnread && <View style={styles.unreadDotIcon} />}
+        <View style={[styles.notifIconContainer, isUnread ? styles.unreadIconContainer : {}]}>
+          <Bell size={24} weight={isUnread ? "fill" : "regular"} color={isUnread ? COLORS.primary : '#9CA3AF'} />
         </View>
         <View style={styles.notifContent}>
-          <Text style={[styles.notifTitle, isUnread && styles.unreadText]}>{item.title}</Text>
-          <Text style={styles.notifMessage}>{item.message}</Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.notifTitle, isUnread && styles.unreadText]} numberOfLines={1}>{item.title}</Text>
+            {isUnread && <View style={styles.newBadge}><Text style={styles.newBadgeText}>Yangi</Text></View>}
+          </View>
+          <Text style={[styles.notifMessage, !isUnread && styles.readMessage]} numberOfLines={3}>{item.message}</Text>
           <Text style={styles.notifDate}>{dateStr}</Text>
         </View>
       </TouchableOpacity>
@@ -169,60 +171,82 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
   },
   listContainer: {
-    padding: 16,
-    gap: 12,
+    padding: 20,
   },
   notifCard: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  unreadCard: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#EDE9FE',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  readCard: {
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
     borderColor: '#F3F4F6',
   },
-  unreadCard: {
-    backgroundColor: '#F5F3FF', // Light purple
-    borderColor: '#EDE9FE',
-  },
   notifIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-    position: 'relative',
+    marginRight: 16,
   },
-  unreadDotIcon: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#EF4444',
-    borderWidth: 2,
-    borderColor: '#F5F3FF',
+  unreadIconContainer: {
+    backgroundColor: '#F5F3FF',
   },
   notifContent: {
     flex: 1,
+    justifyContent: 'center',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+    gap: 8,
   },
   notifTitle: {
     fontSize: 16,
     fontFamily: 'Outfit-Bold',
-    color: COLORS.text,
-    marginBottom: 4,
+    color: '#374151',
+    flexShrink: 1,
   },
   unreadText: {
-    color: COLORS.primary,
+    color: COLORS.text,
+  },
+  newBadge: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  newBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontFamily: 'Outfit-Bold',
+    textTransform: 'uppercase',
   },
   notifMessage: {
     fontSize: 14,
     color: '#4B5563',
+    fontFamily: 'Outfit-Medium',
+    lineHeight: 22,
+    marginBottom: 10,
+  },
+  readMessage: {
+    color: '#6B7280',
     fontFamily: 'Outfit-Regular',
-    lineHeight: 20,
-    marginBottom: 8,
   },
   notifDate: {
     fontSize: 12,

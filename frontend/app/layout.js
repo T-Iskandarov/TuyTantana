@@ -48,6 +48,9 @@ export const metadata = {
   icons: {
     icon: '/logo.png',
   },
+  verification: {
+    google: 'z-HcN7cEcHPF3ZJIP0PpUI8gYUq0Bfd8TjmeoRz6Yro',
+  },
   metadataBase: new URL('https://www.tuytantana.uz'),
   alternates: {
     canonical: '/',

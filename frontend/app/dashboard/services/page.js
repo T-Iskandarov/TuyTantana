@@ -224,8 +224,11 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
       {/* Qo'shimcha xizmatlar */}
       <div>
-        <label className="text-xs text-gray-500 mb-1.5 block">Qo'shimcha xizmatlar</label>
-        <textarea name="extra_services" value={form.extra_services} onChange={handleChange} rows={2} placeholder="Ovqat, bezash, DJ va h.k." className={inputCls + ' resize-none'} />
+        <div className="flex justify-between items-baseline mb-1.5">
+          <label className="text-xs text-gray-500">Qo'shimcha xizmatlar</label>
+          <span className="text-[10px] text-gray-400">(vergul bilan ajrating)</span>
+        </div>
+        <textarea name="extra_services" value={form.extra_services} onChange={handleChange} rows={2} placeholder="Masalan: Wi-Fi, Avtoturargoh" className={inputCls + ' resize-none'} />
       </div>
 
       {/* Rasmlar */}

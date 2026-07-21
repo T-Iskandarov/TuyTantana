@@ -178,7 +178,7 @@ export default function MyBookingsScreen({ navigation }) {
             <Text style={styles.emptySubtext}>Yangi xizmatlarni toping va o'z bayramingizni rejalashtiring</Text>
             <TouchableOpacity 
               style={styles.exploreBtn}
-              onPress={() => navigation.navigate('Home')}
+              onPress={() => navigation.navigate('HomeTab')}
             >
               <Text style={styles.exploreBtnText}>Xizmatlarni izlash</Text>
             </TouchableOpacity>

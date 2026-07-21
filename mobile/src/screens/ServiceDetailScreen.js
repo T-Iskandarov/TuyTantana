@@ -1025,6 +1025,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   calendarDayText: {
     ...FONTS.medium,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
-import { ArrowLeft, Camera as CameraIcon, XCircle } from 'phosphor-react-native';
+import { ArrowLeft, Camera as CameraIcon, XCircle, Star } from 'phosphor-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { api, IMAGE_BASE } from '../lib/api';
@@ -86,6 +86,24 @@ export default function AddServiceScreen({ navigation, route }) {
           }
       }}
     ]);
+  };
+
+  const handleSetMainImage = async (imageId) => {
+    try {
+      const res = await api.setMainImage(imageId, token);
+      if (res.success) {
+        Alert.alert('Muvaffaqiyat', 'Asosiy rasm o\'zgartirildi');
+        setExistingImages(prev => prev.map(img => ({
+          ...img,
+          is_main: img.id === imageId
+        })));
+      } else {
+        Alert.alert('Xato', res.message || 'Xatolik yuz berdi');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Xato', 'Tarmoq xatosi');
+    }
   };
 
   const handleSubmit = async () => {
@@ -265,14 +283,6 @@ export default function AddServiceScreen({ navigation, route }) {
             </>
           )}
 
-          <Text style={styles.label}>Qo'shimcha xizmatlar</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Masalan: Wi-Fi, Avtoturargoh, Konditsioner (vergul bilan ajrating)"
-            value={form.extra_services}
-            onChangeText={(text) => setForm({ ...form, extra_services: text })}
-          />
-
           <Text style={styles.label}>Tavsif</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
@@ -281,6 +291,17 @@ export default function AddServiceScreen({ navigation, route }) {
             numberOfLines={4}
             value={form.description}
             onChangeText={(text) => setForm({ ...form, description: text })}
+          />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
+            <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>Qo'shimcha xizmatlar</Text>
+            <Text style={styles.hintText}>(vergul bilan ajrating)</Text>
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Masalan: Wi-Fi, Avtoturargoh"
+            value={form.extra_services}
+            onChangeText={(text) => setForm({ ...form, extra_services: text })}
           />
 
           <View style={styles.imageSection}>
@@ -292,10 +313,20 @@ export default function AddServiceScreen({ navigation, route }) {
               
               {existingImages.map((img) => (
                 <View key={`existing-${img.id}`} style={styles.imagePreviewContainer}>
-                  <Image source={{ uri: `${IMAGE_BASE}${img.image_path}` }} style={styles.imagePreview} />
+                  <Image source={{ uri: `${IMAGE_BASE}${img.image_path}` }} style={[styles.imagePreview, img.is_main && { borderColor: COLORS.primary, borderWidth: 3 }]} />
                   <TouchableOpacity style={styles.removeImageBtn} onPress={() => removeExistingImage(img.id)}>
                     <XCircle size={24} color={COLORS.danger} weight="fill" />
                   </TouchableOpacity>
+                  {!img.is_main && (
+                    <TouchableOpacity style={styles.mainImageBtn} onPress={() => handleSetMainImage(img.id)}>
+                      <Star size={20} color={COLORS.warning} weight="fill" />
+                    </TouchableOpacity>
+                  )}
+                  {img.is_main && (
+                    <View style={styles.mainBadge}>
+                      <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>Asosiy</Text>
+                    </View>
+                  )}
                 </View>
               ))}
 
@@ -356,6 +387,11 @@ const styles = StyleSheet.create({
     ...FONTS.medium,
     marginBottom: 8,
     marginTop: 16,
+  },
+  hintText: {
+    ...FONTS.regular,
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   input: {
     backgroundColor: COLORS.white,
@@ -462,6 +498,23 @@ const styles = StyleSheet.create({
     right: -8,
     backgroundColor: COLORS.white,
     borderRadius: 12,
+  },
+  mainImageBtn: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 12,
+    padding: 4,
+  },
+  mainBadge: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   submitBtn: {
     backgroundColor: COLORS.primary,

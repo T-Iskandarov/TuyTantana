@@ -177,13 +177,13 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     const compressedFiles = [];
     
     for (const file of selectedFiles) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB dan katta bo'lsa
+      if (file.size > 1024 * 1024) { // 1MB dan katta bo'lsa siqamiz
         try {
           const options = {
-            maxSizeMB: 4.5,
-            maxWidthOrHeight: 1920,
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 1280,
             useWebWorker: true,
-            initialQuality: 0.8
+            initialQuality: 0.7
           };
           const compressedFile = await imageCompression(file, options);
           compressedFiles.push(compressedFile);
@@ -255,7 +255,8 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       }
       onSuccess();
     } catch (err) {
-      toast.error("Server bilan aloqa yo'q.");
+      console.error("Submit error:", err);
+      toast.error(`Xatolik: ${err.message || "Server bilan aloqa yo'q yoki rasm hajmi katta."}`);
     } finally {
       setLoading(false);
     }

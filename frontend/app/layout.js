@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/Toast';
 import Script from 'next/script';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin', 'cyrillic'],
@@ -100,6 +101,7 @@ export default function RootLayout({ children }) {
             </ToastProvider>
           </AuthProvider>
         </LanguageProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

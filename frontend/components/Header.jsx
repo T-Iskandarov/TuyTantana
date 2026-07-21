@@ -3,7 +3,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AuthModal from './AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { CaretDown, House, CalendarCheck, ShieldCheck, SignOut, List, X } from '@phosphor-icons/react';
+import { CaretDown, House, CalendarCheck, ShieldCheck, SignOut, List, X, Bell } from '@phosphor-icons/react';
+import { api } from '@/lib/api';
+import { usePathname } from 'next/navigation';
 
 const LANG_OPTIONS = [
   { code: 'uz', label: 'O\'zbek', icon: 'https://flagcdn.com/w40/uz.png' },
@@ -19,9 +21,19 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState({ open: false, mode: 'login' });
+  const [unreadCount, setUnreadCount] = useState(0);
+  const pathname = usePathname();
   const desktopLangRef = useRef(null);
   const mobileLangRef = useRef(null);
   const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (user && user.token) {
+      api.getNotifications(user.token).then(res => {
+        if (res.success) setUnreadCount(res.unread_count || 0);
+      }).catch(() => {});
+    }
+  }, [user, pathname]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -115,8 +127,15 @@ export default function Header() {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-[#7C3AED]/30 border-t-[#7C3AED] rounded-full animate-spin" />
               ) : user ? (
-                <div className="relative pl-4 border-l border-gray-200" ref={userMenuRef}>
-                  <button 
+                <div className="flex items-center gap-1">
+                  <a href="/notifications" className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-600 hover:text-[#7C3AED]">
+                    <Bell className="w-6 h-6" weight="duotone" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    )}
+                  </a>
+                  <div className="relative pl-4 border-l border-gray-200" ref={userMenuRef}>
+                    <button 
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
                   >
@@ -163,6 +182,7 @@ export default function Header() {
                     </div>
                   )}
                 </div>
+              </div>
               ) : (
                 <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
                   <button
@@ -253,6 +273,16 @@ export default function Header() {
                     </div>
                   </div>
                   
+                  <a href="/notifications" onClick={() => setMobileOpen(false)} className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] hover:bg-[#7C3AED]/5 rounded-xl transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Bell className="w-5 h-5" weight="duotone" />
+                      Bildirishnomalar
+                    </div>
+                    {unreadCount > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>
+                    )}
+                  </a>
+
                   {user.role === 'PROVIDER' && (
                     <a href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] hover:bg-[#7C3AED]/5 rounded-xl transition-colors">
                       <House className="w-5 h-5" weight="duotone" />

@@ -120,8 +120,10 @@ export default function Header() {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
                   >
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center text-sm font-bold text-[#F8F7FF] shadow-md shadow-[#7C3AED]/20">
-                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center text-[#F8F7FF] shadow-md shadow-[#7C3AED]/20">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
                     </div>
                     <div className="flex flex-col text-left">
                       <span className="text-sm text-gray-900 font-bold leading-tight">{user.name}</span>
@@ -240,8 +242,10 @@ export default function Header() {
               {loading ? null : user ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center text-base font-bold text-[#F8F7FF] shadow-sm">
-                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center text-[#F8F7FF] shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-gray-900">{user.name}</span>

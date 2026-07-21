@@ -21,10 +21,12 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { COLORS, SHADOWS } from '../lib/theme';
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [selectedLang, setSelectedLang] = useState('uz');
 
@@ -49,12 +51,12 @@ export default function ProfileScreen({ navigation }) {
 
   const handleLogout = () => {
     Alert.alert(
-      "Chiqish",
+      t('nav_logout') || "Chiqish",
       "Haqiqatan ham hisobdan chiqmoqchimisiz?",
       [
         { text: "Bekor qilish", style: "cancel" },
         { 
-          text: "Chiqish", 
+          text: t('nav_logout') || "Chiqish", 
           style: "destructive",
           onPress: async () => {
             await logout();
@@ -68,7 +70,7 @@ export default function ProfileScreen({ navigation }) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profil</Text>
+          <Text style={styles.headerTitle}>{t('sidebar_profile') || 'Profil'}</Text>
         </View>
         <View style={styles.emptyContainer}>
           <UserCircle size={80} color={COLORS.textLight} weight="light" />
@@ -79,7 +81,7 @@ export default function ProfileScreen({ navigation }) {
             style={styles.loginBtn}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.loginBtnText}>Kirish</Text>
+            <Text style={styles.loginBtnText}>{t('nav_login') || 'Kirish'}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -87,7 +89,7 @@ export default function ProfileScreen({ navigation }) {
   }
 
   const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
-  const roleLabel = user.role === 'PROVIDER' ? "Xizmat ko'rsatuvchi" : "Foydalanuvchi";
+  const roleLabel = user.role === 'PROVIDER' ? (t('service_owner') || "Xizmat ko'rsatuvchi") : "Foydalanuvchi";
   const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString('uz-UZ') : 'Yaqinda';
 
   const MenuItem = ({ icon: Icon, title, subtitle, onPress, color = COLORS.primary }) => (
@@ -108,7 +110,7 @@ export default function ProfileScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profil</Text>
+        <Text style={styles.headerTitle}>{t('sidebar_profile') || 'Profil'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -221,7 +223,7 @@ export default function ProfileScreen({ navigation }) {
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <SignOut size={22} color={COLORS.danger} weight="bold" />
-          <Text style={styles.logoutText}>Chiqish</Text>
+          <Text style={styles.logoutText}>{t('nav_logout') || 'Chiqish'}</Text>
         </TouchableOpacity>
 
       </ScrollView>

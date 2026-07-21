@@ -6,6 +6,7 @@ import { House, CalendarBlank, SquaresFour, User, Headset, Briefcase } from 'pho
 import { ActivityIndicator, View, Platform } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { COLORS } from './src/lib/theme';
 
 import LoginScreen from './src/screens/LoginScreen';
@@ -31,6 +32,7 @@ const Tab = createBottomTabNavigator();
 
 function HomeTabs() {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <Tab.Navigator
@@ -61,48 +63,48 @@ function HomeTabs() {
           if (route.name === 'HomeTab') IconComp = House;
           else if (route.name === 'BookingsTab') IconComp = CalendarBlank;
           else if (route.name === 'DashboardTab') IconComp = SquaresFour;
-          else if (route.name === 'ContactTab') IconComp = Headset;
           else if (route.name === 'ProviderServicesTab') IconComp = Briefcase;
+          else if (route.name === 'ContactTab') IconComp = Headset;
           else if (route.name === 'ProfileTab') IconComp = User;
           return <IconComp size={24} color={color} weight={focused ? 'fill' : 'regular'} />;
         },
       })}
     >
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeScreen}
-        options={{ tabBarLabel: 'Bosh sahifa' }}
+      <Tab.Screen 
+        name="HomeTab" 
+        component={HomeScreen} 
+        options={{ tabBarLabel: t('nav_home') || 'Bosh sahifa' }}
       />
       {user?.role === 'PROVIDER' ? (
-        <Tab.Screen
-          name="DashboardTab"
-          component={ProviderDashboardScreen}
-          options={{ tabBarLabel: 'Dashboard' }}
+        <Tab.Screen 
+          name="DashboardTab" 
+          component={ProviderDashboardScreen} 
+          options={{ tabBarLabel: t('nav_cabinet') || 'Kabinet' }}
         />
       ) : (
-        <Tab.Screen
-          name="BookingsTab"
-          component={MyBookingsScreen}
-          options={{ tabBarLabel: 'Bronlarim' }}
+        <Tab.Screen 
+          name="BookingsTab" 
+          component={MyBookingsScreen} 
+          options={{ tabBarLabel: t('nav_my_bookings') || 'Buyurtmalar' }}
         />
       )}
       {user?.role === 'PROVIDER' ? (
-        <Tab.Screen
-          name="ProviderServicesTab"
-          component={ProviderServicesScreen}
-          options={{ tabBarLabel: 'Xizmatlarim' }}
+        <Tab.Screen 
+          name="ProviderServicesTab" 
+          component={ProviderServicesScreen} 
+          options={{ tabBarLabel: t('nav_services') || 'Xizmatlarim' }}
         />
       ) : (
-        <Tab.Screen
-          name="ContactTab"
-          component={ContactScreen}
+        <Tab.Screen 
+          name="ContactTab" 
+          component={ContactScreen} 
           options={{ tabBarLabel: 'Kontakt' }}
         />
       )}
-      <Tab.Screen
-        name="ProfileTab"
-        component={ProfileScreen}
-        options={{ tabBarLabel: 'Profil' }}
+      <Tab.Screen 
+        name="ProfileTab" 
+        component={ProfileScreen} 
+        options={{ tabBarLabel: t('sidebar_profile') || 'Profil' }}
       />
     </Tab.Navigator>
   );
@@ -155,10 +157,12 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

@@ -66,6 +66,50 @@ export default function ProfileScreen({ navigation }) {
     );
   };
 
+  const MenuItem = ({ icon: Icon, title, subtitle, onPress, color = COLORS.primary }) => (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuItemLeft}>
+        <View style={[styles.menuIconBox, { backgroundColor: `${color}15` }]}>
+          <Icon size={22} color={color} weight="duotone" />
+        </View>
+        <View style={styles.menuItemTextContainer}>
+          <Text style={styles.menuItemTitle}>{title}</Text>
+          {subtitle && <Text style={styles.menuItemSubtitle}>{subtitle}</Text>}
+        </View>
+      </View>
+      <CaretRight size={20} color={COLORS.textLight} />
+    </TouchableOpacity>
+  );
+
+  const LangModal = (
+    <Modal
+      visible={langModalVisible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setLangModalVisible(false)}
+    >
+      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setLangModalVisible(false)}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Tilni tanlang</Text>
+          {LANG_OPTIONS.map(item => (
+            <TouchableOpacity 
+              key={item.code} 
+              style={styles.langOption} 
+              onPress={() => changeLanguage(item.code)}
+            >
+              <Text style={[styles.langText, selectedLang === item.code && styles.langTextActive]}>
+                {item.label}
+              </Text>
+              {selectedLang === item.code && (
+                <CheckCircle size={24} color={COLORS.primary} weight="fill" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+
   if (!user) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -84,6 +128,18 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.loginBtnText}>{t('nav_login') || 'Kirish'}</Text>
           </TouchableOpacity>
         </View>
+
+        <View style={[styles.menuContainer, { paddingHorizontal: 16, paddingBottom: 32 }]}>
+          <MenuItem 
+            icon={Translate}
+            title="Tilni o'zgartirish"
+            subtitle={LANG_OPTIONS.find(l => l.code === selectedLang)?.label || "O'zbekcha"}
+            onPress={() => setLangModalVisible(true)}
+            color="#EC4899"
+          />
+        </View>
+
+        {LangModal}
       </SafeAreaView>
     );
   }
@@ -91,21 +147,6 @@ export default function ProfileScreen({ navigation }) {
   const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
   const roleLabel = user.role === 'PROVIDER' ? (t('service_owner') || "Xizmat ko'rsatuvchi") : "Foydalanuvchi";
   const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString('uz-UZ') : 'Yaqinda';
-
-  const MenuItem = ({ icon: Icon, title, subtitle, onPress, color = COLORS.primary }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <View style={styles.menuItemLeft}>
-        <View style={[styles.menuIconBox, { backgroundColor: `${color}15` }]}>
-          <Icon size={22} color={color} weight="duotone" />
-        </View>
-        <View style={styles.menuItemTextContainer}>
-          <Text style={styles.menuItemTitle}>{title}</Text>
-          {subtitle && <Text style={styles.menuItemSubtitle}>{subtitle}</Text>}
-        </View>
-      </View>
-      <CaretRight size={20} color={COLORS.textLight} />
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -228,32 +269,7 @@ export default function ProfileScreen({ navigation }) {
 
       </ScrollView>
 
-      <Modal
-        visible={langModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setLangModalVisible(false)}
-      >
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setLangModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Tilni tanlang</Text>
-            {LANG_OPTIONS.map(item => (
-              <TouchableOpacity 
-                key={item.code} 
-                style={styles.langOption} 
-                onPress={() => changeLanguage(item.code)}
-              >
-                <Text style={[styles.langText, selectedLang === item.code && styles.langTextActive]}>
-                  {item.label}
-                </Text>
-                {selectedLang === item.code && (
-                  <CheckCircle size={24} color={COLORS.primary} weight="fill" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {LangModal}
     </SafeAreaView>
   );
 }

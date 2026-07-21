@@ -26,19 +26,12 @@ import { COLORS, SHADOWS } from '../lib/theme';
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang, changeLang } = useLanguage();
   const [langModalVisible, setLangModalVisible] = useState(false);
-  const [selectedLang, setSelectedLang] = useState('uz');
+  const selectedLang = lang || 'uz';
 
-  useEffect(() => {
-    AsyncStorage.getItem('app_lang').then(lang => {
-      if (lang) setSelectedLang(lang);
-    });
-  }, []);
-
-  const changeLanguage = async (lang) => {
-    setSelectedLang(lang);
-    await AsyncStorage.setItem('app_lang', lang);
+  const changeLanguage = async (newLang) => {
+    await changeLang(newLang);
     setLangModalVisible(false);
   };
 

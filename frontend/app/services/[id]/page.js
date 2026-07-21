@@ -384,6 +384,22 @@ export default function ServiceDetailPage({ params: paramsPromise }) {
           
           {/* Chap tomon (Kengroq): Tavsif, Xarita, Izohlar */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Narx qismi */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">{t('service_price')}</p>
+                <p className="text-3xl lg:text-4xl font-bold text-[#7C3AED]">{formatPrice(service.price)} <span className="text-xl text-gray-500 font-normal">{t('currency_uzs')}</span></p>
+              </div>
+              {service.capacity && service.capacity > 0 && (
+                <div className="inline-flex items-center gap-3 bg-[#F8F7FF] px-5 py-3 rounded-xl border border-[#7C3AED]/20">
+                  <span className="text-2xl">👤</span>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-500">O'rtacha / kishi</span>
+                    <span className="font-bold text-[#7C3AED]">{formatPrice(Math.round(service.price / service.capacity))} so'm</span>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
               <h3 className="text-gray-900 font-semibold text-xl mb-4">{t('description')}</h3>
               <p className="text-gray-600 leading-relaxed mb-6">{service.description || t('no_description')}</p>
@@ -432,22 +448,9 @@ export default function ServiceDetailPage({ params: paramsPromise }) {
             />
           </div>
 
-          {/* O'ng tomon (Qattiq yopishtirilgan / Sticky): Narx va Bron */}
+          {/* O'ng tomon (Qattiq yopishtirilgan / Sticky): Bron */}
           <div className="lg:col-span-1 sticky top-24 z-10">
             <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-hide">
-              <div className="flex items-end justify-between mb-6">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('service_price')}</p>
-                  <p className="text-3xl font-bold text-[#7C3AED]">{formatPrice(service.price)} <span className="text-base text-gray-500 font-normal">{t('currency_uzs')}</span></p>
-                  {service.capacity && service.capacity > 0 && (
-                    <div className="mt-2 inline-flex items-center gap-2 bg-[#F8F7FF] px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
-                      <span className="text-lg">👤</span>
-                      <span className="text-sm font-medium text-[#7C3AED]">O'rtacha: {formatPrice(Math.round(service.price / service.capacity))} so'm / kishi</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">{t('select_date')}</label>

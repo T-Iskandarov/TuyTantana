@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardLayout({ children }) {
-  const { user, loading, logout } = useAuth();
+  const { user, token, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useLanguage();

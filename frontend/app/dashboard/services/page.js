@@ -177,6 +177,11 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     const compressedFiles = [];
     
     for (const file of selectedFiles) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Fayl hajmi 5MB dan oshmasligi kerak. Iltimos, kichikroq rasm tanlang.");
+        continue;
+      }
+
       if (file.size > 1024 * 1024) { // 1MB dan katta bo'lsa siqamiz
         try {
           const options = {

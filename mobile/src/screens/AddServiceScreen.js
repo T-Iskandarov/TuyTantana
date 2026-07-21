@@ -140,11 +140,24 @@ export default function AddServiceScreen({ navigation, route }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       selectionLimit: 5,
-      quality: 0.5,
     });
 
     if (!result.canceled && result.assets) {
-      setImages([...images, ...result.assets]);
+      const validAssets = [];
+      let oversized = false;
+      for (const asset of result.assets) {
+        if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+          oversized = true;
+        } else {
+          validAssets.push(asset);
+        }
+      }
+      
+      if (oversized) {
+        Alert.alert('Ogohlantirish', 'Ba\'zi rasmlar hajmi 5MB dan katta bo\'lgani uchun yuklanmadi. Iltimos, kichikroq hajmdagi rasmlarni tanlang.');
+      }
+      
+      setImages([...images, ...validAssets]);
     }
   };
 

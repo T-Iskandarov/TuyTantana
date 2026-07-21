@@ -7,7 +7,7 @@ import { api, IMAGE_BASE } from '@/lib/api';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
-import { regionsAndDistricts } from '@/lib/regions';
+import { regionsAndDistricts, regionCoordinates } from '@/lib/regions';
 
 const SERVICE_TYPES = [
   { value: 'TUYXONA', label: 'Tuyxona' },
@@ -43,6 +43,32 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     extra_services: editItem?.extra_services || '',
   });
   const [files, setFiles] = useState([]);
+  const [mapCenter, setMapCenter] = useState([41.2995, 69.2401]);
+
+  const getPlaceholder = (type) => {
+    switch (type) {
+      case 'TUYXONA': return "Masalan: Navro'z to'yxonasi";
+      case 'FOTO_VIDEO': return "Masalan: Qodirov Studio";
+      case 'XONANDA': return "Masalan: Tohir Sodiqov";
+      case 'SALON': return "Masalan: Go'zallik saloni";
+      case 'KORTEJ': return "Masalan: Gelik 2024 (qora)";
+      case 'TASHKILOTCHI': return "Masalan: To'yona Event";
+      default: return "Masalan: Xizmat nomi";
+    }
+  };
+
+  const getExtraServicesPlaceholder = (type) => {
+    switch (type) {
+      case 'TUYXONA': return "Masalan: Wi-Fi, Avtoturargoh, Konditsioner";
+      case 'FOTO_VIDEO': return "Masalan: Dron, Qo'shimcha operator, Albom";
+      case 'XONANDA': return "Masalan: Jonli ijro, Apparatura";
+      case 'SALON': return "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
+      case 'KORTEJ': return "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
+      case 'TASHKILOTCHI': return "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
+      default: return "Masalan: Wi-Fi, Avtoturargoh";
+    }
+  };
+
   const [existingImages, setExistingImages] = useState(editItem?.images || []);
   const [loading, setLoading] = useState(false);
 
@@ -77,8 +103,63 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
   const handleChange = (e) => {
     if (e.target.name === 'region') {
-      const firstDistrict = regionsAndDistricts[e.target.value][0];
-      setForm({ ...form, region: e.target.value, district: firstDistrict });
+      const region = e.target.value;
+      const firstDistrict = regionsAndDistricts[region][0];
+      const coords = regionCoordinates[region];
+      
+      const newLat = coords ? coords.lat : 41.2995;
+      const newLng = coords ? coords.lng : 69.2401;
+      
+      setForm({ 
+        ...form, 
+        region, 
+        district: firstDistrict,
+        location_lat: newLat,
+        location_lng: newLng
+      });
+      
+      if (coords) {
+        setMapCenter([coords.lat, coords.lng]);
+      }
+      return;
+    } else if (e.target.name === 'district') {
+      const district = e.target.value;
+      
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(district + ', ' + form.region + ', Uzbekistan')}`)
+        .then(res => res.json())
+        .then(data => {
+          let newLat, newLng;
+          if (data && data.length > 0) {
+            newLat = parseFloat(data[0].lat);
+            newLng = parseFloat(data[0].lon);
+          } else {
+            const fallback = regionCoordinates[form.region];
+            newLat = fallback ? fallback.lat : 41.2995;
+            newLng = fallback ? fallback.lng : 69.2401;
+          }
+          
+          setForm(prev => ({
+            ...prev, 
+            district,
+            location_lat: newLat,
+            location_lng: newLng
+          }));
+          setMapCenter([newLat, newLng]);
+        })
+        .catch(() => {
+          const fallback = regionCoordinates[form.region];
+          if (fallback) {
+            setForm(prev => ({
+              ...prev,
+              district,
+              location_lat: fallback.lat,
+              location_lng: fallback.lng
+            }));
+            setMapCenter([fallback.lat, fallback.lng]);
+          }
+        });
+
+      return;
     } else if (e.target.name === 'price') {
       const rawValue = e.target.value.replace(/\D/g, '');
       setForm({ ...form, price: rawValue ? Number(rawValue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '' });
@@ -172,17 +253,23 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
         <div>
           <label className="text-xs text-gray-500 mb-1.5 block">Xizmat nomi *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Masalan: Navruz tuyxonasi" className={inputCls} />
+            <input 
+              name="name" 
+              value={form.name} 
+              onChange={handleChange} 
+              className={inputCls} 
+              placeholder={getPlaceholder(form.type)} 
+            />
         </div>
 
         <div>
-          <label className="text-xs text-gray-500 mb-1.5 block">Narxi (so'm) *</label>
+          <label className="text-xs text-gray-500 mb-1.5 block">Narxi (so&apos;m) *</label>
           <input name="price" type="text" value={form.price} onChange={handleChange} placeholder="15 000 000" className={inputCls} />
         </div>
 
         {form.type === 'TUYXONA' && (
           <div>
-            <label className="text-xs text-gray-500 mb-1.5 block">Sig'imi (kishi) - faqat tuyxona uchun</label>
+            <label className="text-xs text-gray-500 mb-1.5 block">Sig&apos;imi (kishi) - faqat tuyxona uchun</label>
             <input name="capacity" type="number" value={form.capacity} onChange={handleChange} placeholder="300" className={inputCls} />
           </div>
         )}
@@ -213,6 +300,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
           lat={form.location_lat}
           lng={form.location_lng}
           onLocationSelect={(lat, lng) => setForm({ ...form, location_lat: lat, location_lng: lng })}
+          mapCenter={mapCenter}
         />
       </div>
 
@@ -225,10 +313,17 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       {/* Qo'shimcha xizmatlar */}
       <div>
         <div className="flex justify-between items-baseline mb-1.5">
-          <label className="text-xs text-gray-500">Qo'shimcha xizmatlar</label>
+          <label className="text-xs text-gray-500">Qo&apos;shimcha xizmatlar</label>
           <span className="text-[10px] text-gray-400">(vergul bilan ajrating)</span>
         </div>
-        <textarea name="extra_services" value={form.extra_services} onChange={handleChange} rows={2} placeholder="Masalan: Wi-Fi, Avtoturargoh" className={inputCls + ' resize-none'} />
+        <textarea 
+          name="extra_services" 
+          value={form.extra_services} 
+          onChange={handleChange} 
+          rows={2} 
+          placeholder={getExtraServicesPlaceholder(form.type)} 
+          className={inputCls + ' resize-none'} 
+        />
       </div>
 
       {/* Rasmlar */}
@@ -425,7 +520,7 @@ function BlockCalendar({ service, token, toast, onBlocked }) {
         </div>
         <div className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-white border border-gray-200 inline-block"></span>
-          Bo'sh
+          Bo&apos;sh
         </div>
       </div>
 
@@ -442,7 +537,7 @@ function BlockCalendar({ service, token, toast, onBlocked }) {
                 onClick={() => setConfirmModal({ isOpen: false, day: null })}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
               >
-                Yo'q, qaytish
+                Yo&apos;q, qaytish
               </button>
               <button
                 onClick={() => handleUnblock(confirmModal.day)}
@@ -539,7 +634,7 @@ export default function MyServicesPage() {
       ) : services.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
           <p className="text-4xl mb-3">{'📦'}</p>
-          <p>Hali xizmat qo'shmagansiz</p>
+          <p>Hali xizmat qo&apos;shmagansiz</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -576,7 +671,7 @@ export default function MyServicesPage() {
                   <h3 className="font-semibold text-gray-900 truncate">{service.name}</h3>
                   <span className="text-xs text-gray-500">{SERVICE_TYPES.find(t => t.value === service.type)?.label}</span>
                 </div>
-                <p className="text-lg font-bold text-[#7C3AED]">{formatPrice(service.price)} so'm</p>
+                <p className="text-lg font-bold text-[#7C3AED]">{formatPrice(service.price)} so&apos;m</p>
                 <p className="text-xs text-gray-500">
                   {service._count?.bookings || 0} ta buyurtma
                   {service.capacity && ` | ${service.capacity} kishi`}

@@ -1,6 +1,6 @@
-// Wi-Fi orqali ulanish uchun (Kompyuter IP manzili)
-export const API_BASE = 'http://192.168.149.179:8000/api';
-export const IMAGE_BASE = 'http://192.168.149.179:8000';
+// Jonli server (Production)
+export const API_BASE = 'https://api.tuytantana.uz/api';
+export const IMAGE_BASE = 'https://api.tuytantana.uz';
 
 const jsonPost = async (url, data, token) => {
   const headers = { 
@@ -62,6 +62,7 @@ export const api = {
   updateService: (id, data, token) => jsonPut(`/services/${id}`, data, token),
   deleteService: (id, token) => authDelete(`/services/${id}`, token),
   deleteServiceImage: (imageId, token) => authDelete(`/upload/${imageId}/delete`, token),
+  setMainImage: (imageId, token) => jsonPost(`/upload/${imageId}/main`, {}, token),
 
   // Images
   uploadImages: async (serviceId, files, token) => {

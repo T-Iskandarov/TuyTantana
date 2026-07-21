@@ -341,6 +341,8 @@ export default function ServiceDetailScreen({ route, navigation }) {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  const mainScrollRef = useRef(null);
+
   const fetchService = useCallback(async () => {
     try {
       setError(null);
@@ -437,6 +439,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : null}
     >
       <ScrollView
+        ref={mainScrollRef}
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
@@ -657,6 +660,11 @@ export default function ServiceDetailScreen({ route, navigation }) {
                   placeholderTextColor={COLORS.textLight}
                   value={reviewComment}
                   onChangeText={setReviewComment}
+                  onFocus={() => {
+                    setTimeout(() => {
+                      mainScrollRef.current?.scrollToEnd({ animated: true });
+                    }, 300);
+                  }}
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"

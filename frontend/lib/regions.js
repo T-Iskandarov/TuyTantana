@@ -54,8 +54,27 @@ export const regionsAndDistricts = {
     "Termiz shahri", "Angor tumani", "Boysun tumani", "Denov tumani", "Jarqo'rg'on tumani", "Qiziriq tumani", "Qumqo'rg'on tumani",
     "Muzrabot tumani", "Oltinsoy tumani", "Sariosiyo tumani", "Termiz tumani", "Uzun tumani", "Sherobod tumani", "Sho'rchi tumani"
   ],
-  "Qoraqalpog'iston Respublikasi": [
+  "Qoraqalpog'iston": [
     "Nukus shahri", "Amudaryo tumani", "Beruniy tumani", "Kegeyli tumani", "Qonliko'l tumani", "Qorao'zak tumani", "Qo'ng'irot tumani",
     "Mo'ynoq tumani", "Nukus tumani", "Taxiatosh tumani", "Taxtako'pir tumani", "To'rtko'l tumani", "Xo'jayli tumani", "Chimboy tumani", "Shumanay tumani", "Ellikqal'a tumani"
   ]
 };
+
+export const regionCoordinates = {
+  "Toshkent shahri": { lat: 41.3111, lng: 69.2797 },
+  "Toshkent viloyati": { lat: 41.2213, lng: 69.8597 },
+  "Andijon viloyati": { lat: 40.8154, lng: 72.2837 },
+  "Buxoro viloyati": { lat: 39.7681, lng: 64.4556 },
+  "Farg'ona viloyati": { lat: 40.3842, lng: 71.7843 },
+  "Jizzax viloyati": { lat: 40.1158, lng: 67.8422 },
+  "Xorazm viloyati": { lat: 41.5500, lng: 60.6333 },
+  "Namangan viloyati": { lat: 41.0011, lng: 71.6673 },
+  "Navoiy viloyati": { lat: 40.0844, lng: 65.3792 },
+  "Qashqadaryo viloyati": { lat: 38.8615, lng: 65.7951 },
+  "Samarqand viloyati": { lat: 39.6270, lng: 66.9749 },
+  "Sirdaryo viloyati": { lat: 40.8415, lng: 68.6618 },
+  "Surxondaryo viloyati": { lat: 37.9400, lng: 67.5709 },
+  "Qoraqalpog'iston": { lat: 42.4619, lng: 59.6166 },
+};
+
+

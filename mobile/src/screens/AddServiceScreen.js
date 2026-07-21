@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { api, IMAGE_BASE } from '../lib/api';
 import { COLORS, FONTS, SERVICE_TYPES } from '../lib/theme';
 import { Picker } from '@react-native-picker/picker';
-import { regionsAndDistricts } from '../lib/regions';
+import { regionsAndDistricts, regionCoordinates } from '../lib/regions';
 import { getPhosphorIcon } from '../lib/icons';
 
 const REGIONS = Object.keys(regionsAndDistricts).map(r => ({ label: r, value: r }));
@@ -32,6 +32,90 @@ export default function AddServiceScreen({ navigation, route }) {
   
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState(editItem?.images || []);
+  
+  const mapRef = useRef(null);
+  const mainScrollRef = useRef(null);
+
+  const getPlaceholder = (type) => {
+    switch (type) {
+      case 'TUYXONA': return "Masalan: Navro'z to'yxonasi";
+      case 'FOTO_VIDEO': return "Masalan: Qodirov Studio";
+      case 'XONANDA': return "Masalan: Tohir Sodiqov";
+      case 'SALON': return "Masalan: Go'zallik saloni";
+      case 'KORTEJ': return "Masalan: Gelik 2024 (qora)";
+      case 'TASHKILOTCHI': return "Masalan: To'yona Event";
+      default: return "Masalan: Xizmat nomi";
+    }
+  };
+
+  const getExtraServicesPlaceholder = (type) => {
+    switch (type) {
+      case 'TUYXONA': return "Masalan: Wi-Fi, Avtoturargoh, Konditsioner";
+      case 'FOTO_VIDEO': return "Masalan: Dron, Qo'shimcha operator, Albom";
+      case 'XONANDA': return "Masalan: Jonli ijro, Apparatura";
+      case 'SALON': return "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
+      case 'KORTEJ': return "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
+      case 'TASHKILOTCHI': return "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
+      default: return "Masalan: Wi-Fi, Avtoturargoh";
+    }
+  };
+
+  const handleRegionChange = (val) => {
+    const coords = regionCoordinates[val];
+    const newLat = coords ? coords.lat : 41.2995;
+    const newLng = coords ? coords.lng : 69.2401;
+    setForm({ 
+      ...form, 
+      region: val, 
+      district: regionsAndDistricts[val][0],
+      location_lat: newLat,
+      location_lng: newLng
+    });
+    
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: newLat,
+        longitude: newLng,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      }, 1000);
+    }
+  };
+
+  const handleDistrictChange = async (val) => {
+    setForm({ 
+      ...form, 
+      district: val
+    });
+    
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val + ', ' + form.region + ', Uzbekistan')}`, {
+        headers: { 'User-Agent': 'TuyTantanaApp/1.0' }
+      });
+      const data = await res.json();
+      let newLat, newLng;
+      if (data && data.length > 0) {
+        newLat = parseFloat(data[0].lat);
+        newLng = parseFloat(data[0].lon);
+      } else {
+        const fallback = regionCoordinates[form.region];
+        newLat = fallback ? fallback.lat : 41.2995;
+        newLng = fallback ? fallback.lng : 69.2401;
+      }
+      
+      setForm(prev => ({...prev, location_lat: newLat, location_lng: newLng}));
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          latitude: newLat,
+          longitude: newLng,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }, 1000);
+      }
+    } catch (e) {
+      console.warn("Geocoding failed", e);
+    }
+  };
   const [loading, setLoading] = useState(false);
 
   const formatPriceInput = (text) => {
@@ -66,6 +150,15 @@ export default function AddServiceScreen({ navigation, route }) {
   const removeImage = (index) => {
     const newImages = [...images];
     newImages.splice(index, 1);
+    setImages(newImages);
+  };
+
+  const setLocalMainImage = (index) => {
+    if (index === 0) return;
+    const newImages = [...images];
+    const temp = newImages[0];
+    newImages[0] = newImages[index];
+    newImages[index] = temp;
     setImages(newImages);
   };
 
@@ -176,7 +269,7 @@ export default function AddServiceScreen({ navigation, route }) {
         style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView ref={mainScrollRef} contentContainerStyle={styles.scrollContent}>
           
           <Text style={styles.label}>Xizmat turi *</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
@@ -199,7 +292,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <Text style={styles.label}>Nomi *</Text>
           <TextInput
             style={styles.input}
-            placeholder="Masalan: Navruz to'yxonasi"
+            placeholder={getPlaceholder(form.type)}
             value={form.name}
             onChangeText={(text) => setForm({ ...form, name: text })}
           />
@@ -208,7 +301,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={form.region}
-              onValueChange={(val) => setForm({ ...form, region: val, district: regionsAndDistricts[val][0] })}
+              onValueChange={handleRegionChange}
               style={styles.picker}
             >
               {REGIONS.map(reg => (
@@ -221,7 +314,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={form.district}
-              onValueChange={(val) => setForm({ ...form, district: val })}
+              onValueChange={handleDistrictChange}
               style={styles.picker}
             >
               {(regionsAndDistricts[form.region] || []).map(dist => (
@@ -233,6 +326,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <Text style={styles.label}>Xaritada belgilang *</Text>
           <View style={styles.mapContainer}>
             <MapView
+              ref={mapRef}
               style={styles.map}
               initialRegion={{
                 latitude: form.location_lat,
@@ -291,6 +385,11 @@ export default function AddServiceScreen({ navigation, route }) {
             numberOfLines={4}
             value={form.description}
             onChangeText={(text) => setForm({ ...form, description: text })}
+            onFocus={() => {
+              setTimeout(() => {
+                mainScrollRef.current?.scrollToEnd({ animated: true });
+              }, 100);
+            }}
           />
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
@@ -299,9 +398,14 @@ export default function AddServiceScreen({ navigation, route }) {
           </View>
           <TextInput
             style={styles.input}
-            placeholder="Masalan: Wi-Fi, Avtoturargoh"
+            placeholder={getExtraServicesPlaceholder(form.type)}
             value={form.extra_services}
             onChangeText={(text) => setForm({ ...form, extra_services: text })}
+            onFocus={() => {
+              setTimeout(() => {
+                mainScrollRef.current?.scrollToEnd({ animated: true });
+              }, 100);
+            }}
           />
 
           <View style={styles.imageSection}>
@@ -330,14 +434,27 @@ export default function AddServiceScreen({ navigation, route }) {
                 </View>
               ))}
 
-              {images.map((img, index) => (
-                <View key={index} style={styles.imagePreviewContainer}>
-                  <Image source={{ uri: img.uri }} style={styles.imagePreview} />
-                  <TouchableOpacity style={styles.removeImageBtn} onPress={() => removeImage(index)}>
-                    <XCircle size={24} color={COLORS.danger} weight="fill" />
-                  </TouchableOpacity>
-                </View>
-              ))}
+              {images.map((img, index) => {
+                const isLocalMain = existingImages.length === 0 && index === 0;
+                return (
+                  <View key={index} style={styles.imagePreviewContainer}>
+                    <Image source={{ uri: img.uri }} style={[styles.imagePreview, isLocalMain && { borderColor: COLORS.primary, borderWidth: 3 }]} />
+                    <TouchableOpacity style={styles.removeImageBtn} onPress={() => removeImage(index)}>
+                      <XCircle size={24} color={COLORS.danger} weight="fill" />
+                    </TouchableOpacity>
+                    {!isLocalMain && existingImages.length === 0 && (
+                      <TouchableOpacity style={styles.mainImageBtn} onPress={() => setLocalMainImage(index)}>
+                        <Star size={20} color={COLORS.warning} weight="fill" />
+                      </TouchableOpacity>
+                    )}
+                    {isLocalMain && (
+                      <View style={styles.mainBadge}>
+                        <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>Asosiy</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
             </ScrollView>
           </View>
 

@@ -1,8 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { useLanguage } from '@/context/LanguageContext';
+
+function MapCenterUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, 12, { animate: true });
+    }
+  }, [center, map]);
+  return null;
+}
 
 // Xaritaga bosilganda koordinatalarni olish
 function ClickHandler({ onLocationSelect }) {
@@ -14,7 +24,7 @@ function ClickHandler({ onLocationSelect }) {
   return null;
 }
 
-export default function LocationPicker({ lat, lng, onLocationSelect }) {
+export default function LocationPicker({ lat, lng, onLocationSelect, mapCenter }) {
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
 
@@ -51,6 +61,7 @@ export default function LocationPicker({ lat, lng, onLocationSelect }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MapCenterUpdater center={mapCenter} />
           <ClickHandler onLocationSelect={onLocationSelect} />
           {lat && lng && <Marker position={[lat, lng]} />}
         </MapContainer>

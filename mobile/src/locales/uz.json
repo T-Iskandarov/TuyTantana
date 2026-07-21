@@ -184,5 +184,11 @@
   "top_services": "Top xizmatlar ✨",
   "all_services_in_one": "TO'Y XIZMATLARI BIR JOYDA",
   "see_all": "Barchasini ko'rish",
-  "all": "Barchasi"
+  "all": "Barchasi",
+  "type_TUYXONA": "To'yxona",
+  "type_FOTO_VIDEO": "Foto va Video",
+  "type_XONANDA": "Xonanda",
+  "type_SALON": "To'y salon",
+  "type_KORTEJ": "Kortej",
+  "type_TASHKILOTCHI": "Tashkilotchi"
 }

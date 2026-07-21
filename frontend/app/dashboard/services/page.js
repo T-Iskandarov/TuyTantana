@@ -212,8 +212,16 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (fileError) {
+      toast.error("Iltimos, avval rasm xatoligini to'g'irlang (faqat 5MB dan kichik rasmlarni tanlang).");
+      return;
+    }
     if (!form.name || !form.price || !form.region || !form.district) {
       toast.error("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+      return;
+    }
+    if (!editItem && files.length === 0 && existingImages.length === 0) {
+      toast.error("Iltimos, xizmat uchun kamida bitta rasm yuklang.");
       return;
     }
     setLoading(true);

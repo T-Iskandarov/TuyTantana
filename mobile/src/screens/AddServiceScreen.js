@@ -219,6 +219,11 @@ export default function AddServiceScreen({ navigation, route }) {
       return;
     }
 
+    if (!editItem && images.length === 0 && existingImages.length === 0) {
+      Alert.alert('Xato', 'Iltimos, xizmat uchun kamida bitta rasm yuklang.');
+      return;
+    }
+
     setLoading(true);
     try {
       const serviceData = {

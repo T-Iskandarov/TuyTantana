@@ -72,6 +72,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
   const [existingImages, setExistingImages] = useState(editItem?.images || []);
   const [loading, setLoading] = useState(false);
+  const [fileError, setFileError] = useState('');
 
   const handleRemoveExistingImage = async (imgId) => {
     if (!confirm("Rostdan ham bu rasmni o'chirmoqchimisiz?")) return;
@@ -171,14 +172,15 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
 
   const handleFileChange = async (e) => {
     const selectedFiles = Array.from(e.target.files || []);
+    setFileError(''); // Har safar fayl tanlanganda xatoni tozalash
     if (selectedFiles.length === 0) return;
     
-    toast.info("Rasmlar tayyorlanmoqda, kuting...");
     const compressedFiles = [];
+    let oversized = false;
     
     for (const file of selectedFiles) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Fayl hajmi 5MB dan oshmasligi kerak. Iltimos, kichikroq rasm tanlang.");
+        oversized = true;
         continue;
       }
 
@@ -199,6 +201,10 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       } else {
         compressedFiles.push(file);
       }
+    }
+    
+    if (oversized) {
+      setFileError("Fayl hajmi 5MB dan oshmasligi kerak. Iltimos, kichikroq rasm tanlang.");
     }
     
     setFiles(compressedFiles);
@@ -391,6 +397,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
           onChange={handleFileChange}
           className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#7C3AED]/10 file:text-[#7C3AED] hover:file:bg-[#7C3AED]/20 file:transition-colors file:cursor-pointer mb-3"
         />
+        {fileError && <p className="text-red-500 text-xs mb-3 font-medium">{fileError}</p>}
         
         {files.length > 0 && (
           <div className="flex flex-wrap gap-3">

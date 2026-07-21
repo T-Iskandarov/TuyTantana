@@ -11,7 +11,7 @@ export default function NotificationsPage() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get('/notifications/', token);
+      const res = await api.getNotifications(token);
       if (res.success) {
         setNotifications(res.data);
       }
@@ -32,7 +32,7 @@ export default function NotificationsPage() {
 
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     try {
-      await api.post(`/notifications/${id}/read/`, {}, token);
+      await api.markNotificationAsRead(id, token);
     } catch {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: false } : n));
     }
@@ -41,7 +41,7 @@ export default function NotificationsPage() {
   const markAllAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     try {
-      await api.post('/notifications/read-all/', {}, token);
+      await api.markAllNotificationsAsRead(token);
     } catch {
       fetchNotifications();
     }

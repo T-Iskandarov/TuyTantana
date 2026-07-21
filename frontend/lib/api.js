@@ -83,7 +83,10 @@ export const api = {
   adminAnalytics: (token, timeframe = 'daily') => authGet(`${API_BASE}/admin/analytics?timeframe=${timeframe}`, token),
   adminUsers: (token, params = '') => authGet(`${API_BASE}/admin/users?${params}`, token),
   adminServices: (token, params = '') => authGet(`${API_BASE}/admin/services?${params}`, token),
-  adminBookings: (token, params = '') => authGet(`${API_BASE}/admin/bookings?${params}`, token),
+  // ===== Notifications =====
+  getNotifications: (token) => authGet(`${API_BASE}/notifications/`, token),
+  markNotificationAsRead: (id, token) => jsonPost(`${API_BASE}/notifications/${id}/read/`, {}, token),
+  markAllNotificationsAsRead: (token) => jsonPost(`${API_BASE}/notifications/read-all/`, {}, token),
 };
 
 export const IMAGE_BASE = process.env.NEXT_PUBLIC_IMAGE_URL || 'https://api.tuytantana.uz';

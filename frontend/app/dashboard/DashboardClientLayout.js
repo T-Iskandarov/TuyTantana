@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (user && token && user.role === 'PROVIDER') {
-      api.get('/notifications/', token).then(res => {
+      api.getNotifications(token).then(res => {
         if (res.success) setUnreadCount(res.unread_count || 0);
       }).catch(() => {});
     }

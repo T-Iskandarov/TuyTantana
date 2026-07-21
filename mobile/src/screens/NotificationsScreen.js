@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
-import { ArrowLeft, Bell, CheckCircle } from 'lucide-react-native';
-import { COLORS } from '../constants/theme';
+import { ArrowLeft, Bell, CheckCircle } from 'phosphor-react-native';
+import { COLORS } from '../lib/theme';
 
 export default function NotificationsScreen({ navigation }) {
   const { token } = useAuth();

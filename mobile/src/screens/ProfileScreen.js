@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   SignOut, 
@@ -14,14 +14,38 @@ import {
   CalendarBlank,
   Camera,
   Storefront,
-  TelegramLogo
+  TelegramLogo,
+  Translate,
+  CheckCircle
 } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
 import { COLORS, SHADOWS } from '../lib/theme';
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
+  const [langModalVisible, setLangModalVisible] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('uz');
+
+  useEffect(() => {
+    AsyncStorage.getItem('app_lang').then(lang => {
+      if (lang) setSelectedLang(lang);
+    });
+  }, []);
+
+  const changeLanguage = async (lang) => {
+    setSelectedLang(lang);
+    await AsyncStorage.setItem('app_lang', lang);
+    setLangModalVisible(false);
+  };
+
+  const LANG_OPTIONS = [
+    { code: 'uz', label: "O'zbekcha" },
+    { code: 'kaa', label: "Qoraqalpoqcha" },
+    { code: 'en', label: "English" },
+    { code: 'ru', label: "Русский" },
+  ];
 
   const handleLogout = () => {
     Alert.alert(
@@ -163,6 +187,14 @@ export default function ProfileScreen({ navigation }) {
           />
 
           <MenuItem 
+            icon={Translate}
+            title="Tilni o'zgartirish"
+            subtitle={LANG_OPTIONS.find(l => l.code === selectedLang)?.label || "O'zbekcha"}
+            onPress={() => setLangModalVisible(true)}
+            color="#EC4899"
+          />
+
+          <MenuItem 
             icon={CreditCard}
             title="To'lov usullari"
             subtitle="Karta va to'lov hisoblaringiz"
@@ -193,6 +225,33 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
 
       </ScrollView>
+
+      <Modal
+        visible={langModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setLangModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Tilni tanlang</Text>
+            {LANG_OPTIONS.map(item => (
+              <TouchableOpacity 
+                key={item.code} 
+                style={styles.langOption} 
+                onPress={() => changeLanguage(item.code)}
+              >
+                <Text style={[styles.langText, selectedLang === item.code && styles.langTextActive]}>
+                  {item.label}
+                </Text>
+                {selectedLang === item.code && (
+                  <CheckCircle size={24} color={COLORS.primary} weight="fill" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -247,6 +306,44 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    padding: 20,
+    ...SHADOWS.medium,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  langOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  langText: {
+    fontSize: 16,
+    color: COLORS.text,
+    fontWeight: '500',
+  },
+  langTextActive: {
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   
   // Hero section

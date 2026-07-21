@@ -297,10 +297,10 @@ export default function HomeScreen({ navigation }) {
                                 {s.name}
                               </Text>
                               <Text style={{ color: '#EAD189', fontSize: 13, marginBottom: 12 }}>
-                                {SERVICE_TYPES.find(t => t.value === s.type)?.label || s.type}
+                                {t(`type_${s.type}`) || (SERVICE_TYPES.find(t => t.value === s.type)?.label || s.type)}
                               </Text>
                               <View style={styles.mainBannerBtn}>
-                                <Text style={styles.mainBannerBtnText}>Batafsil ko'rish</Text>
+                                <Text style={styles.mainBannerBtnText}>{t('more_details') || "Batafsil ko'rish"}</Text>
                               </View>
                             </>
                           ) : (
@@ -360,6 +360,7 @@ export default function HomeScreen({ navigation }) {
             >
               {[ {label: t('all') || 'Barchasi', value: 'ALL'}, ...SERVICE_TYPES].map((item) => {
                 const isActive = item.value === activeType;
+                const typeLabel = item.value === 'ALL' ? item.label : (t(`type_${item.value}`) || item.label);
                 return (
                   <TouchableOpacity
                     key={item.value}
@@ -371,7 +372,7 @@ export default function HomeScreen({ navigation }) {
                       {getPhosphorIcon(item.value, isActive)}
                     </View>
                     <Text style={[styles.tabSqLabel, isActive && styles.tabSqLabelActive]}>
-                      {item.label}
+                      {typeLabel}
                     </Text>
                   </TouchableOpacity>
                 );

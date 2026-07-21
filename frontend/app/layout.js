@@ -38,6 +38,7 @@ export const metadata = {
     siteName: "To'y Tantana",
     locale: 'uz_UZ',
     type: 'website',
+    images: [{ url: '/logo.png', width: 512, height: 512, alt: "To'y Tantana" }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -46,6 +47,10 @@ export const metadata = {
   },
   icons: {
     icon: '/logo.png',
+  },
+  metadataBase: new URL('https://www.tuytantana.uz'),
+  alternates: {
+    canonical: '/',
   },
 };
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -93,6 +98,28 @@ export default function RootLayout({ children }) {
             `}
           </Script>
         )}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "To'y Tantana",
+              "url": "https://www.tuytantana.uz",
+              "description": "O'zbekistondagi eng yirik to'y va marosim xizmatlarini izlash, topish va bron qilish platformasi.",
+              "publisher": {
+                "@type": "Organization",
+                "name": "CUBO kompaniyasi"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://www.tuytantana.uz/?search={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
 
         <LanguageProvider>
           <AuthProvider>

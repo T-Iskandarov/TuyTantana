@@ -392,13 +392,6 @@ export default function AddServiceScreen({ navigation, route }) {
             numberOfLines={4}
             value={form.description}
             onChangeText={(text) => setForm({ ...form, description: text })}
-            onFocus={() => {
-              setTimeout(() => {
-                if (mainScrollRef.current) {
-                  mainScrollRef.current.scrollToEnd({ animated: true });
-                }
-              }, 300);
-            }}
           />
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
@@ -410,13 +403,6 @@ export default function AddServiceScreen({ navigation, route }) {
             placeholder={getExtraServicesPlaceholder(form.type)}
             value={form.extra_services}
             onChangeText={(text) => setForm({ ...form, extra_services: text })}
-            onFocus={() => {
-              setTimeout(() => {
-                if (mainScrollRef.current) {
-                  mainScrollRef.current.scrollToEnd({ animated: true });
-                }
-              }, 300);
-            }}
           />
 
           <View style={styles.imageSection}>

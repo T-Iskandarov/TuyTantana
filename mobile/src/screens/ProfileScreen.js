@@ -146,10 +146,10 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.menuContainer}>
           {user.role === 'PROVIDER' && (
             <MenuItem 
-              icon={Briefcase}
-              title="Xizmatlarimni boshqarish"
-              subtitle="Xizmatlar va buyurtmalar"
-              onPress={() => navigation.navigate('ProviderServices')}
+              icon={Headset}
+              title="Kontakt"
+              subtitle="Biz bilan bog'lanish"
+              onPress={() => navigation.navigate('Contact')}
               color={COLORS.primary}
             />
           )}

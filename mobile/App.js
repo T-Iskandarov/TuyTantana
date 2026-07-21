@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { House, CalendarBlank, SquaresFour, User, Headset } from 'phosphor-react-native';
+import { House, CalendarBlank, SquaresFour, User, Headset, Briefcase } from 'phosphor-react-native';
 import { ActivityIndicator, View, Platform } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -61,6 +61,7 @@ function HomeTabs() {
           else if (route.name === 'BookingsTab') IconComp = CalendarBlank;
           else if (route.name === 'DashboardTab') IconComp = SquaresFour;
           else if (route.name === 'ContactTab') IconComp = Headset;
+          else if (route.name === 'ProviderServicesTab') IconComp = Briefcase;
           else if (route.name === 'ProfileTab') IconComp = User;
           return <IconComp size={24} color={color} weight={focused ? 'fill' : 'regular'} />;
         },
@@ -84,11 +85,19 @@ function HomeTabs() {
           options={{ tabBarLabel: 'Bronlarim' }}
         />
       )}
-      <Tab.Screen
-        name="ContactTab"
-        component={ContactScreen}
-        options={{ tabBarLabel: 'Kontakt' }}
-      />
+      {user?.role === 'PROVIDER' ? (
+        <Tab.Screen
+          name="ProviderServicesTab"
+          component={ProviderServicesScreen}
+          options={{ tabBarLabel: 'Xizmatlarim' }}
+        />
+      ) : (
+        <Tab.Screen
+          name="ContactTab"
+          component={ContactScreen}
+          options={{ tabBarLabel: 'Kontakt' }}
+        />
+      )}
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
@@ -135,6 +144,7 @@ function AppNavigator() {
           <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
           <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
           <Stack.Screen name="AboutApp" component={AboutAppScreen} />
+          <Stack.Screen name="Contact" component={ContactScreen} />
         </>
       )}
     </Stack.Navigator>

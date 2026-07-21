@@ -18,6 +18,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders, Heart, Users, Bank, Camera, Microphone, Scissors, Car, ClipboardText, SquaresFour } from 'phosphor-react-native';
@@ -53,6 +54,7 @@ const BANNERS = [
 ];
 
 export default function HomeScreen({ navigation }) {
+  const { t } = useLanguage();
   const [activeType, setActiveType] = useState('TUYXONA');
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -192,7 +194,7 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.emptyCircle}>
           <MagnifyingGlass size={40} color={COLORS.textLight} />
         </View>
-        <Text style={styles.emptyTitle}>Xizmatlar topilmadi</Text>
+        <Text style={styles.emptyTitle}>{t('no_services_found') || 'Xizmatlar topilmadi'}</Text>
       </View>
     );
   };
@@ -200,11 +202,11 @@ export default function HomeScreen({ navigation }) {
   const renderHeader = () => (
     <View style={styles.listHeader}>
       <Text style={styles.sectionTitle}>
-        Top xizmatlar ✨
+        {t('top_services') || 'Top xizmatlar ✨'}
       </Text>
       <TouchableOpacity onPress={() => navigation.navigate('AllServices', { filterType: activeType })}>
         <Text style={styles.seeAllText}>
-          Barchasini ko'rish {'>'}
+          {t('see_all') || "Barchasini ko'rish"} {'>'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -220,7 +222,7 @@ export default function HomeScreen({ navigation }) {
           <Image source={require('../../assets/logo.png')} style={styles.logoImg} resizeMode="contain" />
           <View>
             <Text style={styles.logoTitle}>To'y Tantana</Text>
-            <Text style={styles.logoSubtitle}>TO'Y XIZMATLARI BIR JOYDA</Text>
+            <Text style={styles.logoSubtitle}>{t('all_services_in_one') || "TO'Y XIZMATLARI BIR JOYDA"}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.notifBtn} onPress={() => {
@@ -333,7 +335,7 @@ export default function HomeScreen({ navigation }) {
                 <MagnifyingGlass size={20} color={COLORS.textLight} />
                 <TextInput
                   style={styles.searchInput}
-                  placeholder="Xizmatlarni qidirish..."
+                  placeholder={t('search_placeholder') || "Xizmatlarni qidirish..."}
                   placeholderTextColor={COLORS.textLight}
                   value={search}
                   onChangeText={setSearch}
@@ -356,7 +358,7 @@ export default function HomeScreen({ navigation }) {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.tabsContainer}
             >
-              {[ {label: 'Barchasi', value: 'ALL'}, ...SERVICE_TYPES].map((item) => {
+              {[ {label: t('all') || 'Barchasi', value: 'ALL'}, ...SERVICE_TYPES].map((item) => {
                 const isActive = item.value === activeType;
                 return (
                   <TouchableOpacity

@@ -109,28 +109,30 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('sidebar_profile') || 'Profil'}</Text>
         </View>
-        <View style={styles.emptyContainer}>
-          <UserCircle size={80} color={COLORS.textLight} weight="light" />
-          <Text style={styles.emptyText}>Tizimga kirmagansiz</Text>
-          <Text style={styles.emptySubtext}>Barcha imkoniyatlardan foydalanish uchun tizimga kiring</Text>
-          
-          <TouchableOpacity 
-            style={styles.loginBtn}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.loginBtnText}>{t('nav_login') || 'Kirish'}</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <View style={[styles.menuContainer, { marginBottom: 40 }]}>
+            <MenuItem 
+              icon={Translate}
+              title={t('change_language') || "Tilni o'zgartirish"}
+              subtitle={LANG_OPTIONS.find(l => l.code === selectedLang)?.label || "O'zbekcha"}
+              onPress={() => setLangModalVisible(true)}
+              color="#EC4899"
+            />
+          </View>
 
-        <View style={[styles.menuContainer, { paddingHorizontal: 16, paddingBottom: 32 }]}>
-          <MenuItem 
-            icon={Translate}
-            title="Tilni o'zgartirish"
-            subtitle={LANG_OPTIONS.find(l => l.code === selectedLang)?.label || "O'zbekcha"}
-            onPress={() => setLangModalVisible(true)}
-            color="#EC4899"
-          />
-        </View>
+          <View style={{ alignItems: 'center' }}>
+            <UserCircle size={80} color={COLORS.textLight} weight="light" />
+            <Text style={styles.emptyText}>{t('not_logged_in') || "Tizimga kirmagansiz"}</Text>
+            <Text style={styles.emptySubtext}>{t('login_desc') || "Barcha imkoniyatlardan foydalanish uchun tizimga kiring"}</Text>
+            
+            <TouchableOpacity 
+              style={styles.loginBtn}
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.loginBtnText}>{t('nav_login') || 'Kirish'}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
 
         {LangModal}
       </SafeAreaView>

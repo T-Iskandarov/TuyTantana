@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'phosphor-react-native';
+import { useLanguage } from '../context/LanguageContext';
 import { COLORS, FONTS } from '../lib/theme';
 import { api } from '../lib/api';
 import ServiceCard from '../components/ServiceCard';
 
 export default function AllServicesScreen({ navigation, route }) {
+  const { t } = useLanguage();
   const filterType = route.params?.filterType || '';
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ export default function AllServicesScreen({ navigation, route }) {
     if (loading) return null;
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Xizmatlar topilmadi</Text>
+        <Text style={styles.emptyText}>{t('no_services_found') || 'Xizmatlar topilmadi'}</Text>
       </View>
     );
   };
@@ -44,7 +46,7 @@ export default function AllServicesScreen({ navigation, route }) {
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.text} weight="bold" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Barcha xizmatlar</Text>
+        <Text style={styles.headerTitle}>{t('nav_services') || 'Barcha xizmatlar'}</Text>
       </View>
 
       {loading && services.length === 0 ? (

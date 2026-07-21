@@ -11,9 +11,19 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import secrets
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Generate a strong SECRET_KEY and store it persistently
+_secret_key_file = BASE_DIR / '.secret_key'
+if _secret_key_file.exists():
+    SECRET_KEY = _secret_key_file.read_text().strip()
+else:
+    SECRET_KEY = secrets.token_urlsafe(50)
+    _secret_key_file.write_text(SECRET_KEY)
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,6 +36,22 @@ SECRET_KEY = 'django-insecure-(gg9ebc+jvb2rj)$fsm-^tugzbuz-_0r6bq+(b_esq*v9n98!7
 DEBUG = False
 
 ALLOWED_HOSTS = ['api.tuytantana.uz', 'localhost', '127.0.0.1', '169.58.49.5']
+
+# ===== HTTPS & Cookie Security =====
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# ===== HSTS (HTTP Strict Transport Security) =====
+SECURE_HSTS_SECONDS = 31536000  # 1 yil
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 
 # Application definition
@@ -150,11 +176,67 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    # ===== API Throttling (DDoS himoyasi) =====
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/minute',   # Noma'lum foydalanuvchilar uchun
+        'user': '300/minute',   # Tizimga kirgan foydalanuvchilar uchun
+    },
+    # ===== Default Permission =====
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    # ===== Default Renderer =====
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 }
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),    # 7 kundan 12 soatga qisqartirildi
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # 14 kundan 7 kunga qisqartirildi
+    'ROTATE_REFRESH_TOKENS': True,                    # Har safar yangilanadi
+    'BLACKLIST_AFTER_ROTATION': True,                 # Eski token bloklandi
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
+# ===== Data Upload Limits =====
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB max
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB max
+
+# ===== LOGGING (Xavfsizlik hodisalarini yozib borish) =====
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
 }

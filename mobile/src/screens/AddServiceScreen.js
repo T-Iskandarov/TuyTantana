@@ -139,7 +139,8 @@ export default function AddServiceScreen({ navigation, route }) {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
-      quality: 0.8,
+      selectionLimit: 5,
+      quality: 0.5,
     });
 
     if (!result.canceled && result.assets) {
@@ -387,8 +388,10 @@ export default function AddServiceScreen({ navigation, route }) {
             onChangeText={(text) => setForm({ ...form, description: text })}
             onFocus={() => {
               setTimeout(() => {
-                mainScrollRef.current?.scrollToEnd({ animated: true });
-              }, 100);
+                if (mainScrollRef.current) {
+                  mainScrollRef.current.scrollToEnd({ animated: true });
+                }
+              }, 300);
             }}
           />
 
@@ -403,8 +406,10 @@ export default function AddServiceScreen({ navigation, route }) {
             onChangeText={(text) => setForm({ ...form, extra_services: text })}
             onFocus={() => {
               setTimeout(() => {
-                mainScrollRef.current?.scrollToEnd({ animated: true });
-              }, 100);
+                if (mainScrollRef.current) {
+                  mainScrollRef.current.scrollToEnd({ animated: true });
+                }
+              }, 300);
             }}
           />
 

@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { api, IMAGE_BASE } from '@/lib/api';
 import dynamic from 'next/dynamic';
+import imageCompression from 'browser-image-compression';
 
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
 import { regionsAndDistricts, regionCoordinates } from '@/lib/regions';
@@ -166,6 +167,36 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     } else {
       setForm({ ...form, [e.target.name]: e.target.value });
     }
+  };
+
+  const handleFileChange = async (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
+    
+    toast.info("Rasmlar tayyorlanmoqda, kuting...");
+    const compressedFiles = [];
+    
+    for (const file of selectedFiles) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB dan katta bo'lsa
+        try {
+          const options = {
+            maxSizeMB: 4.5,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            initialQuality: 0.8
+          };
+          const compressedFile = await imageCompression(file, options);
+          compressedFiles.push(compressedFile);
+        } catch (error) {
+          console.error("Siqishda xatolik:", error);
+          compressedFiles.push(file);
+        }
+      } else {
+        compressedFiles.push(file);
+      }
+    }
+    
+    setFiles(compressedFiles);
   };
 
   const handleSubmit = async (e) => {
@@ -351,7 +382,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
           type="file"
           multiple
           accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => setFiles(Array.from(e.target.files || []))}
+          onChange={handleFileChange}
           className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#7C3AED]/10 file:text-[#7C3AED] hover:file:bg-[#7C3AED]/20 file:transition-colors file:cursor-pointer mb-3"
         />
         

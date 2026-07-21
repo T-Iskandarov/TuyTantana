@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Jonli server (Production)
 export const API_BASE = 'https://api.tuytantana.uz/api';
 export const IMAGE_BASE = 'https://api.tuytantana.uz';
@@ -68,13 +70,21 @@ export const api = {
   uploadImages: async (serviceId, files, token) => {
     const formData = new FormData();
     files.forEach((file, i) => {
+      let localUri = file.uri;
+      let filename = file.fileName || localUri.split('/').pop() || `image_${i}.jpg`;
+      
+      // Some Android devices return weird filenames, let's normalize it
+      if (!filename.includes('.')) {
+        filename += '.jpg';
+      }
+
       formData.append('images', {
-        uri: file.uri,
+        uri: Platform.OS === 'ios' ? localUri.replace('file://', '') : localUri,
         type: file.mimeType || 'image/jpeg',
-        name: file.fileName || `image_${i}.jpg`,
+        name: filename,
       });
     });
-    const res = await fetch(`${API_BASE.replace('/api', '')}/api/upload/${serviceId}`, {
+    const res = await fetch(`${API_BASE}/upload/${serviceId}`, {
       method: 'POST',
       headers: { 
         'Authorization': `Bearer ${token}`,

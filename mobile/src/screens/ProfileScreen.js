@@ -313,11 +313,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.text,
     marginBottom: 4,
+    textAlign: 'center',
   },
   userPhone: {
     fontSize: 15,
     color: COLORS.textLight,
     marginBottom: 12,
+    textAlign: 'center',
   },
   roleBadge: {
     flexDirection: 'row',

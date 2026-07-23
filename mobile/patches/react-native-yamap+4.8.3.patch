@@ -1,0 +1,410 @@
+diff --git a/node_modules/react-native-yamap/android/build.gradle b/node_modules/react-native-yamap/android/build.gradle
+index d9de295..c4ec48b 100644
+--- a/node_modules/react-native-yamap/android/build.gradle
++++ b/node_modules/react-native-yamap/android/build.gradle
+@@ -31,7 +31,7 @@ repositories {
+ }
+ 
+ dependencies {
+-    implementation 'com.google.android.gms:play-services-location:+'
++    implementation 'com.google.android.gms:play-services-location:21.0.1'
+     implementation 'com.facebook.react:react-native:+'
+     implementation 'com.yandex.android:maps.mobile:4.8.0-full'
+     implementation 'androidx.core:core-ktx:1.13.1'
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/ClusteredYamapViewManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/ClusteredYamapViewManager.kt
+index 54d8a0f..b11d573 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/ClusteredYamapViewManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/ClusteredYamapViewManager.kt
+@@ -24,7 +24,7 @@ class ClusteredYamapViewManager internal constructor() : ViewGroupManager<Cluste
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .put(
+                 "routes",
+@@ -128,7 +128,7 @@ class ClusteredYamapViewManager internal constructor() : ViewGroupManager<Cluste
+             }
+ 
+             "findRoutes" -> if (args != null) {
+-                findRoutes(view, args.getArray(0), args.getArray(1), args.getString(2))
++                findRoutes(view, args.getArray(0), args.getArray(1), args.getString(2) ?: "")
+             }
+ 
+             "setZoom" -> if (args != null) {
+@@ -152,11 +152,11 @@ class ClusteredYamapViewManager internal constructor() : ViewGroupManager<Cluste
+             }
+ 
+             "getScreenPoints" -> if (args != null) {
+-                view.emitWorldToScreenPoints(args.getArray(0), args.getString(1))
++                view.emitWorldToScreenPoints(args.getArray(0)!!, args.getString(1) ?: "")
+             }
+ 
+             "getWorldPoints" -> if (args != null) {
+-                view.emitScreenToWorldPoints(args.getArray(0), args.getString(1))
++                view.emitScreenToWorldPoints(args.getArray(0)!!, args.getString(1) ?: "")
+             }
+ 
+             else -> throw IllegalArgumentException(
+@@ -171,7 +171,7 @@ class ClusteredYamapViewManager internal constructor() : ViewGroupManager<Cluste
+ 
+     @ReactProp(name = "clusteredMarkers")
+     fun setClusteredMarkers(view: View, points: ReadableArray) {
+-        castToYaMapView(view).setClusteredMarkers(points.toArrayList())
++        castToYaMapView(view).setClusteredMarkers(points.toArrayList() as ArrayList<Any>)
+     }
+ 
+     @ReactProp(name = "clusterColor")
+@@ -243,7 +243,7 @@ class ClusteredYamapViewManager internal constructor() : ViewGroupManager<Cluste
+             val vehicles = ArrayList<String>()
+             if (jsVehicles != null) {
+                 for (i in 0 until jsVehicles.size()) {
+-                    vehicles.add(jsVehicles.getString(i))
++                    vehicles.add(jsVehicles.getString(i) ?: "")
+                 }
+             }
+             castToYaMapView(view).findRoutes(points, vehicles, id)
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/RNYamapModule.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/RNYamapModule.kt
+index 6b0ac4a..0a41166 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/RNYamapModule.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/RNYamapModule.kt
+@@ -3,7 +3,7 @@ package ru.vvdev.yamap
+ import com.facebook.react.bridge.Callback
+ import com.facebook.react.bridge.Promise
+ import com.facebook.react.bridge.ReactApplicationContext
+-import com.facebook.react.bridge.ReactContextBaseJavaModule
++import com.facebook.react.bridge.ReactContextBaseJavaModule; import com.facebook.react.bridge.LifecycleEventListener
+ import com.facebook.react.bridge.ReactMethod
+ import com.facebook.react.bridge.UiThreadUtil
+ import com.facebook.react.bridge.WritableMap
+@@ -11,11 +11,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
+ import com.yandex.mapkit.MapKitFactory
+ import com.yandex.runtime.i18n.I18nManagerFactory
+ 
+-class RNYamapModule internal constructor(context: ReactApplicationContext?) :
+-    ReactContextBaseJavaModule(context) {
+-    init {
+-        Companion.context = context
+-    }
++class RNYamapModule internal constructor(context: ReactApplicationContext?) : ReactContextBaseJavaModule(context), LifecycleEventListener {
++    private var initialized = false; private var isResumed = false; init {
++        Companion.context = context; context?.addLifecycleEventListener(this) } override fun onHostResume() { isResumed = true; if (initialized) { try { MapKitFactory.getInstance().onStart() } catch(e: Throwable) {} } } override fun onHostPause() { isResumed = false; if (initialized) { try { MapKitFactory.getInstance().onStop() } catch(e: Throwable) {} } } override fun onHostDestroy() {}
+ 
+     override fun getName(): String {
+         return REACT_CLASS
+@@ -39,8 +37,7 @@ class RNYamapModule internal constructor(context: ReactApplicationContext?) :
+                     apiKeyException = exception
+                 }
+ 
+-                MapKitFactory.initialize(context)
+-                MapKitFactory.getInstance().onStart()
++                MapKitFactory.initialize(context); initialized = true; if (isResumed) { MapKitFactory.getInstance().onStart() }
+                 promise.resolve(null)
+             } catch (exception: Exception) {
+                 if (apiKeyException != null) {
+@@ -88,3 +85,7 @@ class RNYamapModule internal constructor(context: ReactApplicationContext?) :
+         }
+     }
+ }
++
++
++
++
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapCircleManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapCircleManager.kt
+index 85be269..01394c7 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapCircleManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapCircleManager.kt
+@@ -20,7 +20,7 @@ class YamapCircleManager internal constructor() : ViewGroupManager<YamapCircle>(
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .build()
+     }
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapMarkerManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapMarkerManager.kt
+index e32d22c..e715de5 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapMarkerManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapMarkerManager.kt
+@@ -23,7 +23,7 @@ class YamapMarkerManager internal constructor() : ViewGroupManager<YamapMarker>(
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .build()
+     }
+@@ -109,8 +109,8 @@ class YamapMarkerManager internal constructor() : ViewGroupManager<YamapMarker>(
+             "animatedMoveTo" -> {
+                 val markerPoint = args!!.getMap(0)
+                 val moveDuration = args.getInt(1)
+-                val lon = markerPoint.getDouble("lon").toFloat()
+-                val lat = markerPoint.getDouble("lat").toFloat()
++                val lon = if (markerPoint!!.getType("lon") == com.facebook.react.bridge.ReadableType.String) markerPoint.getString("lon")!!.toDouble() else markerPoint.getDouble("lon").toFloat()
++                val lat = if (markerPoint!!.getType("lat") == com.facebook.react.bridge.ReadableType.String) markerPoint.getString("lat")!!.toDouble() else markerPoint.getDouble("lat").toFloat()
+                 val point = Point(lat.toDouble(), lon.toDouble())
+                 castToMarkerView(view).animatedMoveTo(point, moveDuration.toFloat())
+                 return
+@@ -137,3 +137,4 @@ class YamapMarkerManager internal constructor() : ViewGroupManager<YamapMarker>(
+         const val REACT_CLASS: String = "YamapMarker"
+     }
+ }
++
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolygonManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolygonManager.kt
+index cf14b19..211e8d3 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolygonManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolygonManager.kt
+@@ -21,7 +21,7 @@ class YamapPolygonManager internal constructor() : ViewGroupManager<YamapPolygon
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .build()
+     }
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolylineManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolylineManager.kt
+index 8be99c8..1ce6a48 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolylineManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapPolylineManager.kt
+@@ -21,7 +21,7 @@ class YamapPolylineManager internal constructor() : ViewGroupManager<YamapPolyli
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .build()
+     }
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapViewManager.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapViewManager.kt
+index 8b05905..b4c10bd 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapViewManager.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/YamapViewManager.kt
+@@ -24,7 +24,7 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+             .build()
+     }
+ 
+-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
++    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
+         return MapBuilder.builder<String, Any>()
+             .put(
+                 "routes",
+@@ -128,7 +128,7 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+             }
+ 
+             "findRoutes" -> if (args != null) {
+-                findRoutes(view, args.getArray(0), args.getArray(1), args.getString(2))
++                findRoutes(view, args.getArray(0), args.getArray(1), args.getString(2) ?: "")
+             }
+ 
+             "setZoom" -> if (args != null) {
+@@ -152,11 +152,11 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+             }
+ 
+             "getScreenPoints" -> if (args != null) {
+-                view.emitWorldToScreenPoints(args.getArray(0), args.getString(1))
++                view.emitWorldToScreenPoints(args.getArray(0)!!, args.getString(1) ?: "")
+             }
+ 
+             "getWorldPoints" -> if (args != null) {
+-                view.emitScreenToWorldPoints(args.getArray(0), args.getString(1))
++                view.emitScreenToWorldPoints(args.getArray(0)!!, args.getString(1) ?: "")
+             }
+ 
+             else -> throw IllegalArgumentException(
+@@ -174,10 +174,9 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+     }
+ 
+     @Nonnull
+-    public override fun createViewInstance(@Nonnull context: ThemedReactContext): YamapView {
++    override fun onDropViewInstance(view: YamapView) { super.onDropViewInstance(view); (view.context as com.facebook.react.bridge.ReactContext).removeLifecycleEventListener(view); view.onStop() } public override fun createViewInstance(@Nonnull context: ThemedReactContext): YamapView {
+         val view = YamapView(context)
+-        MapKitFactory.getInstance().onStart()
+-        view.onStart()
++
+ 
+         return view
+     }
+@@ -192,7 +191,7 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+         animation: Int
+     ) {
+         if (center != null) {
+-            val centerPosition = Point(center.getDouble("lat"), center.getDouble("lon"))
++            val centerPosition = Point(if (center.getType("lat") == com.facebook.react.bridge.ReadableType.String) center.getString("lat")!!.toDouble() else center.getDouble("lat"), if (center.getType("lon") == com.facebook.react.bridge.ReadableType.String) center.getString("lon")!!.toDouble() else center.getDouble("lon"))
+             val pos = CameraPosition(centerPosition, zoom, azimuth, tilt)
+             view.setCenter(pos, duration, animation)
+         }
+@@ -237,7 +236,7 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+ 
+             if (jsVehicles != null) {
+                 for (i in 0 until jsVehicles.size()) {
+-                    vehicles.add(jsVehicles.getString(i))
++                    vehicles.add(jsVehicles.getString(i) ?: "")
+                 }
+             }
+ 
+@@ -378,3 +377,7 @@ class YamapViewManager internal constructor() : ViewGroupManager<YamapView>() {
+         private const val GET_WORLD_POINTS = 10
+     }
+ }
++
++
++
++
+diff --git a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/view/YamapView.kt b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/view/YamapView.kt
+index 48c1cdf..1fb7076 100644
+--- a/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/view/YamapView.kt
++++ b/node_modules/react-native-yamap/android/src/main/java/ru/vvdev/yamap/view/YamapView.kt
+@@ -14,7 +14,7 @@ import com.facebook.react.bridge.ReadableMap
+ import com.facebook.react.bridge.WritableArray
+ import com.facebook.react.bridge.WritableMap
+ import com.facebook.react.bridge.WritableNativeArray
+-import com.facebook.react.uimanager.events.RCTEventEmitter
++import com.facebook.react.uimanager.events.RCTEventEmitter; import com.facebook.react.bridge.LifecycleEventListener
+ import com.yandex.mapkit.Animation
+ import com.yandex.mapkit.MapKitFactory
+ import com.yandex.mapkit.RequestPoint
+@@ -77,7 +77,7 @@ import java.util.Objects
+ import javax.annotation.Nonnull
+ 
+ 
+-open class YamapView(context: Context?) : MapView(context), UserLocationObjectListener,
++open class YamapView(context: Context?) : MapView(context), LifecycleEventListener, UserLocationObjectListener,
+     CameraListener, InputListener, TrafficListener, MapLoadedListener {
+     private var mViewParent: ViewParent? = null
+     private var userLocationIcon = ""
+@@ -98,7 +98,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+ 
+     private var userLocationView: UserLocationView? = null
+ 
+-    init {
++    override fun onHostResume() { onStart() } override fun onHostPause() { onStop() } override fun onHostDestroy() {} init { (context as ReactContext).addLifecycleEventListener(this)
+         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter(DrivingRouterType.ONLINE)
+         mapWindow.map.addCameraListener(this)
+         mapWindow.map.addInputListener(this)
+@@ -122,13 +122,13 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+         when (event.getAction()) {
+             MotionEvent.ACTION_DOWN -> if (null == mViewParent) {
+-                parent.requestDisallowInterceptTouchEvent(true)
++                parent?.requestDisallowInterceptTouchEvent(true)
+             } else {
+                 mViewParent!!.requestDisallowInterceptTouchEvent(true)
+             }
+ 
+             MotionEvent.ACTION_UP -> if (null == mViewParent) {
+-                parent.requestDisallowInterceptTouchEvent(false)
++                parent?.requestDisallowInterceptTouchEvent(false)
+             } else {
+                 mViewParent!!.requestDisallowInterceptTouchEvent(false)
+             }
+@@ -226,7 +226,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+ 
+         for (i in 0 until worldPoints.size()) {
+             val p = worldPoints.getMap(i)
+-            val worldPoint = Point(p.getDouble("lat"), p.getDouble("lon"))
++            val worldPoint = Point(p!!.getDouble("lat"), p.getDouble("lon"))
+             val screenPoint = mapWindow.worldToScreen(worldPoint)
+             screenPoints.pushMap(screenPointToJSON(screenPoint))
+         }
+@@ -245,7 +245,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+ 
+         for (i in 0 until screenPoints.size()) {
+             val p = screenPoints.getMap(i)
+-            val screenPoint = ScreenPoint(p.getDouble("x").toFloat(), p.getDouble("y").toFloat())
++            val screenPoint = ScreenPoint(p!!.getDouble("x").toFloat(), p.getDouble("y").toFloat())
+             val worldPoint = mapWindow.screenToWorld(screenPoint)
+             worldPoints.pushMap(worldPointToJSON(worldPoint))
+         }
+@@ -685,7 +685,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+         val wTransports = Arguments.createMap()
+ 
+         for ((key, value) in transports) {
+-            wTransports.putArray(key, Arguments.fromList(value))
++            wTransports.putArray(key, Arguments.fromList(value as List<Any?>))
+         }
+ 
+         routeMetadata.putMap("transports", wTransports)
+@@ -838,21 +838,19 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+         }
+     }
+ 
+-    override fun onCameraPositionChanged(
++    override fun onCameraPositionChanged(map: com.yandex.mapkit.map.Map, cameraPosition: CameraPosition, reason: CameraUpdateReason, finished: Boolean) { try { onCameraPositionChangedSafe(map, cameraPosition, reason, finished) } catch (e: Exception) { e.printStackTrace() } }
++    private fun onCameraPositionChangedSafe(
+         map: com.yandex.mapkit.map.Map,
+         cameraPosition: CameraPosition,
+         reason: CameraUpdateReason,
+         finished: Boolean
+     ) {
+-        val positionStart = positionToJSON(cameraPosition, reason, finished)
+-        val positionFinish = positionToJSON(cameraPosition, reason, finished)
+         val reactContext = context as ReactContext
+-        reactContext.getJSModule(RCTEventEmitter::class.java)
+-            .receiveEvent(id, "cameraPositionChange", positionStart)
+-
+-        if (finished) {
+-            reactContext.getJSModule(RCTEventEmitter::class.java)
+-                .receiveEvent(id, "cameraPositionChangeEnd", positionFinish)
++        if (id != -1) {
++            if (finished) {
++                val positionFinish = positionToJSON(cameraPosition, reason, finished)
++                reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraPositionChangeEnd", positionFinish)
++            }
+         }
+     }
+ 
+@@ -861,7 +859,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+         data.putDouble("lat", point.latitude)
+         data.putDouble("lon", point.longitude)
+         val reactContext = context as ReactContext
+-        reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onMapPress", data)
++        if (id != -1) { try { reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onMapPress", data) } catch(e: Exception) { e.printStackTrace() } }
+     }
+ 
+     override fun onMapLongTap(map: com.yandex.mapkit.map.Map, point: Point) {
+@@ -869,8 +867,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+         data.putDouble("lat", point.latitude)
+         data.putDouble("lon", point.longitude)
+         val reactContext = context as ReactContext
+-        reactContext.getJSModule(RCTEventEmitter::class.java)
+-            .receiveEvent(id, "onMapLongPress", data)
++        if (id != -1) { try { reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onMapLongPress", data) } catch(e: Exception) { e.printStackTrace() } }
+     }
+ 
+     override fun onMapLoaded(statistics: MapLoadStatistics) {
+@@ -885,7 +882,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+         data.putDouble("fullyAppeared", statistics.fullyAppeared.toDouble())
+         data.putDouble("fullyLoaded", statistics.fullyLoaded.toDouble())
+         val reactContext = context as ReactContext
+-        reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onMapLoaded", data)
++        if (id != -1) { try { reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onMapLoaded", data) } catch(e: Exception) { e.printStackTrace() } }
+     }
+ 
+     //trafficListener implementation
+@@ -901,8 +898,7 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+     companion object {
+         private val DEFAULT_VEHICLE_COLORS: HashMap<String?, String?> =
+             object : HashMap<String?, String?>() {
+-                init {
+-                    put("bus", "#59ACFF")
++                init { put("bus", "#59ACFF")
+                     put("railway", "#F8634F")
+                     put("tramway", "#C86DD7")
+                     put("suburban", "#3023AE")
+@@ -913,3 +909,12 @@ open class YamapView(context: Context?) : MapView(context), UserLocationObjectLi
+             }
+     }
+ }
++
++
++
++
++
++
++
++
++

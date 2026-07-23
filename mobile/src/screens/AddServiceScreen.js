@@ -1,10 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker } from 'react-native-maps';
+import YaMap, { Marker } from 'react-native-yamap';
 import { ArrowLeft, Camera as CameraIcon, XCircle, Star } from 'phosphor-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api, IMAGE_BASE } from '../lib/api';
 import { COLORS, FONTS, SERVICE_TYPES } from '../lib/theme';
 import { Picker } from '@react-native-picker/picker';
@@ -15,6 +16,7 @@ const REGIONS = Object.keys(regionsAndDistricts).map(r => ({ label: r, value: r 
 
 export default function AddServiceScreen({ navigation, route }) {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const editItem = route.params?.editItem;
   
   const [form, setForm] = useState({
@@ -38,25 +40,25 @@ export default function AddServiceScreen({ navigation, route }) {
 
   const getPlaceholder = (type) => {
     switch (type) {
-      case 'TUYXONA': return "Masalan: Navro'z to'yxonasi";
-      case 'FOTO_VIDEO': return "Masalan: Qodirov Studio";
-      case 'XONANDA': return "Masalan: Tohir Sodiqov";
-      case 'SALON': return "Masalan: Go'zallik saloni";
-      case 'KORTEJ': return "Masalan: Gelik 2024 (qora)";
-      case 'TASHKILOTCHI': return "Masalan: To'yona Event";
-      default: return "Masalan: Xizmat nomi";
+      case 'TUYXONA': return t('placeholder_tuyxona') || "Masalan: Navro'z to'yxonasi";
+      case 'FOTO_VIDEO': return t('placeholder_foto_video') || "Masalan: Qodirov Studio";
+      case 'XONANDA': return t('placeholder_xonanda') || "Masalan: Tohir Sodiqov";
+      case 'SALON': return t('placeholder_salon') || "Masalan: Go'zallik saloni";
+      case 'KORTEJ': return t('placeholder_kortej') || "Masalan: Gelik 2024 (qora)";
+      case 'TASHKILOTCHI': return t('placeholder_tashkilotchi') || "Masalan: To'yona Event";
+      default: return t('placeholder_default') || "Masalan: Xizmat nomi";
     }
   };
 
   const getExtraServicesPlaceholder = (type) => {
     switch (type) {
-      case 'TUYXONA': return "Masalan: Wi-Fi, Avtoturargoh, Konditsioner";
-      case 'FOTO_VIDEO': return "Masalan: Dron, Qo'shimcha operator, Albom";
-      case 'XONANDA': return "Masalan: Jonli ijro, Apparatura";
-      case 'SALON': return "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
-      case 'KORTEJ': return "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
-      case 'TASHKILOTCHI': return "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
-      default: return "Masalan: Wi-Fi, Avtoturargoh";
+      case 'TUYXONA': return t('extra_placeholder_tuyxona') || "Masalan: Wi-Fi, Avtoturargoh, Konditsioner";
+      case 'FOTO_VIDEO': return t('extra_placeholder_foto_video') || "Masalan: Dron, Qo'shimcha operator, Albom";
+      case 'XONANDA': return t('extra_placeholder_xonanda') || "Masalan: Jonli ijro, Apparatura";
+      case 'SALON': return t('extra_placeholder_salon') || "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
+      case 'KORTEJ': return t('extra_placeholder_kortej') || "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
+      case 'TASHKILOTCHI': return t('extra_placeholder_tashkilotchi') || "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
+      default: return t('extra_placeholder_default') || "Masalan: Wi-Fi, Avtoturargoh";
     }
   };
 
@@ -73,12 +75,10 @@ export default function AddServiceScreen({ navigation, route }) {
     });
     
     if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: newLat,
-        longitude: newLng,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      }, 1000);
+      mapRef.current.setCenter({
+        lat: newLat,
+        lon: newLng,
+      }, 12, 0, 0, 1);
     }
   };
 
@@ -105,12 +105,10 @@ export default function AddServiceScreen({ navigation, route }) {
       
       setForm(prev => ({...prev, location_lat: newLat, location_lng: newLng}));
       if (mapRef.current) {
-        mapRef.current.animateToRegion({
-          latitude: newLat,
-          longitude: newLng,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }, 1000);
+        mapRef.current.setCenter({
+          lat: newLat,
+          lon: newLng,
+        }, 12, 0, 0, 1);
       }
     } catch (e) {
       console.warn("Geocoding failed", e);
@@ -275,40 +273,35 @@ export default function AddServiceScreen({ navigation, route }) {
     }
   };
 
-  const memoizedMap = useMemo(() => {
+  const [initialMapRegion] = useState({
+    lat: editItem?.location_lat ? Number(editItem.location_lat) : 41.2995,
+    lon: editItem?.location_lng ? Number(editItem.location_lng) : 69.2401,
+    zoom: 12,
+  });
+
+  const renderMap = () => {
     return (
       <View style={styles.mapContainer}>
-        <MapView
+        <YaMap
           ref={mapRef}
           style={styles.map}
-          initialRegion={{
-            latitude: form.location_lat,
-            longitude: form.location_lng,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-          onPress={(e) => setForm(prev => ({
+          initialRegion={initialMapRegion}
+          onMapPress={(e) => setForm(prev => ({
             ...prev,
-            location_lat: e.nativeEvent.coordinate.latitude,
-            location_lng: e.nativeEvent.coordinate.longitude
+            location_lat: e.nativeEvent.lat,
+            location_lng: e.nativeEvent.lon
           }))}
         >
           <Marker
-            coordinate={{
-              latitude: form.location_lat,
-              longitude: form.location_lng,
+            point={{
+              lat: form.location_lat,
+              lon: form.location_lng,
             }}
-            draggable
-            onDragEnd={(e) => setForm(prev => ({
-              ...prev,
-              location_lat: e.nativeEvent.coordinate.latitude,
-              location_lng: e.nativeEvent.coordinate.longitude
-            }))}
           />
-        </MapView>
+        </YaMap>
       </View>
     );
-  }, [form.location_lat, form.location_lng]);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -316,7 +309,7 @@ export default function AddServiceScreen({ navigation, route }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ArrowLeft size={24} color={COLORS.text} weight="bold" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{editItem ? 'Xizmatni tahrirlash' : 'Yangi xizmat'}</Text>
+        <Text style={styles.headerTitle}>{editItem ? (t('edit_service') || 'Xizmatni tahrirlash') : (t('new_service') || 'Yangi xizmat')}</Text>
       </View>
 
       <KeyboardAvoidingView 
@@ -325,7 +318,7 @@ export default function AddServiceScreen({ navigation, route }) {
       >
         <ScrollView ref={mainScrollRef} contentContainerStyle={styles.scrollContent}>
           
-          <Text style={styles.label}>Xizmat turi *</Text>
+          <Text style={styles.label}>{t('service_type') || 'Xizmat turi *'}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
             {SERVICE_TYPES.map(type => (
               <TouchableOpacity
@@ -337,13 +330,13 @@ export default function AddServiceScreen({ navigation, route }) {
                   {getPhosphorIcon(type.value, form.type === type.value, 24)}
                 </View>
                 <Text style={[styles.typeText, form.type === type.value && styles.typeTextActive]}>
-                  {type.label}
+                  {t(`type_${type.value}`) || type.label}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          <Text style={styles.label}>Nomi *</Text>
+          <Text style={styles.label}>{t('service_name') || 'Nomi *'}</Text>
           <TextInput
             style={styles.input}
             placeholder={getPlaceholder(form.type)}
@@ -351,36 +344,38 @@ export default function AddServiceScreen({ navigation, route }) {
             onChangeText={(text) => setForm({ ...form, name: text })}
           />
 
-          <Text style={styles.label}>Viloyat *</Text>
+          <Text style={styles.label}>{t('region_star') || 'Viloyat *'}</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={form.region}
               onValueChange={handleRegionChange}
-              style={styles.picker}
+              style={[styles.picker, { color: COLORS.text }]}
+              dropdownIconColor={COLORS.text}
             >
               {REGIONS.map(reg => (
-                <Picker.Item key={reg.value} label={reg.label} value={reg.value} />
+                <Picker.Item key={reg.value} label={reg.label} value={reg.value} color={Platform.OS === 'android' ? undefined : COLORS.text} />
               ))}
             </Picker>
           </View>
 
-          <Text style={styles.label}>Tuman / Shahar *</Text>
+          <Text style={styles.label}>{t('district_star') || 'Tuman / Shahar *'}</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={form.district}
               onValueChange={handleDistrictChange}
-              style={styles.picker}
+              style={[styles.picker, { color: COLORS.text }]}
+              dropdownIconColor={COLORS.text}
             >
               {(regionsAndDistricts[form.region] || []).map(dist => (
-                <Picker.Item key={dist} label={dist} value={dist} />
+                <Picker.Item key={dist} label={dist} value={dist} color={Platform.OS === 'android' ? undefined : COLORS.text} />
               ))}
             </Picker>
           </View>
 
-          <Text style={styles.label}>Xaritada belgilang *</Text>
-          {memoizedMap}
+          <Text style={styles.label}>{t('mark_on_map') || 'Xaritada belgilang *'}</Text>
+          {renderMap()}
 
-          <Text style={styles.label}>Narxi (so'm) *</Text>
+          <Text style={styles.label}>{t('price_uzs') || "Narxi (so'm) *"}</Text>
           <TextInput
             style={styles.input}
             placeholder="0"
@@ -391,10 +386,10 @@ export default function AddServiceScreen({ navigation, route }) {
 
           {form.type === 'TUYXONA' && (
             <>
-              <Text style={styles.label}>Sig'imi (odam)</Text>
+              <Text style={styles.label}>{t('capacity_people_label') || "Sig'imi (odam)"}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Masalan: 500"
+                placeholder={t('placeholder_capacity') || "Masalan: 500"}
                 keyboardType="numeric"
                 value={form.capacity}
                 onChangeText={(text) => setForm({ ...form, capacity: text.replace(/\D/g, '') })}
@@ -402,10 +397,10 @@ export default function AddServiceScreen({ navigation, route }) {
             </>
           )}
 
-          <Text style={styles.label}>Tavsif</Text>
+          <Text style={styles.label}>{t('description') || 'Tavsif'}</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="Xizmat haqida batafsil ma'lumot..."
+            placeholder={t('description_placeholder') || "Xizmat haqida batafsil ma'lumot..."}
             multiline
             numberOfLines={4}
             value={form.description}
@@ -413,8 +408,8 @@ export default function AddServiceScreen({ navigation, route }) {
           />
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
-            <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>Qo'shimcha xizmatlar</Text>
-            <Text style={styles.hintText}>(vergul bilan ajrating)</Text>
+            <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>{t('extra_services') || "Qo'shimcha xizmatlar"}</Text>
+            <Text style={styles.hintText}>{t('comma_separated') || "(vergul bilan ajrating)"}</Text>
           </View>
           <TextInput
             style={styles.input}
@@ -427,7 +422,7 @@ export default function AddServiceScreen({ navigation, route }) {
             <ScrollView horizontal style={styles.imageScroll}>
               <TouchableOpacity style={styles.addImageBtn} onPress={pickImages}>
                 <CameraIcon size={32} color={COLORS.primary} weight="regular" />
-                <Text style={styles.addImageText}>Qo'shish</Text>
+                <Text style={styles.addImageText}>{t('add') || "Qo'shish"}</Text>
               </TouchableOpacity>
               
               {existingImages.map((img) => (
@@ -443,7 +438,7 @@ export default function AddServiceScreen({ navigation, route }) {
                   )}
                   {img.is_main && (
                     <View style={styles.mainBadge}>
-                      <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>Asosiy</Text>
+                      <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>{t('main_image') || 'Asosiy'}</Text>
                     </View>
                   )}
                 </View>
@@ -464,7 +459,7 @@ export default function AddServiceScreen({ navigation, route }) {
                     )}
                     {isLocalMain && (
                       <View style={styles.mainBadge}>
-                        <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>Asosiy</Text>
+                        <Text style={{color: '#fff', fontSize: 10, fontWeight: 'bold'}}>{t('main_image') || 'Asosiy'}</Text>
                       </View>
                     )}
                   </View>
@@ -481,10 +476,10 @@ export default function AddServiceScreen({ navigation, route }) {
             {loading ? (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <ActivityIndicator color={COLORS.white} style={{ marginRight: 8 }} />
-                <Text style={styles.submitBtnText}>Yuklanmoqda, kuting...</Text>
+                <Text style={styles.submitBtnText}>{t('loading_wait') || 'Yuklanmoqda, kuting...'}</Text>
               </View>
             ) : (
-              <Text style={styles.submitBtnText}>Saqlash</Text>
+              <Text style={styles.submitBtnText}>{t('save') || 'Saqlash'}</Text>
             )}
           </TouchableOpacity>
 
@@ -534,6 +529,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 8,
     padding: 12,
+    color: COLORS.text,
     ...FONTS.regular,
   },
   pickerContainer: {

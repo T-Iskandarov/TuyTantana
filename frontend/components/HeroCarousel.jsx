@@ -91,19 +91,8 @@ export default function HeroCarousel() {
     return () => clearInterval(timer);
   }, [services.length, hovered, nextSlide]);
 
-  // Default hero when no services
-  if (loading) {
-    return (
-      <section className="relative h-[500px] lg:h-[560px] bg-[#F8F7FF] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-3 border-[#7C3AED]/30 border-t-[#7C3AED] rounded-full animate-spin" />
-          <p className="text-gray-400 text-sm">{t('loading')}</p>
-        </div>
-      </section>
-    );
-  }
-
-  if (services.length === 0) {
+  // Default hero when loading or no services (ensures Googlebot indexes H1 and rich SEO text during SSR)
+  if (loading || services.length === 0) {
     return (
       <section className="relative h-[500px] lg:h-[560px] overflow-hidden">
         {/* Beautiful default hero */}
@@ -140,7 +129,7 @@ export default function HeroCarousel() {
 
           <div className="flex flex-wrap gap-4 justify-center">
             <a
-              href="/services"
+              href="/#services"
               className="px-8 py-3.5 font-semibold text-[#F8F7FF] bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] rounded-xl hover:shadow-lg hover:shadow-[#7C3AED]/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('hero_slide1_btn')}

@@ -23,13 +23,13 @@ export default async function sitemap() {
   ];
 
   try {
-    const res = await fetch('https://api.tuytantana.uz/api/services/');
+    const res = await fetch('https://api.tuytantana.uz/api/services');
     if (!res.ok) throw new Error('Failed to fetch services');
     
     const data = await res.json();
     
-    // Some APIs return paginated objects like { results: [...] } or just an array
-    const services = Array.isArray(data) ? data : (data.results || []);
+    // Some APIs return paginated objects like { data: [...] } or { results: [...] } or just an array
+    const services = Array.isArray(data) ? data : (data.data || data.results || []);
     
     const dynamicPages = services.map((service) => ({
       url: `${baseUrl}/services/${service.id}`,

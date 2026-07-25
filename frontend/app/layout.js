@@ -46,7 +46,15 @@ export const metadata = {
     description: "O'zbekistondagi eng yirik to'y va marosim xizmatlarini izlash, topish va bron qilish platformasi.",
   },
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
   },
   verification: {
     google: 'z-HcN7cEcHPF3ZJIP0PpUI8gYUq0Bfd8TjmeoRz6Yro',
@@ -105,22 +113,48 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": "To'y Tantana",
-              "url": "https://www.tuytantana.uz",
-              "description": "O'zbekistondagi eng yirik to'y va marosim xizmatlarini izlash, topish va bron qilish platformasi.",
-              "publisher": {
-                "@type": "Organization",
-                "name": "CUBO kompaniyasi"
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "To'y Tantana",
+                "alternateName": "Tuy Tantana",
+                "url": "https://www.tuytantana.uz",
+                "description": "O'zbekistondagi eng yirik to'y va marosim xizmatlarini izlash, topish va bron qilish platformasi.",
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "CUBO kompaniyasi",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://www.tuytantana.uz/icon-512.png"
+                  }
+                },
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://www.tuytantana.uz/?search={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
               },
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": "https://www.tuytantana.uz/?search={search_term_string}",
-                "query-input": "required name=search_term_string"
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "To'y Tantana",
+                "alternateName": "Tuy Tantana",
+                "url": "https://www.tuytantana.uz",
+                "logo": "https://www.tuytantana.uz/icon-512.png",
+                "image": "https://www.tuytantana.uz/icon-512.png",
+                "description": "O'zbekistondagi eng ishonchli to'y va marosim xizmatlari platformasi. Tuyxonalar, xonandalar, foto va video xizmatlarini toping.",
+                "email": "tursunpulatiskandarov@gmail.com",
+                "telephone": "+998973173497",
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "telephone": "+998973173497",
+                  "contactType": "customer service",
+                  "areaServed": "UZ",
+                  "availableLanguage": ["Uzbek", "Russian", "English"]
+                }
               }
-            })
+            ])
           }}
         />
 

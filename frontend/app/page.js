@@ -112,35 +112,40 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main id="services" className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        {/* Service Type Tabs and Search */}
-        <div className="mb-8 animate-fadeIn flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <ServiceTabs activeType={activeType} onTypeChange={setActiveType} />
-          <div className="relative w-full md:w-80">
-            <input 
-              type="text"
-              value={filters.search}
-              onChange={(e) => setFilters({...filters, search: e.target.value})}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleApplyFilters();
-              }}
-              placeholder={t('search_placeholder')}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent outline-none transition-all text-sm"
-            />
-            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            {filters.search && (
-              <button 
-                onClick={() => {
-                  setFilters({...filters, search: ''});
-                  setAppliedFilters({...appliedFilters, search: ''});
+        {/* Search Bar and Service Type Tabs */}
+        <div className="mb-8 animate-fadeIn flex flex-col gap-6">
+          {/* Search Section Above Navbar */}
+          <div className="w-full max-w-2xl mx-auto">
+            <div className="relative w-full shadow-sm rounded-xl">
+              <input 
+                type="text"
+                value={filters.search}
+                onChange={(e) => setFilters({...filters, search: e.target.value})}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleApplyFilters();
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            )}
+                placeholder={t('search_placeholder')}
+                className="w-full pl-12 pr-10 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent outline-none transition-all text-sm sm:text-base shadow-sm hover:border-gray-300"
+              />
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {filters.search && (
+                <button 
+                  onClick={() => {
+                    setFilters({...filters, search: ''});
+                    setAppliedFilters({...appliedFilters, search: ''});
+                  }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Service Types Navbar */}
+          <ServiceTabs activeType={activeType} onTypeChange={setActiveType} />
         </div>
 
         {/* Mobile filter toggle */}

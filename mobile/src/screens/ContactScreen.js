@@ -3,8 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform, ScrollView
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Phone, EnvelopeSimple, MapPin, InstagramLogo, TelegramLogo } from 'phosphor-react-native';
 import { COLORS } from '../lib/theme';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ContactScreen() {
+  const { t } = useLanguage();
+
   const handleCall = () => {
     Linking.openURL(`tel:+998973173497`);
   };
@@ -24,13 +27,13 @@ export default function ContactScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Murojaat</Text>
+        <Text style={styles.headerTitle}>{t('contact') || "Murojaat"}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.sectionTitle}>Murojaat</Text>
+        <Text style={styles.sectionTitle}>{t('contact') || "Murojaat"}</Text>
         <Text style={styles.description}>
-          Biz bilan bog'lanish uchun quyidagi aloqa vositalaridan foydalanishingiz mumkin. Savollaringiz yoki takliflaringiz bo'lsa, xursandchilik bilan javob beramiz!
+          {t('contact_desc') || "Biz bilan bog'lanish uchun quyidagi aloqa vositalaridan foydalanishingiz mumkin. Savollaringiz yoki takliflaringiz bo'lsa, xursandchilik bilan javob beramiz!"}
         </Text>
 
         <TouchableOpacity style={styles.contactCard} onPress={handleCall} activeOpacity={0.7}>
@@ -38,7 +41,7 @@ export default function ContactScreen() {
             <Phone size={24} color={COLORS.primary} weight="fill" />
           </View>
           <View style={styles.cardText}>
-            <Text style={styles.cardLabel}>Telefon raqam</Text>
+            <Text style={styles.cardLabel}>{t('phone_number') || "Telefon raqam"}</Text>
             <Text style={styles.cardValue}>+998 97 317 34 97</Text>
           </View>
         </TouchableOpacity>
@@ -48,7 +51,7 @@ export default function ContactScreen() {
             <TelegramLogo size={24} color={COLORS.primary} weight="fill" />
           </View>
           <View style={styles.cardText}>
-            <Text style={styles.cardLabel}>Telegram</Text>
+            <Text style={styles.cardLabel}>{t('telegram') || "Telegram"}</Text>
             <Text style={styles.cardValue}>@T_Iskandarov</Text>
           </View>
         </TouchableOpacity>
@@ -58,7 +61,7 @@ export default function ContactScreen() {
             <InstagramLogo size={24} color={COLORS.primary} weight="fill" />
           </View>
           <View style={styles.cardText}>
-            <Text style={styles.cardLabel}>Instagram</Text>
+            <Text style={styles.cardLabel}>{t('instagram') || "Instagram"}</Text>
             <Text style={styles.cardValue}>@T_Iskandarov_</Text>
           </View>
         </TouchableOpacity>
@@ -68,7 +71,7 @@ export default function ContactScreen() {
             <EnvelopeSimple size={24} color={COLORS.primary} weight="fill" />
           </View>
           <View style={styles.cardText}>
-            <Text style={styles.cardLabel}>Pochta</Text>
+            <Text style={styles.cardLabel}>{t('email') || "Pochta"}</Text>
             <Text style={styles.cardValue}>tursunpulatiskandarov@gmail.com</Text>
           </View>
         </TouchableOpacity>
@@ -78,8 +81,8 @@ export default function ContactScreen() {
             <MapPin size={24} color={COLORS.primary} weight="fill" />
           </View>
           <View style={styles.cardText}>
-            <Text style={styles.cardLabel}>Manzil</Text>
-            <Text style={styles.cardValue}>Qarshi shahri</Text>
+            <Text style={styles.cardLabel}>{t('address') || "Manzil"}</Text>
+            <Text style={styles.cardValue}>{t('qarshi_city') || "Qarshi shahri"}</Text>
           </View>
         </View>
 

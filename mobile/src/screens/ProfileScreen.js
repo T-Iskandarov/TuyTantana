@@ -1,25 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   SignOut, 
   UserCircle, 
-  Briefcase, 
-  Star, 
   CreditCard, 
   Headset, 
   Info,
   CaretRight,
   ShieldCheck,
   CalendarBlank,
-  Camera,
   Storefront,
   TelegramLogo,
   Translate,
   CheckCircle
 } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { COLORS, SHADOWS } from '../lib/theme';
@@ -45,9 +41,9 @@ export default function ProfileScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert(
       t('nav_logout') || "Chiqish",
-      "Haqiqatan ham hisobdan chiqmoqchimisiz?",
+      t('logout_confirm') || "Haqiqatan ham hisobdan chiqmoqchimisiz?",
       [
-        { text: "Bekor qilish", style: "cancel" },
+        { text: t('cancel') || "Bekor qilish", style: "cancel" },
         { 
           text: t('nav_logout') || "Chiqish", 
           style: "destructive",
@@ -83,7 +79,7 @@ export default function ProfileScreen({ navigation }) {
     >
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setLangModalVisible(false)}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Tilni tanlang</Text>
+          <Text style={styles.modalTitle}>{t('choose_language') || 'Tilni tanlang'}</Text>
           {LANG_OPTIONS.map(item => (
             <TouchableOpacity 
               key={item.code} 
@@ -140,7 +136,7 @@ export default function ProfileScreen({ navigation }) {
   }
 
   const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
-  const roleLabel = user.role === 'PROVIDER' ? (t('service_owner') || "Xizmat ko'rsatuvchi") : "Foydalanuvchi";
+  const roleLabel = user.role === 'PROVIDER' ? (t('service_owner') || "Xizmat ko'rsatuvchi") : (t('user_role') || "Foydalanuvchi");
   const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString('uz-UZ') : 'Yaqinda';
 
   return (
@@ -182,7 +178,7 @@ export default function ProfileScreen({ navigation }) {
                   <CalendarBlank size={20} color={COLORS.primary} weight="duotone" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.statLabel} numberOfLines={1} adjustsFontSizeToFit>Ro'yxatdan o'tgan</Text>
+                  <Text style={styles.statLabel} numberOfLines={1} adjustsFontSizeToFit>{t('registered') || "Ro'yxatdan o'tgan"}</Text>
                   <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>{joinDate}</Text>
                 </View>
               </View>
@@ -194,9 +190,9 @@ export default function ProfileScreen({ navigation }) {
                   <ShieldCheck size={20} color={COLORS.primary} weight="duotone" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.statLabel}>Hisob holati</Text>
+                  <Text style={styles.statLabel}>{t('account_status') || 'Hisob holati'}</Text>
                   <View style={styles.statusValueContainer}>
-                    <Text style={styles.statValue}>Faol</Text>
+                    <Text style={styles.statValue}>{t('status_active') || 'Faol'}</Text>
                     <View style={styles.activeDot} />
                   </View>
                 </View>
@@ -209,8 +205,8 @@ export default function ProfileScreen({ navigation }) {
           {user.role === 'PROVIDER' && (
             <MenuItem 
               icon={Headset}
-              title="Kontakt"
-              subtitle="Biz bilan bog'lanish"
+              title={t('contact') || 'Kontakt'}
+              subtitle={t('contact_us') || "Biz bilan bog'lanish"}
               onPress={() => navigation.navigate('Contact')}
               color={COLORS.primary}
             />
@@ -218,15 +214,15 @@ export default function ProfileScreen({ navigation }) {
 
           <MenuItem 
             icon={TelegramLogo}
-            title="Botga ulanish"
-            subtitle="@Tuy_Tantana_bot ga o'tish"
+            title={t('connect_bot') || "Botga ulanish"}
+            subtitle={t('goto_bot') || "@Tuy_Tantana_bot ga o'tish"}
             onPress={() => Linking.openURL('https://t.me/Tuy_Tantana_bot')}
             color="#0088cc"
           />
 
           <MenuItem 
             icon={Translate}
-            title="Tilni o'zgartirish"
+            title={t('change_language') || "Tilni o'zgartirish"}
             subtitle={LANG_OPTIONS.find(l => l.code === selectedLang)?.label || "O'zbekcha"}
             onPress={() => setLangModalVisible(true)}
             color="#EC4899"
@@ -234,24 +230,24 @@ export default function ProfileScreen({ navigation }) {
 
           <MenuItem 
             icon={CreditCard}
-            title="To'lov usullari"
-            subtitle="Karta va to'lov hisoblaringiz"
+            title={t('payment_methods') || "To'lov usullari"}
+            subtitle={t('payment_methods_sub') || "Karta va to'lov hisoblaringiz"}
             onPress={() => navigation.navigate('PaymentMethods')}
             color="#6366F1"
           />
 
           <MenuItem 
             icon={Headset}
-            title="Yordam"
-            subtitle="Tez-tez so'raladigan savollar va yordam"
+            title={t('help') || "Yordam"}
+            subtitle={t('help_sub') || "Tez-tez so'raladigan savollar va yordam"}
             onPress={() => navigation.navigate('HelpSupport')}
             color="#14B8A6"
           />
 
           <MenuItem 
             icon={Info}
-            title="Ilova haqida"
-            subtitle="Versiya, shartlar va maxfiylik"
+            title={t('about_app') || "Ilova haqida"}
+            subtitle={t('about_app_sub') || "Versiya, shartlar va maxfiylik"}
             onPress={() => navigation.navigate('AboutApp')}
             color="#F59E0B"
           />
@@ -332,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 20,
     padding: 20,
-    ...SHADOWS.medium,
+    ...SHADOWS.md,
   },
   modalTitle: {
     fontSize: 18,

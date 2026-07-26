@@ -5,9 +5,11 @@ import { Star, ChatText, CaretLeft } from 'phosphor-react-native';
 import { COLORS, FONTS, SHADOWS } from '../lib/theme';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function MyReviewsScreen({ navigation }) {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +21,7 @@ export default function MyReviewsScreen({ navigation }) {
     try {
       const res = await api.getMyReviews(token);
       if (res.success) {
-        setReviews(res.data);
+        setReviews(Array.isArray(res.data) ? res.data : []);
       }
     } catch (e) {
       console.log(e);
@@ -54,7 +56,7 @@ export default function MyReviewsScreen({ navigation }) {
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <CaretLeft size={24} color={COLORS.text} weight="bold" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Izohlarim</Text>
+        <Text style={styles.headerTitle}>{t('my_reviews') || 'Izohlarim'}</Text>
         <View style={{ width: 40 }} />
       </View>
       
@@ -72,8 +74,8 @@ export default function MyReviewsScreen({ navigation }) {
               <View style={styles.iconCircle}>
                 <ChatText size={48} color={COLORS.primaryLight} weight="duotone" />
               </View>
-              <Text style={styles.emptyText}>Hali izoh qoldirmagansiz</Text>
-              <Text style={styles.emptySubtext}>Siz qoldirgan barcha izoh va baholar shu yerda ko'rsatiladi.</Text>
+              <Text style={styles.emptyText}>{t('no_reviews_yet') || 'Hali izoh qoldirmagansiz'}</Text>
+              <Text style={styles.emptySubtext}>{t('all_reviews_shown_here') || "Siz qoldirgan barcha izoh va baholar shu yerda ko'rsatiladi."}</Text>
             </View>
           }
           renderItem={renderReview}

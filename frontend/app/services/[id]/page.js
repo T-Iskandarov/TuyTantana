@@ -19,6 +19,9 @@ const DEFAULT_IMAGES = {
   XONANDA: 'https://images.unsplash.com/photo-1516280440502-3c13749d6373?q=80&w=800&auto=format&fit=crop',
   SALON: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
   KORTEJ: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop',
+  TASHKILOTCHI: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop',
+  LIBOSLAR: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=800&auto=format&fit=crop',
+  AKSESSUARLAR: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
 };
 
 function formatPrice(p) {
@@ -357,7 +360,7 @@ export default function ServiceDetailPage({ params: paramsPromise }) {
             )}
             <div className="absolute top-4 left-4 z-20">
               <span className="bg-white/90 backdrop-blur text-gray-900 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-                {t('service_' + (service.type === 'TUYXONA' ? 'venues' : service.type === 'FOTO_VIDEO' ? 'photo_video' : service.type === 'XONANDA' ? 'music' : service.type === 'SALON' ? 'beauty' : service.type === 'KORTEJ' ? 'cars' : service.type === 'TASHKILOTCHI' ? 'organizers' : 'all')) || service.type}
+                {t('service_' + (service.type === 'TUYXONA' ? 'venues' : service.type === 'FOTO_VIDEO' ? 'photo_video' : service.type === 'XONANDA' ? 'music' : service.type === 'SALON' ? 'beauty' : service.type === 'KORTEJ' ? 'cars' : service.type === 'TASHKILOTCHI' ? 'organizers' : service.type === 'LIBOSLAR' ? 'attire' : service.type === 'AKSESSUARLAR' ? 'accessories' : 'all')) || service.type}
               </span>
             </div>
           </div>
@@ -388,9 +391,13 @@ export default function ServiceDetailPage({ params: paramsPromise }) {
             <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('service_price')}</p>
-                <p className="text-3xl lg:text-4xl font-bold text-[#7C3AED]">{formatPrice(service.price)} <span className="text-xl text-gray-500 font-normal">{t('currency_uzs')}</span></p>
+                {(!service.price || service.price === 0 || service.price === '0') ? (
+                  <p className="text-3xl lg:text-4xl font-bold text-[#7C3AED]">{t('negotiable_price') || 'Kelishilgan narxda'}</p>
+                ) : (
+                  <p className="text-3xl lg:text-4xl font-bold text-[#7C3AED]">{formatPrice(service.price)} <span className="text-xl text-gray-500 font-normal">{t('currency_uzs')}</span></p>
+                )}
               </div>
-              {service.capacity && service.capacity > 0 && (
+              {service.capacity && service.capacity > 0 && service.price && service.price > 0 && (
                 <div className="inline-flex items-center gap-3 bg-[#F8F7FF] px-5 py-3 rounded-xl border border-[#7C3AED]/20">
                   <span className="text-2xl">👤</span>
                   <div className="flex flex-col">

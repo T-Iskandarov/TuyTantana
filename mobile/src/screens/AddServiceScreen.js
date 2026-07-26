@@ -37,6 +37,8 @@ export default function AddServiceScreen({ navigation, route }) {
   
   const mapRef = useRef(null);
   const mainScrollRef = useRef(null);
+  const descY = useRef(0);
+  const extraY = useRef(0);
 
   const getPlaceholder = (type) => {
     switch (type) {
@@ -46,6 +48,8 @@ export default function AddServiceScreen({ navigation, route }) {
       case 'SALON': return t('placeholder_salon') || "Masalan: Go'zallik saloni";
       case 'KORTEJ': return t('placeholder_kortej') || "Masalan: Gelik 2024 (qora)";
       case 'TASHKILOTCHI': return t('placeholder_tashkilotchi') || "Masalan: To'yona Event";
+      case 'LIBOSLAR': return t('placeholder_liboslar') || "Masalan: \"Kelin style\" sarpo va ko'ylaklar saloni";
+      case 'AKSESSUARLAR': return t('placeholder_aksessuarlar') || "Masalan: \"Diamond\" zargarlik va uzuklar uyi";
       default: return t('placeholder_default') || "Masalan: Xizmat nomi";
     }
   };
@@ -58,6 +62,8 @@ export default function AddServiceScreen({ navigation, route }) {
       case 'SALON': return t('extra_placeholder_salon') || "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
       case 'KORTEJ': return t('extra_placeholder_kortej') || "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
       case 'TASHKILOTCHI': return t('extra_placeholder_tashkilotchi') || "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
+      case 'LIBOSLAR': return t('extra_placeholder_liboslar') || "Masalan: Ko'ylakni o'lchamga moslab berish, Ximchistka, Sarpo sandiq";
+      case 'AKSESSUARLAR': return t('extra_placeholder_aksessuarlar') || "Masalan: O'zbekiston bo'ylab yetkazib berish, Individual yozuv tushirish";
       default: return t('extra_placeholder_default') || "Masalan: Wi-Fi, Avtoturargoh";
     }
   };
@@ -212,7 +218,7 @@ export default function AddServiceScreen({ navigation, route }) {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price || !form.region || !form.district) {
+    if (!form.name || !form.region || !form.district) {
       Alert.alert('Xato', 'Iltimos, barcha majburiy maydonlarni to\'ldiring!');
       return;
     }
@@ -227,7 +233,7 @@ export default function AddServiceScreen({ navigation, route }) {
       const serviceData = {
         name: form.name,
         type: form.type,
-        price: form.price,
+        price: form.price ? Number(form.price) : 0,
         description: form.description,
         location_name: `${form.region}, ${form.district}`,
         location_lat: form.location_lat,
@@ -286,11 +292,17 @@ export default function AddServiceScreen({ navigation, route }) {
           ref={mapRef}
           style={styles.map}
           initialRegion={initialMapRegion}
-          onMapPress={(e) => setForm(prev => ({
-            ...prev,
-            location_lat: e.nativeEvent.lat,
-            location_lng: e.nativeEvent.lon
-          }))}
+          onMapPress={(e) => {
+            if (!e || !e.nativeEvent) return;
+            const { lat, lon } = e.nativeEvent;
+            if (lat !== undefined && lon !== undefined) {
+              setForm(prev => ({
+                ...prev,
+                location_lat: Number(lat),
+                location_lng: Number(lon)
+              }));
+            }
+          }}
         >
           <Marker
             point={{
@@ -316,7 +328,12 @@ export default function AddServiceScreen({ navigation, route }) {
         style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView ref={mainScrollRef} contentContainerStyle={styles.scrollContent}>
+        <ScrollView 
+          ref={mainScrollRef} 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           
           <Text style={styles.label}>{t('service_type') || 'Xizmat turi *'}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
@@ -375,7 +392,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <Text style={styles.label}>{t('mark_on_map') || 'Xaritada belgilang *'}</Text>
           {renderMap()}
 
-          <Text style={styles.label}>{t('price_uzs') || "Narxi (so'm) *"}</Text>
+          <Text style={styles.label}>{t('price_optional_hint') || "Narxi (so'm) — majburiy emas, o'rtacha narx"}</Text>
           <TextInput
             style={styles.input}
             placeholder="0"
@@ -397,26 +414,44 @@ export default function AddServiceScreen({ navigation, route }) {
             </>
           )}
 
-          <Text style={styles.label}>{t('description') || 'Tavsif'}</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder={t('description_placeholder') || "Xizmat haqida batafsil ma'lumot..."}
-            multiline
-            numberOfLines={4}
-            value={form.description}
-            onChangeText={(text) => setForm({ ...form, description: text })}
-          />
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
-            <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>{t('extra_services') || "Qo'shimcha xizmatlar"}</Text>
-            <Text style={styles.hintText}>{t('comma_separated') || "(vergul bilan ajrating)"}</Text>
+          <View onLayout={(e) => { descY.current = e.nativeEvent.layout.y; }}>
+            <Text style={styles.label}>{t('description') || 'Tavsif'}</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder={t('description_placeholder') || "Xizmat haqida batafsil ma'lumot..."}
+              multiline
+              numberOfLines={4}
+              value={form.description}
+              onChangeText={(text) => setForm({ ...form, description: text })}
+              onFocus={() => {
+                setTimeout(() => {
+                  if (descY.current) {
+                    mainScrollRef.current?.scrollTo({ y: descY.current - 20, animated: true });
+                  }
+                }, 400);
+              }}
+            />
           </View>
-          <TextInput
-            style={styles.input}
-            placeholder={getExtraServicesPlaceholder(form.type)}
-            value={form.extra_services}
-            onChangeText={(text) => setForm({ ...form, extra_services: text })}
-          />
+
+          <View onLayout={(e) => { extraY.current = e.nativeEvent.layout.y; }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
+              <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>{t('extra_services') || "Qo'shimcha xizmatlar"}</Text>
+              <Text style={styles.hintText}>{t('comma_separated') || "(vergul bilan ajrating)"}</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder={getExtraServicesPlaceholder(form.type)}
+              value={form.extra_services}
+              onChangeText={(text) => setForm({ ...form, extra_services: text })}
+              onFocus={() => {
+                setTimeout(() => {
+                  if (extraY.current) {
+                    mainScrollRef.current?.scrollTo({ y: extraY.current - 20, animated: true });
+                  }
+                }, 400);
+              }}
+            />
+          </View>
 
           <View style={styles.imageSection}>
             <ScrollView horizontal style={styles.imageScroll}>
@@ -511,7 +546,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   label: {
     ...FONTS.medium,

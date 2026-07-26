@@ -20,7 +20,7 @@ print("Zip created successfully.")
 print("Connecting to server...")
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect('169.58.49.5', username='root', password='Ferrari3377274')
+ssh.connect('169.58.49.5', username='root', password='Ferrari3377274', timeout=15, banner_timeout=30, auth_timeout=15)
 
 print("Uploading to server...")
 sftp = ssh.open_sftp()
@@ -32,6 +32,14 @@ print("Extracting on server...")
 stdin, stdout, stderr = ssh.exec_command('unzip -o /root/django_backend.zip -d /root/tuy-tantana')
 print(stdout.read().decode())
 print("Extraction complete.")
+
+print("Running migrations and restarting gunicorn...")
+stdin, stdout, stderr = ssh.exec_command('cd /root/tuy-tantana/django_backend && source ../venv/bin/activate || source venv/bin/activate; python manage.py migrate; systemctl restart gunicorn')
+print("STDOUT:", stdout.read().decode())
+err = stderr.read().decode()
+if err:
+    print("STDERR:", err)
+print("Restart complete.")
 
 ssh.close()
 print("Done!")

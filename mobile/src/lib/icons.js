@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bank, Camera, Microphone, Scissors, Car, ClipboardText, SquaresFour, Star, MapPin, CheckCircle, WarningCircle, XCircle } from 'phosphor-react-native';
+import { Bank, Camera, Microphone, Scissors, Car, ClipboardText, SquaresFour, TShirt, Diamond } from 'phosphor-react-native';
 import { COLORS } from './theme';
 
 export const getPhosphorIcon = (value, isActive = false, size = 28, customColor = null) => {
@@ -13,6 +13,8 @@ export const getPhosphorIcon = (value, isActive = false, size = 28, customColor 
     case 'SALON': return <Scissors size={size} color={color} weight={weight} />;
     case 'KORTEJ': return <Car size={size} color={color} weight={weight} />;
     case 'TASHKILOTCHI': return <ClipboardText size={size} color={color} weight={weight} />;
+    case 'LIBOSLAR': return <TShirt size={size} color={color} weight={weight} />;
+    case 'AKSESSUARLAR': return <Diamond size={size} color={color} weight={weight} />;
     case 'ALL': return <SquaresFour size={size} color={color} weight={weight} />;
     default: return <SquaresFour size={size} color={color} />;
   }

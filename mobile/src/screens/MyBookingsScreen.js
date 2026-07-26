@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CalendarBlank, Image as ImageIcon, User, Calendar, CheckCircle, Clock, XCircle, ListNumbers, CaretRight } from 'phosphor-react-native';
+import { CalendarBlank, Image as ImageIcon, User, CheckCircle, Clock, XCircle, ListNumbers } from 'phosphor-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api, IMAGE_BASE } from '../lib/api';
-import { COLORS, FONTS, STATUS_MAP, SHADOWS } from '../lib/theme';
+import { COLORS, STATUS_MAP, SHADOWS } from '../lib/theme';
 
 function formatPrice(p) {
   if (!p && p !== 0) return '-';
@@ -13,6 +14,7 @@ function formatPrice(p) {
 
 export default function MyBookingsScreen({ navigation }) {
   const { user, token } = useAuth();
+  const { t } = useLanguage();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +27,9 @@ export default function MyBookingsScreen({ navigation }) {
     try {
       const res = await api.getMyBookings(token);
       if (res.success) {
-        setBookings(res.data || []);
+        const data = res.data;
+        if (!data || !Array.isArray(data)) return;
+        setBookings(data);
       }
     } catch (error) {
       console.error(error);
@@ -48,19 +52,19 @@ export default function MyBookingsScreen({ navigation }) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Mening bronlarim</Text>
+          <Text style={styles.headerTitle}>{t('my_bookings') || 'Mening bronlarim'}</Text>
         </View>
         <View style={styles.emptyContainer}>
           <CalendarBlank size={80} color={COLORS.primaryLight} weight="duotone" />
-          <Text style={styles.emptyText}>Tizimga kirmagansiz</Text>
-          <Text style={styles.emptySubtext}>Bronlarni ko'rish va boshqarish uchun tizimga kiring</Text>
+          <Text style={styles.emptyText}>{t('not_logged_in') || 'Tizimga kirmagansiz'}</Text>
+          <Text style={styles.emptySubtext}>{t('login_to_view_bookings') || "Bronlarni ko'rish va boshqarish uchun tizimga kiring"}</Text>
           
           <TouchableOpacity 
             style={styles.loginBtn}
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.8}
           >
-            <Text style={styles.loginBtnText}>Kirish</Text>
+            <Text style={styles.loginBtnText}>{t('login') || 'Kirish'}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -88,7 +92,7 @@ export default function MyBookingsScreen({ navigation }) {
   );
 
   const renderBookingCard = ({ item }) => {
-    const statusMap = STATUS_MAP[item.status] || STATUS_MAP.PENDING;
+    const statusMap = STATUS_MAP[item.status?.toLowerCase()] || STATUS_MAP.PENDING;
     const service = item.service || {};
     const serviceImg = service.images && service.images.length > 0 
       ? { uri: `${IMAGE_BASE}${service.images[0].image_path}` } 
@@ -117,19 +121,23 @@ export default function MyBookingsScreen({ navigation }) {
           </View>
           
           <Text style={styles.serviceName} numberOfLines={2}>
-            {service.name || 'Noma\'lum xizmat'}
+            {service.name || (t('unknown_service') || "Noma'lum xizmat")}
           </Text>
 
           <View style={styles.providerRow}>
             <User size={16} color={COLORS.textSecondary} weight="duotone" />
             <Text style={styles.providerName} numberOfLines={1}>
-              {service.provider?.name || 'Noma\'lum provayder'}
+              {service.provider?.name || (t('unknown_provider') || "Noma'lum provayder")}
             </Text>
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Narxi:</Text>
-            <Text style={styles.price}>{formatPrice(service.price)} so'm</Text>
+            <Text style={styles.priceLabel}>{t('price') || 'Narxi:'}</Text>
+            {(!service.price || service.price === 0 || service.price === '0') ? (
+              <Text style={[styles.price, { color: COLORS.primary }]}>{t('negotiable_price') || 'Kelishilgan narxda'}</Text>
+            ) : (
+              <Text style={styles.price}>{formatPrice(service.price)} {t('sum') || "so'm"}</Text>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -149,7 +157,7 @@ export default function MyBookingsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Mening bronlarim</Text>
+        <Text style={styles.headerTitle}>{t('my_bookings') || 'Mening bronlarim'}</Text>
       </View>
 
       <FlatList
@@ -164,23 +172,23 @@ export default function MyBookingsScreen({ navigation }) {
         ListHeaderComponent={
           bookings.length > 0 ? (
             <View style={styles.statsGrid}>
-              {renderStatCard('Jami', stats.total, COLORS.primary, ListNumbers)}
-              {renderStatCard('Tasdiqlangan', stats.confirmed, COLORS.success, CheckCircle)}
-              {renderStatCard('Kutilmoqda', stats.pending, COLORS.warning, Clock)}
-              {renderStatCard('Bekor qilingan', stats.cancelled, COLORS.danger, XCircle)}
+              {renderStatCard(t('total') || 'Jami', stats.total, COLORS.primary, ListNumbers)}
+              {renderStatCard(t('confirmed') || 'Tasdiqlangan', stats.confirmed, COLORS.success, CheckCircle)}
+              {renderStatCard(t('pending') || 'Kutilmoqda', stats.pending, COLORS.warning, Clock)}
+              {renderStatCard(t('cancelled') || 'Bekor qilingan', stats.cancelled, COLORS.danger, XCircle)}
             </View>
           ) : null
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <CalendarBlank size={64} color={COLORS.primaryLight} weight="duotone" />
-            <Text style={styles.emptyText}>Hali bronlaringiz yo'q</Text>
-            <Text style={styles.emptySubtext}>Yangi xizmatlarni toping va o'z bayramingizni rejalashtiring</Text>
+            <Text style={styles.emptyText}>{t('no_bookings_yet') || "Hali bronlaringiz yo'q"}</Text>
+            <Text style={styles.emptySubtext}>{t('explore_services_msg') || "Yangi xizmatlarni toping va o'z bayramingizni rejalashtiring"}</Text>
             <TouchableOpacity 
               style={styles.exploreBtn}
               onPress={() => navigation.navigate('HomeTab')}
             >
-              <Text style={styles.exploreBtnText}>Xizmatlarni izlash</Text>
+              <Text style={styles.exploreBtnText}>{t('search_services') || 'Xizmatlarni izlash'}</Text>
             </TouchableOpacity>
           </View>
         }

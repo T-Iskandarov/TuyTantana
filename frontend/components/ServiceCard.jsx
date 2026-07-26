@@ -13,6 +13,8 @@ const DEFAULT_IMAGES = {
   SALON: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
   KORTEJ: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop',
   TASHKILOTCHI: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop',
+  LIBOSLAR: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=800&auto=format&fit=crop',
+  AKSESSUARLAR: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
 };
 
 function formatPrice(price) {
@@ -32,6 +34,8 @@ export default function ServiceCard({ service }) {
     SALON: t('service_beauty'),
     KORTEJ: t('service_cars'),
     TASHKILOTCHI: t('service_organizers'),
+    LIBOSLAR: t('service_attire') || 'Liboslar',
+    AKSESSUARLAR: t('service_accessories') || 'Aksessuarlar',
   };
   const getImageUrl = (path) => {
     if (!path) return '';
@@ -111,10 +115,14 @@ export default function ServiceCard({ service }) {
           <div className="mt-auto pt-3 border-t border-gray-100 space-y-3">
             <div>
               <p className="text-xs text-gray-500 mb-0.5">{t('price')}</p>
-              <p className="text-[#7C3AED] font-bold text-xl line-clamp-1">
-                {formatPrice(service.price)}
-                <span className="text-sm font-normal text-gray-400 ml-1">{t('currency_uzs')}</span>
-              </p>
+              {(!service.price || service.price === 0 || service.price === '0') ? (
+                <p className="text-[#7C3AED] font-bold text-lg line-clamp-1">{t('negotiable_price') || 'Kelishilgan narxda'}</p>
+              ) : (
+                <p className="text-[#7C3AED] font-bold text-xl line-clamp-1">
+                  {formatPrice(service.price)}
+                  <span className="text-sm font-normal text-gray-400 ml-1">{t('currency_uzs')}</span>
+                </p>
+              )}
             </div>
             <div
               className="w-full text-center bg-gray-50 hover:bg-[#7C3AED]/10 text-[#7C3AED] text-sm font-medium

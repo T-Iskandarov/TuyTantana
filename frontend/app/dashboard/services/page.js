@@ -17,6 +17,8 @@ const SERVICE_TYPES = [
   { value: 'SALON', label: 'Tuy salon' },
   { value: 'KORTEJ', label: 'Kortej' },
   { value: 'TASHKILOTCHI', label: 'Tuy tashkilotchisi' },
+  { value: 'LIBOSLAR', label: 'Liboslar' },
+  { value: 'AKSESSUARLAR', label: 'Aksessuarlar' },
 ];
 
 function formatPrice(p) {
@@ -54,6 +56,8 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       case 'SALON': return "Masalan: Go'zallik saloni";
       case 'KORTEJ': return "Masalan: Gelik 2024 (qora)";
       case 'TASHKILOTCHI': return "Masalan: To'yona Event";
+      case 'LIBOSLAR': return "Masalan: Kelin ko'ylak, Sarpo to'plami";
+      case 'AKSESSUARLAR': return "Masalan: Diadema, Zirak, To'y guldastasi";
       default: return "Masalan: Xizmat nomi";
     }
   };
@@ -66,6 +70,8 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       case 'SALON': return "Masalan: Makiyaj, Soch turmagi, Tirnoq dizayni";
       case 'KORTEJ': return "Masalan: Haydovchi bilan, Bezaklar, Konditsioner";
       case 'TASHKILOTCHI': return "Masalan: Boshlovchi, Dasturxon, Sahnani bezash";
+      case 'LIBOSLAR': return "Masalan: Kimyoviy tozalash, O'lchamni moslash";
+      case 'AKSESSUARLAR': return "Masalan: Yetkazib berish, Maxsus qadoqlash";
       default: return "Masalan: Wi-Fi, Avtoturargoh";
     }
   };
@@ -216,7 +222,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
       toast.error("Iltimos, avval rasm xatoligini to'g'irlang (faqat 5MB dan kichik rasmlarni tanlang).");
       return;
     }
-    if (!form.name || !form.price || !form.region || !form.district) {
+    if (!form.name || !form.region || !form.district) {
       toast.error("Iltimos, barcha majburiy maydonlarni to'ldiring.");
       return;
     }
@@ -228,7 +234,7 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
     try {
       const serviceData = {
         ...form,
-        price: form.price.replace(/\s/g, ''),
+        price: form.price ? form.price.replace(/\s/g, '') : 0,
         location_name: `${form.region}, ${form.district}`,
         capacity: form.capacity || null,
         location_lat: form.location_lat,
@@ -314,8 +320,8 @@ function AddServiceForm({ token, onSuccess, toast, editItem, onCancel }) {
         </div>
 
         <div>
-          <label className="text-xs text-gray-500 mb-1.5 block">Narxi (so&apos;m) *</label>
-          <input name="price" type="text" value={form.price} onChange={handleChange} placeholder="15 000 000" className={inputCls} />
+          <label className="text-xs text-gray-500 mb-1.5 block">Narxi (so&apos;m) - majburiy emas, o&apos;rtacha narx yozishingiz mumkin</label>
+          <input name="price" type="text" value={form.price} onChange={handleChange} placeholder="Masalan: 15 000 000 (yozilmasa 'Kelishilgan narxda' bo'ladi)" className={inputCls} />
         </div>
 
         {form.type === 'TUYXONA' && (
@@ -731,7 +737,9 @@ export default function MyServicesPage() {
                   <h3 className="font-semibold text-gray-900 truncate">{service.name}</h3>
                   <span className="text-xs text-gray-500">{SERVICE_TYPES.find(t => t.value === service.type)?.label}</span>
                 </div>
-                <p className="text-lg font-bold text-[#7C3AED]">{formatPrice(service.price)} so&apos;m</p>
+                <p className="text-lg font-bold text-[#7C3AED]">
+                  {(!service.price || service.price === 0 || service.price === '0') ? "Kelishilgan narxda" : `${formatPrice(service.price)} so'm`}
+                </p>
                 <p className="text-xs text-gray-500">
                   {service._count?.bookings || 0} ta buyurtma
                   {service.capacity && ` | ${service.capacity} kishi`}

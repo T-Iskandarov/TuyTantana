@@ -602,6 +602,8 @@ export default function AdminPage() {
                       <option value="SALON">To'y saloni</option>
                       <option value="KORTEJ">Kortej</option>
                       <option value="TASHKILOTCHI">Tashkilotchi</option>
+                      <option value="LIBOSLAR">Liboslar</option>
+                      <option value="AKSESSUARLAR">Aksessuarlar</option>
                     </select>
                     <button onClick={() => exportData('excel', 'services')} className="bg-green-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-600 transition-colors">Excel</button>
                     <button onClick={() => exportData('pdf', 'services')} className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors">PDF</button>
@@ -625,7 +627,7 @@ export default function AdminPage() {
                           <td className="px-5 py-3 text-sm text-gray-500">#{s.id}</td>
                           <td className="px-5 py-3 text-sm text-gray-900 font-medium">{s.name}</td>
                           <td className="px-5 py-3 text-xs text-gray-400">{s.type}</td>
-                          <td className="px-5 py-3 text-sm text-[#7C3AED] font-medium">{formatPrice(s.price)}</td>
+                          <td className="px-5 py-3 text-sm text-[#7C3AED] font-medium">{(!s.price || s.price === 0 || s.price === '0') ? "Kelishilgan" : formatPrice(s.price)}</td>
                           <td className="px-5 py-3">
                             <p className="text-sm text-gray-600">{s.provider?.name}</p>
                             <p className="text-xs text-gray-500">{s.provider?.phone_number}</p>

@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, To
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Phone, Calendar, X, Check, FolderOpen, Briefcase, Clock, CheckCircle, XCircle, ListNumbers } from 'phosphor-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../lib/api';
-import { COLORS, FONTS, STATUS_MAP, SHADOWS } from '../lib/theme';
+import { COLORS, STATUS_MAP, SHADOWS } from '../lib/theme';
 
 export default function ProviderDashboardScreen({ navigation }) {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [bookings, setBookings] = useState([]);
   const [servicesCount, setServicesCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,8 +22,14 @@ export default function ProviderDashboardScreen({ navigation }) {
         api.getMyServices(token)
       ]);
       
-      if (bookingsRes.success) setBookings(bookingsRes.data || []);
-      if (servicesRes.success) setServicesCount((servicesRes.data || []).length);
+      if (bookingsRes.success) {
+        if (!bookingsRes.data || bookingsRes.data.error) return;
+        setBookings(bookingsRes.data || []);
+      }
+      if (servicesRes.success) {
+        if (!servicesRes.data || servicesRes.data.error) return;
+        setServicesCount((servicesRes.data || []).length);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -40,14 +48,14 @@ export default function ProviderDashboardScreen({ navigation }) {
   };
 
   const handleUpdateStatus = (id, newStatus) => {
-    const actionName = newStatus === 'CONFIRMED' ? 'tasdiqlashni' : 'bekor qilishni';
+    const actionName = newStatus === 'CONFIRMED' ? (t('action_confirm') || 'tasdiqlashni') : (t('action_cancel') || 'bekor qilishni');
     Alert.alert(
-      "Ishonchingiz komilmi?",
-      `Siz rostdan ham ushbu buyurtmani ${actionName} xohlaysizmi?`,
+      t('are_you_sure') || "Ishonchingiz komilmi?",
+      `${t('really_want_to_action') || 'Siz rostdan ham ushbu buyurtmani'} ${actionName} ${t('want_question') || 'xohlaysizmi?'}`,
       [
-        { text: "Yo'q", style: "cancel" },
+        { text: t('no') || "Yo'q", style: "cancel" },
         { 
-          text: "Ha", 
+          text: t('yes') || "Ha", 
           style: newStatus === 'CANCELLED' ? 'destructive' : 'default',
           onPress: async () => {
             try {
@@ -55,10 +63,10 @@ export default function ProviderDashboardScreen({ navigation }) {
               if (res.success) {
                 fetchData(); // refresh list
               } else {
-                Alert.alert("Xatolik", "Holatni o'zgartirib bo'lmadi");
+                Alert.alert(t('error') || "Xatolik", t('cannot_change_status') || "Holatni o'zgartirib bo'lmadi");
               }
             } catch (e) {
-              Alert.alert("Xatolik", "Tarmoq xatosi yuz berdi");
+              Alert.alert(t('error') || "Xatolik", t('network_error') || "Tarmoq xatosi yuz berdi");
             }
           }
         }
@@ -94,7 +102,7 @@ export default function ProviderDashboardScreen({ navigation }) {
         <View style={styles.cardHeader}>
           <Text style={styles.serviceName} numberOfLines={1}>{item.service?.name}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusMap.bg }]}>
-            <Text style={[styles.statusText, { color: statusMap.color }]}>{statusMap.label}</Text>
+            <Text style={[styles.statusText, { color: statusMap.color }]}>{t(`status_${item.status?.toLowerCase()}`) || statusMap.label}</Text>
           </View>
         </View>
 
@@ -126,14 +134,14 @@ export default function ProviderDashboardScreen({ navigation }) {
               onPress={() => handleUpdateStatus(item.id, 'CANCELLED')}
             >
               <X size={18} color={COLORS.danger} weight="bold" />
-              <Text style={[styles.actionBtnText, { color: COLORS.danger }]}>Rad etish</Text>
+              <Text style={[styles.actionBtnText, { color: COLORS.danger }]}>{t('reject') || 'Rad etish'}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.actionBtn, styles.confirmBtn]} 
               onPress={() => handleUpdateStatus(item.id, 'CONFIRMED')}
             >
               <Check size={18} color={COLORS.white} weight="bold" />
-              <Text style={[styles.actionBtnText, { color: COLORS.white }]}>Tasdiqlash</Text>
+              <Text style={[styles.actionBtnText, { color: COLORS.white }]}>{t('confirm') || 'Tasdiqlash'}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -164,7 +172,7 @@ export default function ProviderDashboardScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Boshqaruv paneli</Text>
+        <Text style={styles.headerTitle}>{t('dashboard') || 'Boshqaruv paneli'}</Text>
       </View>
 
       <FlatList
@@ -179,18 +187,18 @@ export default function ProviderDashboardScreen({ navigation }) {
         ListHeaderComponent={
           <>
             <View style={styles.statsGrid}>
-              {renderStatCard('Jami bronlar', stats.totalBookings, <ListNumbers size={22} color="#3B82F6" weight="duotone" />, '#3B82F6', '#DBEAFE')}
-              {renderStatCard('Kutilmoqda', stats.pending, <Clock size={22} color={COLORS.warning} weight="duotone" />, COLORS.warning, COLORS.warningLight)}
-              {renderStatCard('Tasdiqlangan', stats.confirmed, <CheckCircle size={22} color={COLORS.success} weight="duotone" />, COLORS.success, COLORS.successLight)}
-              {renderStatCard('Bekor qilingan', stats.cancelled, <XCircle size={22} color={COLORS.danger} weight="duotone" />, COLORS.danger, COLORS.dangerLight)}
+              {renderStatCard(t('total_bookings') || 'Jami bronlar', stats.totalBookings, <ListNumbers size={22} color="#3B82F6" weight="duotone" />, '#3B82F6', '#DBEAFE')}
+              {renderStatCard(t('status_pending') || 'Kutilmoqda', stats.pending, <Clock size={22} color={COLORS.warning} weight="duotone" />, COLORS.warning, COLORS.warningLight)}
+              {renderStatCard(t('status_confirmed') || 'Tasdiqlangan', stats.confirmed, <CheckCircle size={22} color={COLORS.success} weight="duotone" />, COLORS.success, COLORS.successLight)}
+              {renderStatCard(t('status_cancelled') || 'Bekor qilingan', stats.cancelled, <XCircle size={22} color={COLORS.danger} weight="duotone" />, COLORS.danger, COLORS.dangerLight)}
             </View>
-            <Text style={styles.sectionTitle}>So'nggi buyurtmalar</Text>
+            <Text style={styles.sectionTitle}>{t('recent_orders') || "So'nggi buyurtmalar"}</Text>
           </>
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <FolderOpen size={48} color={COLORS.textLight} weight="light" />
-            <Text style={styles.emptyText}>Hali buyurtmalar kelib tushmagan</Text>
+            <Text style={styles.emptyText}>{t('no_bookings_yet') || 'Hali buyurtmalar kelib tushmagan'}</Text>
           </View>
         }
       />

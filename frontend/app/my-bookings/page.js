@@ -144,7 +144,7 @@ export default function MyBookingsPage() {
                         {new Date(booking.date).toLocaleDateString('uz-UZ')}
                       </p>
                       <p className="text-xs text-[#7C3AED] font-semibold mt-0.5">
-                        {formatPrice(s?.price)} {t('currency_uzs')}
+                        {(!s?.price || s?.price === 0 || s?.price === '0') ? (t('negotiable_price') || 'Kelishilgan narxda') : `${formatPrice(s?.price)} ${t('currency_uzs')}`}
                       </p>
                     </div>
 

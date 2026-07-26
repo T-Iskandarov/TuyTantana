@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, CaretRight, Star, ArrowLeft, Briefcase, Trash, Calendar, PencilSimple } from 'phosphor-react-native';
+import { Plus, CaretRight, ArrowLeft, Briefcase, Trash, Calendar, PencilSimple } from 'phosphor-react-native';
 import { getPhosphorIcon } from '../lib/icons';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api, IMAGE_BASE } from '../lib/api';
 import { COLORS, FONTS, SERVICE_TYPES, SHADOWS } from '../lib/theme';
 
@@ -14,6 +15,7 @@ function formatPrice(p) {
 
 export default function ProviderServicesScreen({ navigation }) {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,12 +48,12 @@ export default function ProviderServicesScreen({ navigation }) {
 
   const handleDelete = (id) => {
     Alert.alert(
-      "O'chirish",
-      "Haqiqatan ham bu xizmatni o'chirib tashlamoqchimisiz?",
+      t('delete') || "O'chirish",
+      t('confirm_delete_service') || "Haqiqatan ham bu xizmatni o'chirib tashlamoqchimisiz?",
       [
-        { text: "Bekor qilish", style: "cancel" },
+        { text: t('cancel') || "Bekor qilish", style: "cancel" },
         { 
-          text: "O'chirish", 
+          text: t('delete') || "O'chirish", 
           style: "destructive",
           onPress: async () => {
             try {
@@ -59,10 +61,10 @@ export default function ProviderServicesScreen({ navigation }) {
               if (res.success) {
                 fetchServices();
               } else {
-                Alert.alert("Xato", "Xizmatni o'chirishda xatolik yuz berdi");
+                Alert.alert(t('error') || "Xato", t('delete_service_error') || "Xizmatni o'chirishda xatolik yuz berdi");
               }
             } catch (e) {
-              Alert.alert("Xato", "Tarmoq xatosi");
+              Alert.alert(t('error') || "Xato", t('network_error') || "Tarmoq xatosi");
             }
           }
         }
@@ -71,7 +73,8 @@ export default function ProviderServicesScreen({ navigation }) {
   };
 
   const renderServiceItem = ({ item }) => {
-    const typeInfo = SERVICE_TYPES.find(t => t.value === item.type) || { label: item.type, icon: '📌' };
+    const typeInfo = SERVICE_TYPES.find(typeItem => typeItem.value === item.type) || { label: item.type, icon: '📌' };
+    const translatedTypeLabel = t(`type_${item.type}`) || typeInfo.label;
     const imageUri = item.images && item.images.length > 0 
       ? { uri: `${IMAGE_BASE}${item.images[0].image_path}` } 
       : null;
@@ -88,7 +91,7 @@ export default function ProviderServicesScreen({ navigation }) {
           )}
           <View style={styles.badge}>
             {getPhosphorIcon(item.type, true, 14, '#FFF')}
-            <Text style={styles.badgeText}>{typeInfo.label}</Text>
+            <Text style={styles.badgeText}>{translatedTypeLabel}</Text>
           </View>
         </View>
         
@@ -97,17 +100,21 @@ export default function ProviderServicesScreen({ navigation }) {
           
           <View style={styles.infoRow}>
             <Calendar size={16} color={COLORS.textSecondary} weight="duotone" />
-            <Text style={styles.infoText}>{item.bookings ? item.bookings.length : 0} ta tasdiqlangan bron</Text>
+            <Text style={styles.infoText}>{item.bookings ? item.bookings.length : 0} {t('confirmed_bookings_count') || 'ta tasdiqlangan bron'}</Text>
           </View>
           
           <View style={styles.priceContainer}>
-            <Text style={styles.price}>{formatPrice(item.price)} <Text style={{fontSize: 14, fontWeight: 'normal', color: COLORS.textSecondary}}>so'm</Text></Text>
+            {(!item.price || item.price === 0 || item.price === '0') ? (
+              <Text style={[styles.price, { color: COLORS.primary }]}>{t('negotiable_price') || 'Kelishilgan narxda'}</Text>
+            ) : (
+              <Text style={styles.price}>{formatPrice(item.price)} <Text style={{fontSize: 14, fontWeight: 'normal', color: COLORS.textSecondary}}>{t('currency_uzs') || "so'm"}</Text></Text>
+            )}
           </View>
           
           <View style={styles.actionsRow}>
             <TouchableOpacity onPress={() => navigation.navigate('ProviderServiceCalendar', { serviceId: item.id })} style={[styles.actionBtn, {backgroundColor: COLORS.primaryLight}]}>
               <Calendar size={20} color={COLORS.primary} weight="duotone" />
-              <Text style={[styles.actionBtnText, {color: COLORS.primaryDark}]}>Kalendar</Text>
+              <Text style={[styles.actionBtnText, {color: COLORS.primaryDark}]}>{t('calendar') || 'Kalendar'}</Text>
             </TouchableOpacity>
             
             <View style={styles.rightActions}>
@@ -139,13 +146,13 @@ export default function ProviderServicesScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ArrowLeft size={24} color={COLORS.text} weight="bold" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Xizmatlarim</Text>
+        <Text style={styles.headerTitle}>{t('my_services') || 'Xizmatlarim'}</Text>
         <TouchableOpacity 
           style={styles.addBtn}
           onPress={() => navigation.navigate('AddService')}
         >
           <Plus size={24} color={COLORS.white} weight="bold" />
-          <Text style={styles.addBtnText}>Qo'shish</Text>
+          <Text style={styles.addBtnText}>{t('add') || "Qo'shish"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -160,7 +167,7 @@ export default function ProviderServicesScreen({ navigation }) {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Briefcase size={20} color={COLORS.primary} />
-            <Text style={styles.emptyText}>Siz hali xizmat qo'shmagansiz</Text>
+            <Text style={styles.emptyText}>{t('no_services_added_yet') || "Siz hali xizmat qo'shmagansiz"}</Text>
           </View>
         }
       />
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-    paddingBottom: 24,
+    paddingBottom: 100,
   },
   card: {
     backgroundColor: COLORS.white,

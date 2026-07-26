@@ -19,10 +19,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Star, CaretLeft, CaretRight, Calendar, Lock, WarningCircle, ArrowsClockwise, MapPin, Users, CheckCircle, User, Phone, CalendarBlank, Chats, ChatCircleDots, PaperPlaneRight } from 'phosphor-react-native';
 import { getPhosphorIcon } from '../lib/icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import MapView, { Marker } from 'react-native-maps';
+import YaMap, { Marker } from 'react-native-yamap';
 import { COLORS, FONTS, SHADOWS, SERVICE_TYPES, STATUS_MAP } from '../lib/theme';
 import { api, IMAGE_BASE } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const IMAGE_HEIGHT = 300;
@@ -32,10 +33,9 @@ function formatPrice(p) {
   return Number(p).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-const DAY_NAMES = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
-const MONTH_NAMES = [
-  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
-  'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr',
+const getDayNames = (t) => [t('day_mo')||'Du', t('day_tu')||'Se', t('day_we')||'Ch', t('day_th')||'Pa', t('day_fr')||'Ju', t('day_sa')||'Sh', t('day_su')||'Ya'];
+const getMonthNames = (t) => [
+  t('month_jan')||'Yanvar', t('month_feb')||'Fevral', t('month_mar')||'Mart', t('month_apr')||'Aprel', t('month_may')||'May', t('month_jun')||'Iyun', t('month_jul')||'Iyul', t('month_aug')||'Avgust', t('month_sep')||'Sentabr', t('month_oct')||'Oktabr', t('month_nov')||'Noyabr', t('month_dec')||'Dekabr'
 ];
 
 // ─── Image Gallery ──────────────────────────────────────────────────
@@ -71,7 +71,7 @@ function ImageGallery({ images, serviceType, onBack }) {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <View style={{alignItems: "center", justifyContent: "center"}}>{getPhosphorIcon(service.type, false, 64)}</View>
+          <View style={{alignItems: "center", justifyContent: "center"}}>{getPhosphorIcon(serviceType, false, 64)}</View>
           <Text style={styles.placeholderText}>{typeInfo.label}</Text>
         </LinearGradient>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
@@ -145,7 +145,7 @@ function StarPicker({ rating, onChange, size = 32 }) {
 }
 
 // ─── Booking Calendar ───────────────────────────────────────────────
-function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginRequired }) {
+function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginRequired, t }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -262,7 +262,7 @@ function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginReq
           <CaretLeft size={22} color={COLORS.primary} weight="bold" />
         </TouchableOpacity>
         <Text style={styles.calendarTitle}>
-          {MONTH_NAMES[month]} {year}
+          {getMonthNames(t)[month]} {year}
         </Text>
         <TouchableOpacity onPress={goToNextMonth} style={styles.calendarArrow}>
           <CaretRight size={22} color={COLORS.primary} weight="bold" />
@@ -271,7 +271,7 @@ function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginReq
 
       {/* Day names */}
       <View style={styles.calendarRow}>
-        {DAY_NAMES.map((name) => (
+        {getDayNames(t).map((name) => (
           <View key={name} style={styles.calendarCell}>
             <Text style={styles.calendarDayName}>{name}</Text>
           </View>
@@ -287,15 +287,15 @@ function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginReq
       <View style={styles.legendRow}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: COLORS.danger }]} />
-          <Text style={styles.legendText}>Tasdiqlangan</Text>
+          <Text style={styles.legendText}>{t('status_confirmed') || 'Tasdiqlangan'}</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: COLORS.warning }]} />
-          <Text style={styles.legendText}>Kutilmoqda</Text>
+          <Text style={styles.legendText}>{t('status_pending') || 'Kutilmoqda'}</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border }]} />
-          <Text style={styles.legendText}>Bo'sh</Text>
+          <Text style={styles.legendText}>{t('filter_date') || "Bo'sh"}</Text>
         </View>
       </View>
 
@@ -312,14 +312,14 @@ function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginReq
           ) : (
             <>
               <Calendar size={20} color={COLORS.white} />
-              <Text style={styles.bookButtonText}>Bron qilish</Text>
+              <Text style={styles.bookButtonText}>{t('book_now') || 'Bron qilish'}</Text>
             </>
           )}
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.loginPrompt} onPress={onLoginRequired}>
           <Lock size={18} color={COLORS.primary} />
-          <Text style={[styles.loginPromptText, { color: COLORS.primary, marginLeft: 8 }]}>Bron qilish uchun tizimga kiring</Text>
+          <Text style={[styles.loginPromptText, { color: COLORS.primary, marginLeft: 8 }]}>{t('login_to_book') || 'Bron qilish uchun tizimga kiring'}</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -330,6 +330,7 @@ function BookingCalendar({ bookings = [], serviceId, token, onBooked, onLoginReq
 export default function ServiceDetailScreen({ route, navigation }) {
   const { id } = route.params;
   const { user, token } = useAuth();
+  const { t } = useLanguage();
 
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -424,10 +425,11 @@ export default function ServiceDetailScreen({ route, navigation }) {
     );
   }
 
-  const typeInfo = SERVICE_TYPES.find((t) => t.value === service.type) || {
+  const typeInfo = SERVICE_TYPES.find((st) => st.value === service.type) || {
     label: service.type,
     icon: '🎉',
   };
+  const translatedTypeLabel = t(`type_${service.type}`) || typeInfo.label;
   const reviews = service.reviews || [];
   const avgRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -441,6 +443,8 @@ export default function ServiceDetailScreen({ route, navigation }) {
       <ScrollView
         ref={mainScrollRef}
         style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
       >
@@ -459,7 +463,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             <View style={styles.metaRow}>
               <View style={[styles.typeBadge, { backgroundColor: COLORS.primaryLight }]}>
                 <View style={{marginRight: 6}}>{getPhosphorIcon(service.type, true, 16)}</View>
-                <Text style={styles.typeBadgeText}>{typeInfo.label}</Text>
+                <Text style={styles.typeBadgeText}>{translatedTypeLabel}</Text>
               </View>
               {avgRating && (
                 <View style={styles.ratingBadge}>
@@ -471,7 +475,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
               {service.type === 'TUYXONA' && service.capacity && (
                 <View style={styles.capacityBadge}>
                   <Users size={14} color={COLORS.primary} weight="fill" />
-                  <Text style={styles.capacityBadgeText}>{service.capacity} kishilik</Text>
+                  <Text style={styles.capacityBadgeText}>{service.capacity} {t('capacity_people') || 'kishilik'}</Text>
                 </View>
               )}
             </View>
@@ -479,14 +483,18 @@ export default function ServiceDetailScreen({ route, navigation }) {
             {/* Price */}
             <View style={styles.priceContainer}>
               <View>
-                <Text style={styles.priceLabel}>Narxi</Text>
-                <Text style={styles.priceValue}>{formatPrice(service.price)} so'm</Text>
+                <Text style={styles.priceLabel}>{t('price') || 'Narxi'}</Text>
+                {(!service.price || service.price === 0 || service.price === '0') ? (
+                  <Text style={[styles.priceValue, { color: COLORS.primary }]}>{t('negotiable_price') || 'Kelishilgan narxda'}</Text>
+                ) : (
+                  <Text style={styles.priceValue}>{formatPrice(service.price)} {t('currency_uzs') || "so'm"}</Text>
+                )}
               </View>
-              {service.capacity > 0 && (
+              {service.capacity > 0 && service.price > 0 && (
                 <View style={{backgroundColor: COLORS.white, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12}}>
-                  <Text style={{fontSize: 13, color: COLORS.textSecondary, fontWeight: '500'}}>O'rtacha kishi boshiga</Text>
+                  <Text style={{fontSize: 13, color: COLORS.textSecondary, fontWeight: '500'}}>{t('average_per_person') || "O'rtacha kishi boshiga"}</Text>
                   <Text style={{fontSize: 14, color: COLORS.primary, fontWeight: '700'}}>
-                    ~ {formatPrice(Math.round(service.price / service.capacity))} so'm
+                    ~ {formatPrice(Math.round(service.price / service.capacity))} {t('currency_uzs') || "so'm"}
                   </Text>
                 </View>
               )}
@@ -495,7 +503,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             {/* Description */}
             {service.description && (
               <View style={styles.descriptionContainer}>
-                <Text style={styles.descriptionTitle}>Tavsif</Text>
+                <Text style={styles.descriptionTitle}>{t('description') || 'Tavsif'}</Text>
                 <Text style={styles.descriptionText}>{service.description}</Text>
               </View>
             )}
@@ -503,7 +511,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             {/* Extra services */}
             {service.extra_services && service.extra_services.length > 0 && (
               <View style={styles.extrasContainer}>
-                <Text style={styles.extrasTitle}>Qo'shimcha xizmatlar</Text>
+                <Text style={styles.extrasTitle}>{t('extra_services') || "Qo'shimcha xizmatlar"}</Text>
                 <View style={styles.chipRow}>
                   {(typeof service.extra_services === 'string' ? service.extra_services.split(',') : service.extra_services).map((extra, i) => (
                     <View key={i} style={styles.chip}>
@@ -527,7 +535,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
                   <Text style={styles.providerName}>
                     {service.provider.full_name || service.provider.name || 'Provayder'}
                   </Text>
-                  <Text style={styles.providerLabel}>Xizmat ko'rsatuvchi</Text>
+                  <Text style={styles.providerLabel}>{t('service_owner') || "Xizmat ko'rsatuvchi"}</Text>
                 </View>
               </View>
               {service.provider.phone_number && (
@@ -548,7 +556,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <MapPin size={22} color={COLORS.primary} weight="fill" />
-                <Text style={styles.sectionTitle}>Manzil</Text>
+                <Text style={styles.sectionTitle}>{t('address') || 'Manzil'}</Text>
               </View>
               <View style={styles.locationCard}>
                 <View style={styles.infoRow}>
@@ -561,26 +569,25 @@ export default function ServiceDetailScreen({ route, navigation }) {
                     activeOpacity={0.8}
                     onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${service.location_lat},${service.location_lng}`)}
                   >
-                    <MapView
+                    <YaMap
                       style={styles.map}
                       initialRegion={{
-                        latitude: Number(service.location_lat),
-                        longitude: Number(service.location_lng),
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
+                        lat: Number(service.location_lat),
+                        lon: Number(service.location_lng),
+                        zoom: 14,
                       }}
-                      zoomEnabled={false}
-                      scrollEnabled={false}
-                      pitchEnabled={false}
-                      rotateEnabled={false}
+                      scrollGesturesEnabled={false}
+                      zoomGesturesEnabled={false}
+                      tiltGesturesEnabled={false}
+                      rotateGesturesEnabled={false}
                     >
                       <Marker
-                        coordinate={{
-                          latitude: Number(service.location_lat),
-                          longitude: Number(service.location_lng),
+                        point={{
+                          lat: Number(service.location_lat),
+                          lon: Number(service.location_lng),
                         }}
                       />
-                    </MapView>
+                    </YaMap>
                   </TouchableOpacity>
                 )}
               </View>
@@ -591,7 +598,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <CalendarBlank size={22} color={COLORS.primary} weight="fill" />
-              <Text style={styles.sectionTitle}>Bron qilish</Text>
+              <Text style={styles.sectionTitle}>{t('book_now') || 'Bron qilish'}</Text>
             </View>
             <BookingCalendar
               bookings={service.bookings || []}
@@ -599,6 +606,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
               token={token}
               onBooked={fetchService}
               onLoginRequired={() => navigation.navigate('Login')}
+              t={t}
             />
           </View>
 
@@ -607,7 +615,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             <View style={styles.sectionHeader}>
               <Chats size={22} color={COLORS.primary} weight="fill" />
               <Text style={styles.sectionTitle}>
-                Izohlar {reviews.length > 0 ? `(${reviews.length})` : ''}
+                {t('customer_reviews') || 'Izohlar'} {reviews.length > 0 ? `(${reviews.length})` : ''}
               </Text>
             </View>
 
@@ -615,8 +623,8 @@ export default function ServiceDetailScreen({ route, navigation }) {
             {reviews.length === 0 ? (
               <View style={styles.emptyReviews}>
                 <ChatCircleDots size={40} color={COLORS.textLight} />
-                <Text style={styles.emptyReviewsText}>Hali izohlar yo'q</Text>
-                <Text style={styles.emptyReviewsSub}>Birinchi bo'lib izoh qoldiring!</Text>
+                <Text style={styles.emptyReviewsText}>{t('no_reviews_yet') || "Hali izohlar yo'q"}</Text>
+                <Text style={styles.emptyReviewsSub}>{t('leave_your_opinion') || "Birinchi bo'lib izoh qoldiring!"}</Text>
               </View>
             ) : (
               reviews.map((review, i) => (
@@ -649,21 +657,21 @@ export default function ServiceDetailScreen({ route, navigation }) {
             {/* Add review form */}
             {token ? (
               <View style={styles.reviewForm}>
-                <Text style={styles.reviewFormTitle}>Izoh qoldirish</Text>
+                <Text style={styles.reviewFormTitle}>{t('write_comment') || 'Izoh qoldirish'}</Text>
                 <View style={styles.reviewFormRating}>
-                  <Text style={styles.reviewFormLabel}>Bahoingiz:</Text>
+                  <Text style={styles.reviewFormLabel}>{t('leave_rating') || 'Bahoingiz'}:</Text>
                   <StarPicker rating={reviewRating} onChange={setReviewRating} />
                 </View>
                 <TextInput
                   style={styles.reviewInput}
-                  placeholder="Izohingizni yozing..."
+                  placeholder={t('write_opinion_placeholder') || "Izohingizni yozing..."}
                   placeholderTextColor={COLORS.textLight}
                   value={reviewComment}
                   onChangeText={setReviewComment}
                   onFocus={() => {
                     setTimeout(() => {
                       mainScrollRef.current?.scrollToEnd({ animated: true });
-                    }, 300);
+                    }, 400);
                   }}
                   multiline
                   numberOfLines={3}
@@ -680,7 +688,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
                   ) : (
                     <>
                       <PaperPlaneRight size={18} color={COLORS.white} weight="fill" style={{ marginRight: 8 }} />
-                      <Text style={styles.submitReviewText}>Yuborish</Text>
+                      <Text style={styles.submitReviewText}>{t('leave_comment_btn') || 'Yuborish'}</Text>
                     </>
                   )}
                 </TouchableOpacity>
@@ -688,13 +696,13 @@ export default function ServiceDetailScreen({ route, navigation }) {
             ) : (
               <TouchableOpacity style={styles.loginPrompt} onPress={() => navigation.navigate('Login')}>
                 <Lock size={18} color={COLORS.primary} />
-                <Text style={[styles.loginPromptText, { color: COLORS.primary, marginLeft: 8 }]}>Izoh qoldirish uchun tizimga kiring</Text>
+                <Text style={[styles.loginPromptText, { color: COLORS.primary, marginLeft: 8 }]}>{t('login_to_leave_comment') || 'Izoh qoldirish uchun tizimga kiring'}</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Bottom spacing */}
-          <View style={{ height: 32 }} />
+          <View style={{ height: 20 }} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

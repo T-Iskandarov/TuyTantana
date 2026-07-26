@@ -1,6 +1,6 @@
 'use client';
 import { useLanguage } from '@/context/LanguageContext';
-import { CastleTurret, Camera, MicrophoneStage, Scissors, Car, ClipboardText } from '@phosphor-icons/react';
+import { CastleTurret, Camera, MicrophoneStage, Scissors, Car, ClipboardText, TShirt, Diamond } from '@phosphor-icons/react';
 export default function ServiceTabs({ activeType, onTypeChange }) {
   const { t } = useLanguage();
   
@@ -11,6 +11,8 @@ export default function ServiceTabs({ activeType, onTypeChange }) {
     { label: t('service_beauty'), type: 'SALON', icon: <Scissors weight="duotone" className="w-6 h-6" /> },
     { label: t('service_cars'), type: 'KORTEJ', icon: <Car weight="duotone" className="w-6 h-6" /> },
     { label: t('service_organizers'), type: 'TASHKILOTCHI', icon: <ClipboardText weight="duotone" className="w-6 h-6" /> },
+    { label: t('service_attire') || 'Liboslar', type: 'LIBOSLAR', icon: <TShirt weight="duotone" className="w-6 h-6" /> },
+    { label: t('service_accessories') || 'Aksessuarlar', type: 'AKSESSUARLAR', icon: <Diamond weight="duotone" className="w-6 h-6" /> },
   ];
 
   return (

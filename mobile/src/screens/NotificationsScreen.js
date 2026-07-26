@@ -4,9 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { ArrowLeft, Bell, CheckCircle } from 'phosphor-react-native';
 import { COLORS } from '../lib/theme';
+import { useLanguage } from '../context/LanguageContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NotificationsScreen({ navigation }) {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -15,6 +18,7 @@ export default function NotificationsScreen({ navigation }) {
     try {
       const res = await api.getNotifications(token);
       if (res.success) {
+        if (!res.data || !Array.isArray(res.data)) return;
         setNotifications(res.data);
       }
     } catch (err) {
@@ -64,6 +68,22 @@ export default function NotificationsScreen({ navigation }) {
       hour: '2-digit', minute: '2-digit' 
     });
 
+    let transTitle = item.title;
+    if (item.title === 'Yangi bron!') {
+      transTitle = t('new_booking_title') || item.title;
+    }
+    
+    let transMessage = item.message;
+    const bookingMatch = item.message?.match(/Sizning '(.*?)' xizmatingizga (.*?) sanasi uchun yangi bron tushdi\./);
+    if (bookingMatch && bookingMatch.length === 3) {
+      const serviceName = bookingMatch[1];
+      const bookingDateStr = bookingMatch[2];
+      const tmpl = t('new_booking_message');
+      if (tmpl) {
+        transMessage = tmpl.replace('{service}', serviceName).replace('{date}', bookingDateStr);
+      }
+    }
+
     return (
       <TouchableOpacity 
         style={[styles.notifCard, isUnread ? styles.unreadCard : styles.readCard]}
@@ -75,10 +95,10 @@ export default function NotificationsScreen({ navigation }) {
         </View>
         <View style={styles.notifContent}>
           <View style={styles.titleRow}>
-            <Text style={[styles.notifTitle, isUnread && styles.unreadText]} numberOfLines={1}>{item.title}</Text>
-            {isUnread && <View style={styles.newBadge}><Text style={styles.newBadgeText}>Yangi</Text></View>}
+            <Text style={[styles.notifTitle, isUnread && styles.unreadText]} numberOfLines={1}>{transTitle}</Text>
+            {isUnread && <View style={styles.newBadge}><Text style={styles.newBadgeText}>{t('new_badge') || 'Yangi'}</Text></View>}
           </View>
-          <Text style={[styles.notifMessage, !isUnread && styles.readMessage]} numberOfLines={3}>{item.message}</Text>
+          <Text style={[styles.notifMessage, !isUnread && styles.readMessage]} numberOfLines={3}>{transMessage}</Text>
           <Text style={styles.notifDate}>{dateStr}</Text>
         </View>
       </TouchableOpacity>
@@ -86,13 +106,13 @@ export default function NotificationsScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bildirishnomalar</Text>
+        <Text style={styles.headerTitle}>{t('notifications') || 'Bildirishnomalar'}</Text>
         {notifications.some(n => !n.is_read) ? (
           <TouchableOpacity onPress={handleMarkAllAsRead} style={styles.markAllBtn}>
             <CheckCircle size={20} color={COLORS.primary} />
@@ -109,7 +129,7 @@ export default function NotificationsScreen({ navigation }) {
       ) : notifications.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Bell size={64} color="#e5e7eb" />
-          <Text style={styles.emptyText}>Hozircha xabarlar yo'q</Text>
+          <Text style={styles.emptyText}>{t('no_notifications') || "Hozircha xabarlar yo'q"}</Text>
         </View>
       ) : (
         <FlatList
@@ -122,7 +142,7 @@ export default function NotificationsScreen({ navigation }) {
           }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -135,7 +155,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
     backgroundColor: '#FFF',
@@ -146,7 +165,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: 'Outfit-Bold',
+    fontWeight: '700',
     color: COLORS.text,
   },
   markAllBtn: {
@@ -218,7 +237,7 @@ const styles = StyleSheet.create({
   },
   notifTitle: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontWeight: '700',
     color: '#374151',
     flexShrink: 1,
   },
@@ -234,7 +253,7 @@ const styles = StyleSheet.create({
   newBadgeText: {
     color: '#FFF',
     fontSize: 10,
-    fontFamily: 'Outfit-Bold',
+    fontWeight: '700',
     textTransform: 'uppercase',
   },
   notifMessage: {

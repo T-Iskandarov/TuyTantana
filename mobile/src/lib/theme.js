@@ -15,12 +15,14 @@ export const COLORS = {
   warningLight: '#FEF3C7',
   danger: '#EF4444',
   dangerLight: '#FEE2E2',
+  warningText: '#92400E',
   white: '#FFFFFF',
   black: '#000000',
   overlay: 'rgba(0,0,0,0.5)',
 };
 
 export const FONTS = {
+  body: { fontSize: 14, fontWeight: '400', color: '#1F2937' },
   regular: { fontSize: 14, color: COLORS.text },
   medium: { fontSize: 14, fontWeight: '500', color: COLORS.text },
   semibold: { fontSize: 14, fontWeight: '600', color: COLORS.text },
@@ -47,6 +49,7 @@ export const SHADOWS = {
     shadowRadius: 8,
     elevation: 3,
   },
+  medium: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
   lg: {
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -63,6 +66,8 @@ export const SERVICE_TYPES = [
   { value: 'SALON', label: "To'y salon" },
   { value: 'KORTEJ', label: 'Kortej' },
   { value: 'TASHKILOTCHI', label: 'Tashkilotchi' },
+  { value: 'LIBOSLAR', label: 'Liboslar' },
+  { value: 'AKSESSUARLAR', label: 'Aksessuarlar' },
 ];
 
 export const STATUS_MAP = {

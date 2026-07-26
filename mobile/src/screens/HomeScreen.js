@@ -21,7 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders, Heart, Users, Bank, Camera, Microphone, Scissors, Car, ClipboardText, SquaresFour } from 'phosphor-react-native';
+import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SHADOWS, SERVICE_TYPES } from '../lib/theme';
 import { api, IMAGE_BASE } from '../lib/api';
@@ -175,7 +175,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   const getServiceTypeInfo = (type) => {
-    return SERVICE_TYPES.find((t) => t.value === type) || SERVICE_TYPES[0];
+    return SERVICE_TYPES.find((st) => st.value === type) || SERVICE_TYPES[0];
   };
 
   const renderServiceCard = ({ item }) => (
@@ -240,7 +240,7 @@ export default function HomeScreen({ navigation }) {
       <FlatList
         data={services}
         renderItem={renderServiceCard}
-        keyExtractor={(item) => item.id?.toString()}
+        keyExtractor={(item) => String(item?.id ?? Math.random())}
         contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -297,7 +297,7 @@ export default function HomeScreen({ navigation }) {
                                 {s.name}
                               </Text>
                               <Text style={{ color: '#EAD189', fontSize: 13, marginBottom: 12 }}>
-                                {t(`type_${s.type}`) || (SERVICE_TYPES.find(t => t.value === s.type)?.label || s.type)}
+                                {t(`type_${s.type}`) || (SERVICE_TYPES.find(st => st.value === s.type)?.label || s.type)}
                               </Text>
                               <View style={styles.mainBannerBtn}>
                                 <Text style={styles.mainBannerBtnText}>{t('more_details') || "Batafsil ko'rish"}</Text>
@@ -390,99 +390,104 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtrlash</Text>
+              <Text style={styles.modalTitle}>{t('filter_btn') || 'Filtrlash'}</Text>
               <TouchableOpacity onPress={() => setShowFilter(false)}>
                 <XCircle size={28} color={COLORS.textLight} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.filterLabel}>Viloyat / Hudud</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={filterRegion}
-                onValueChange={(val) => {
-                  setFilterRegion(val);
-                  setFilterDistrict('');
-                }}
-                style={styles.picker}
-              >
-                {REGIONS.map(reg => (
-                  <Picker.Item key={reg.value} label={reg.label} value={reg.value} />
-                ))}
-              </Picker>
-            </View>
+            <ScrollView style={{maxHeight: '70%'}}>
+              <Text style={styles.filterLabel}>{t('filter_region') || 'Viloyat / Hudud'}</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={filterRegion}
+                  onValueChange={(val) => {
+                    setFilterRegion(val);
+                    setFilterDistrict('');
+                  }}
+                  style={styles.picker}
+                  dropdownIconColor={COLORS.text}
+                >
+                  {REGIONS.map(reg => (
+                    <Picker.Item key={reg.value} label={reg.label} value={reg.value} color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  ))}
+                </Picker>
+              </View>
 
-            {filterRegion ? (
-              <>
-                <Text style={styles.filterLabel}>Tuman / Shahar</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={filterDistrict}
-                    onValueChange={(val) => setFilterDistrict(val)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Barcha tumanlar" value="" />
-                    {(regionsAndDistricts[filterRegion] || []).map(dist => (
-                      <Picker.Item key={dist} label={dist} value={dist} />
-                    ))}
-                  </Picker>
-                </View>
-              </>
-            ) : null}
+              {filterRegion ? (
+                <>
+                  <Text style={styles.filterLabel}>{t('filter_district') || 'Tuman / Shahar'}</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={filterDistrict}
+                      onValueChange={(val) => setFilterDistrict(val)}
+                      style={styles.picker}
+                      dropdownIconColor={COLORS.text}
+                    >
+                      <Picker.Item label={t('filter_all_districts') || 'Barcha tumanlar'} value="" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                      {(regionsAndDistricts[filterRegion] || []).map(dist => (
+                        <Picker.Item key={dist} label={dist} value={dist} color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                      ))}
+                    </Picker>
+                  </View>
+                </>
+              ) : null}
 
-            <Text style={styles.filterLabel}>Bo'sh sana</Text>
-            <TouchableOpacity style={styles.datePickerBtn} onPress={() => setShowDatePicker(true)}>
-              <Text style={{color: filterDate ? COLORS.text : COLORS.textLight}}>
-                {filterDate ? filterDate.toLocaleDateString('uz-UZ') : "Sanani tanlang"}
-              </Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={filterDate || new Date()}
-                mode="date"
-                display="default"
-                minimumDate={new Date()}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(Platform.OS === 'ios');
-                  if (selectedDate) setFilterDate(selectedDate);
-                }}
-              />
-            )}
+              <Text style={styles.filterLabel}>{t('filter_date') || "Bo'sh sana"}</Text>
+              <TouchableOpacity style={styles.datePickerBtn} onPress={() => setShowDatePicker(true)}>
+                <Text style={{color: filterDate ? COLORS.text : COLORS.textLight}}>
+                  {filterDate ? filterDate.toLocaleDateString('uz-UZ') : (t('select_date') || "Sanani tanlang")}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={filterDate || new Date()}
+                  mode="date"
+                  display="default"
+                  minimumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(Platform.OS === 'ios');
+                    if (selectedDate) setFilterDate(selectedDate);
+                  }}
+                />
+              )}
 
-            <Text style={styles.filterLabel}>Narx oralig'i (so'm)</Text>
-            <View style={styles.priceRowModal}>
-              <TextInput 
-                style={[styles.filterInput, {flex: 1}]} 
-                placeholder="Dan"
-                keyboardType="numeric"
-                value={filterPriceMin}
-                onChangeText={setFilterPriceMin}
-              />
-              <Text style={{marginHorizontal: 8}}>-</Text>
-              <TextInput 
-                style={[styles.filterInput, {flex: 1}]} 
-                placeholder="Gacha"
-                keyboardType="numeric"
-                value={filterPriceMax}
-                onChangeText={setFilterPriceMax}
-              />
-            </View>
+              <Text style={styles.filterLabel}>{t('filter_price_range') || "Narx oralig'i"} ({t('currency_uzs') || "so'm"})</Text>
+              <View style={styles.priceRowModal}>
+                <TextInput 
+                  style={[styles.filterInput, {flex: 1}]} 
+                  placeholder="Dan"
+                  keyboardType="numeric"
+                  value={filterPriceMin}
+                  onChangeText={setFilterPriceMin}
+                />
+                <Text style={{marginHorizontal: 8}}>-</Text>
+                <TextInput 
+                  style={[styles.filterInput, {flex: 1}]} 
+                  placeholder="Gacha"
+                  keyboardType="numeric"
+                  value={filterPriceMax}
+                  onChangeText={setFilterPriceMax}
+                />
+              </View>
 
-            <Text style={styles.filterLabel}>Minimal baho</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={filterRating}
-                onValueChange={(val) => setFilterRating(val)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Barcha baholar" value="" />
-                <Picker.Item label="1 yulduz va undan yuqori" value="1" />
-                <Picker.Item label="2 yulduz va undan yuqori" value="2" />
-                <Picker.Item label="3 yulduz va undan yuqori" value="3" />
-                <Picker.Item label="4 yulduz va undan yuqori" value="4" />
-                <Picker.Item label="5 yulduz" value="5" />
-              </Picker>
-            </View>
+              <Text style={styles.filterLabel}>{t('filter_rating_min') || "Minimal baho"}</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={filterRating}
+                  onValueChange={(val) => setFilterRating(val)}
+                  style={styles.picker}
+                  dropdownIconColor={COLORS.text}
+                >
+                  <Picker.Item label="Barcha baholar" value="" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_5') || "1 yulduz va undan yuqori"} value="1" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_4') || "2 yulduz va undan yuqori"} value="2" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label="3 yulduz va undan yuqori" value="3" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label="4 yulduz va undan yuqori" value="4" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label="5 yulduz" value="5" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                </Picker>
+              </View>
+            </ScrollView>
 
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 32, marginBottom: 16 }}>
               <TouchableOpacity 
@@ -1012,6 +1017,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderWidth: 1,
     borderColor: COLORS.border,
+    color: COLORS.text,
   },
   priceRowModal: {
     flexDirection: 'row',
@@ -1041,6 +1047,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
+    color: '#000',
   },
   datePickerBtn: {
     backgroundColor: COLORS.background,

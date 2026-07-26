@@ -9,13 +9,15 @@ class Service(models.Model):
         ('SALON', 'To\'y salonlari'),
         ('KORTEJ', 'Kortej xizmati'),
         ('TASHKILOTCHI', 'To\'y tashkilotchilari'),
+        ('LIBOSLAR', 'Liboslar'),
+        ('AKSESSUARLAR', 'Aksessuarlar'),
     )
 
     provider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='services')
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     name = models.CharField(max_length=255)
     capacity = models.IntegerField(null=True, blank=True)
-    price = models.FloatField()
+    price = models.FloatField(default=0, null=True, blank=True)
     location_name = models.CharField(max_length=255, null=True, blank=True)
     location_lat = models.FloatField(null=True, blank=True)
     location_lng = models.FloatField(null=True, blank=True)

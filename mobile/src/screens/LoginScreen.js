@@ -15,9 +15,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, WarningCircle, Lock, Eye, EyeSlash, ArrowRight, UserCircle, Briefcase, SignOut, User, Phone, Calendar, X, Check, FolderOpen, Trash, UserPlus, CheckCircle, ArrowLeft } from 'phosphor-react-native';
 import { COLORS, FONTS, SHADOWS } from '../lib/theme';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,11 +45,11 @@ export default function LoginScreen({ navigation }) {
     setError('');
     const cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.length !== 9) {
-      setError('Telefon raqamni to\'liq kiriting (9 raqam)');
+      setError(t('enter_full_phone_error') || 'Telefon raqamni to\'liq kiriting (9 raqam)');
       return;
     }
     if (password.length < 1) {
-      setError('Parolni kiriting');
+      setError(t('enter_password_error') || 'Parolni kiriting');
       return;
     }
 
@@ -55,10 +57,10 @@ export default function LoginScreen({ navigation }) {
     try {
       const res = await login(`+998${cleanPhone}`, password);
       if (!res.success) {
-        setError(res.message || 'Login yoki parol noto\'g\'ri');
+        setError(res.message || t('login_error') || 'Login yoki parol noto\'g\'ri');
       }
     } catch (e) {
-      setError('Tarmoq xatosi. Qaytadan urinib ko\'ring.');
+      setError(t('network_error') || 'Tarmoq xatosi. Qaytadan urinib ko\'ring.');
     } finally {
       setLoading(false);
     }
@@ -88,7 +90,7 @@ export default function LoginScreen({ navigation }) {
                 </View>
                 <Text style={styles.logoTitle}>To'y Tantana</Text>
                 <Text style={styles.logoSubtitle}>
-                  To'y xizmatlarini oson toping
+                  {t('hero_slide1_desc') || "To'y xizmatlarini oson toping"}
                 </Text>
               </View>
             </View>
@@ -96,9 +98,9 @@ export default function LoginScreen({ navigation }) {
 
           {/* Form Card */}
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Kirish</Text>
+            <Text style={styles.formTitle}>{t('login_title') || 'Kirish'}</Text>
             <Text style={styles.formSubtitle}>
-              Hisobingizga kiring
+              {t('login_desc') || 'Hisobingizga kiring'}
             </Text>
 
             {/* Error Display */}
@@ -110,7 +112,7 @@ export default function LoginScreen({ navigation }) {
             ) : null}
 
             {/* Phone Input */}
-            <Text style={styles.inputLabel}>Telefon raqam</Text>
+            <Text style={styles.inputLabel}>{t('phone_number') || 'Telefon raqam'}</Text>
             <View style={styles.phoneInputRow}>
               <View style={styles.prefixBox}>
                 <Text style={styles.prefixText}>+998</Text>
@@ -127,12 +129,12 @@ export default function LoginScreen({ navigation }) {
             </View>
 
             {/* Password Input */}
-            <Text style={styles.inputLabel}>Parol</Text>
+            <Text style={styles.inputLabel}>{t('password') || 'Parol'}</Text>
             <View style={styles.passwordRow}>
               <Lock size={20} color={COLORS.textLight} style={styles.inputIcon} />
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Parolingizni kiriting"
+                placeholder={t('enter_password') || "Parolingizni kiriting"}
                 placeholderTextColor={COLORS.textLight}
                 secureTextEntry={!showPassword}
                 value={password}
@@ -157,7 +159,7 @@ export default function LoginScreen({ navigation }) {
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
                 <>
-                  <Text style={styles.loginBtnText}>Kirish</Text>
+                  <Text style={styles.loginBtnText}>{t('login_btn') || 'Kirish'}</Text>
                   <ArrowRight size={20} color={COLORS.white} />
                 </>
               )}
@@ -165,9 +167,9 @@ export default function LoginScreen({ navigation }) {
 
             {/* Register Link */}
             <View style={styles.bottomRow}>
-              <Text style={styles.bottomText}>Hisobingiz yo'qmi? </Text>
+              <Text style={styles.bottomText}>{t('no_account') || "Hisobingiz yo'qmi?"} </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.linkText}>Ro'yxatdan o'tish</Text>
+                <Text style={styles.linkText}>{t('register_link') || "Ro'yxatdan o'tish"}</Text>
               </TouchableOpacity>
             </View>
           </View>

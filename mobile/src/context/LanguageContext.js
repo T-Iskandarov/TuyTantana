@@ -31,7 +31,8 @@ export function LanguageProvider({ children }) {
 
   const t = (key, params = {}) => {
     const dictionary = dictionaries[lang] || dictionaries['uz'];
-    let text = dictionary[key] || uz[key] || key;
+    let text = dictionary[key] !== undefined ? dictionary[key] : (uz[key] !== undefined ? uz[key] : undefined);
+    if (text === undefined || text === null) return null;
     
     // Replace params (e.g. {count} or {year})
     Object.keys(params).forEach(param => {

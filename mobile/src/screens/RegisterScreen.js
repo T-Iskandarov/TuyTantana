@@ -12,12 +12,14 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Heart, WarningCircle, Lock, Eye, EyeSlash, ArrowRight, UserCircle, Briefcase, SignOut, User, Phone, Calendar, X, Check, FolderOpen, Trash, UserPlus, CheckCircle, ArrowLeft } from 'phosphor-react-native';
+import { WarningCircle, Lock, Eye, EyeSlash, Briefcase, User, UserPlus, CheckCircle, ArrowLeft } from 'phosphor-react-native';
 import { COLORS, FONTS, SHADOWS } from '../lib/theme';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useAuth();
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -44,16 +46,16 @@ export default function RegisterScreen({ navigation }) {
   const handleRegister = async () => {
     setError('');
     if (!name.trim()) {
-      setError('Ismingizni kiriting');
+      setError(t('enter_name_error') || 'Ismingizni kiriting');
       return;
     }
     const cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.length !== 9) {
-      setError('Telefon raqamni to\'liq kiriting (9 raqam)');
+      setError(t('enter_full_phone_error') || 'Telefon raqamni to\'liq kiriting (9 raqam)');
       return;
     }
     if (password.length < 6) {
-      setError('Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
+      setError(t('password_length_error') || 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
       return;
     }
 
@@ -66,10 +68,10 @@ export default function RegisterScreen({ navigation }) {
         role,
       });
       if (!res.success) {
-        setError(res.message || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
+        setError(res.message || t('register_error') || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
       }
     } catch (e) {
-      setError('Tarmoq xatosi. Qaytadan urinib ko\'ring.');
+      setError(t('network_error') || 'Tarmoq xatosi. Qaytadan urinib ko\'ring.');
     } finally {
       setLoading(false);
     }
@@ -102,8 +104,8 @@ export default function RegisterScreen({ navigation }) {
                 <View style={styles.logoCircle}>
                   <UserPlus size={30} color={COLORS.primary} />
                 </View>
-                <Text style={styles.headerTitle}>Ro'yxatdan o'tish</Text>
-                <Text style={styles.headerSubtitle}>Yangi hisob yarating</Text>
+                <Text style={styles.headerTitle}>{t('register_title') || "Ro'yxatdan o'tish"}</Text>
+                <Text style={styles.headerSubtitle}>{t('register_subtitle') || 'Yangi hisob yarating'}</Text>
               </View>
             </View>
           </View>
@@ -119,12 +121,12 @@ export default function RegisterScreen({ navigation }) {
             ) : null}
 
             {/* Name Input */}
-            <Text style={styles.inputLabel}>Ism-sharifingiz</Text>
+            <Text style={styles.inputLabel}>{t('full_name') || 'Ism-sharifingiz'}</Text>
             <View style={styles.inputRow}>
               <User size={20} color={COLORS.textLight} style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="Ismingizni kiriting"
+                placeholder={t('enter_name') || "Ismingizni kiriting"}
                 placeholderTextColor={COLORS.textLight}
                 value={name}
                 onChangeText={setName}
@@ -132,7 +134,7 @@ export default function RegisterScreen({ navigation }) {
             </View>
 
             {/* Phone Input */}
-            <Text style={styles.inputLabel}>Telefon raqam</Text>
+            <Text style={styles.inputLabel}>{t('phone_number') || 'Telefon raqam'}</Text>
             <View style={styles.phoneInputRow}>
               <View style={styles.prefixBox}>
                 <Text style={styles.prefixText}>+998</Text>
@@ -149,12 +151,12 @@ export default function RegisterScreen({ navigation }) {
             </View>
 
             {/* Password Input */}
-            <Text style={styles.inputLabel}>Parol</Text>
+            <Text style={styles.inputLabel}>{t('password') || 'Parol'}</Text>
             <View style={styles.passwordRow}>
               <Lock size={20} color={COLORS.textLight} style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="Kamida 6 ta belgi"
+                placeholder={t('password_placeholder') || "Kamida 6 ta belgi"}
                 placeholderTextColor={COLORS.textLight}
                 secureTextEntry={!showPassword}
                 value={password}
@@ -169,7 +171,7 @@ export default function RegisterScreen({ navigation }) {
             </View>
 
             {/* Role Selector */}
-            <Text style={styles.inputLabel}>Sifatingiz</Text>
+            <Text style={styles.inputLabel}>{t('your_role') || 'Sifatingiz'}</Text>
             <View style={styles.roleRow}>
               <TouchableOpacity
                 style={[
@@ -186,7 +188,7 @@ export default function RegisterScreen({ navigation }) {
                     role === 'USER' && styles.roleBtnTextActive,
                   ]}
                 >
-                  Foydalanuvchi
+                  {t('user_role') || 'Foydalanuvchi'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -204,7 +206,7 @@ export default function RegisterScreen({ navigation }) {
                     role === 'PROVIDER' && styles.roleBtnTextActive,
                   ]}
                 >
-                  Xizmat ko'rsatuvchi
+                  {t('provider_role') || "Xizmat ko'rsatuvchi"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -220,7 +222,7 @@ export default function RegisterScreen({ navigation }) {
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
                 <>
-                  <Text style={styles.registerBtnText}>Ro'yxatdan o'tish</Text>
+                  <Text style={styles.registerBtnText}>{t('register_btn') || "Ro'yxatdan o'tish"}</Text>
                   <CheckCircle size={20} color={COLORS.white} weight="fill" />
                 </>
               )}
@@ -228,9 +230,9 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Login Link */}
             <View style={styles.bottomRow}>
-              <Text style={styles.bottomText}>Hisobingiz bormi? </Text>
+              <Text style={styles.bottomText}>{t('have_account') || "Hisobingiz bormi? "}</Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.linkText}>Kirish</Text>
+                <Text style={styles.linkText}>{t('login_link') || 'Kirish'}</Text>
               </TouchableOpacity>
             </View>
           </View>

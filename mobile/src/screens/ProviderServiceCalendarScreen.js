@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'phosphor-react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../lib/api';
 import { COLORS, FONTS } from '../lib/theme';
 
@@ -22,6 +23,7 @@ LocaleConfig.defaultLocale = 'uz';
 export default function ProviderServiceCalendarScreen({ route, navigation }) {
   const { serviceId } = route.params;
   const { token } = useAuth();
+  const { t } = useLanguage();
   
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ export default function ProviderServiceCalendarScreen({ route, navigation }) {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Xato', 'Ma\'lumotlarni yuklashda xatolik yuz berdi');
+      Alert.alert(t('error') || 'Xato', t('error_loading_data') || 'Ma\'lumotlarni yuklashda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }
@@ -65,22 +67,22 @@ export default function ProviderServiceCalendarScreen({ route, navigation }) {
     
     if (isBooked) {
       Alert.alert(
-        "Sanani bo'shatish",
-        `${day.dateString} sanasidagi bandlikni bekor qilasizmi?`,
+        t('free_date') || "Sanani bo'shatish",
+        `${day.dateString} ${t('cancel_booking_question') || 'sanasidagi bandlikni bekor qilasizmi?'}`,
         [
-          { text: "Yo'q", style: "cancel" },
+          { text: t('no') || "Yo'q", style: "cancel" },
           { 
-            text: "Ha, bekor qilish", 
+            text: t('yes_cancel') || "Ha, bekor qilish", 
             onPress: async () => {
               try {
                 const res = await api.unblockDate({ service_id: serviceId, date: day.dateString }, token);
                 if (res.success) {
                   fetchServiceDetails();
                 } else {
-                  Alert.alert("Xato", res.message || "Bekor qilishda xatolik");
+                  Alert.alert(t('error') || "Xato", res.message || (t('cancel_error') || "Bekor qilishda xatolik"));
                 }
               } catch (e) {
-                Alert.alert("Xato", "Tarmoq xatosi");
+                Alert.alert(t('error') || "Xato", t('network_error') || "Tarmoq xatosi");
               }
             }
           }
@@ -88,22 +90,22 @@ export default function ProviderServiceCalendarScreen({ route, navigation }) {
       );
     } else {
       Alert.alert(
-        "Sanani band qilish",
-        `${day.dateString} sanasini band qilib qo'yasizmi? (Boshqa mijozlar bu sanani tanlay olmaydi)`,
+        t('book_date') || "Sanani band qilish",
+        `${day.dateString} ${t('book_date_question') || "sanasini band qilib qo'yasizmi? (Boshqa mijozlar bu sanani tanlay olmaydi)"}`,
         [
-          { text: "Yo'q", style: "cancel" },
+          { text: t('no') || "Yo'q", style: "cancel" },
           { 
-            text: "Ha, band qilish", 
+            text: t('yes_book') || "Ha, band qilish", 
             onPress: async () => {
               try {
                 const res = await api.blockDate({ service_id: serviceId, date: day.dateString }, token);
                 if (res.success) {
                   fetchServiceDetails();
                 } else {
-                  Alert.alert("Xato", res.message || "Band qilishda xatolik");
+                  Alert.alert(t('error') || "Xato", res.message || (t('booking_error') || "Band qilishda xatolik"));
                 }
               } catch (e) {
-                Alert.alert("Xato", "Tarmoq xatosi");
+                Alert.alert(t('error') || "Xato", t('network_error') || "Tarmoq xatosi");
               }
             }
           }
@@ -126,12 +128,12 @@ export default function ProviderServiceCalendarScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ArrowLeft size={24} color={COLORS.text} weight="bold" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Kalendar: {service?.name}</Text>
+        <Text style={styles.headerTitle}>{t('calendar') || 'Kalendar'}: {service?.name}</Text>
       </View>
 
       <View style={styles.content}>
         <Text style={styles.instruction}>
-          Sanalarni ustiga bosib, ularni o'zingiz uchun band qiling yoki band qilingan sanalarni bo'shating. Qizil rangdagi sanalar — band qilingan kunlar.
+          {t('calendar_instruction') || "Sanalarni ustiga bosib, ularni o'zingiz uchun band qiling yoki band qilingan sanalarni bo'shating. Qizil rangdagi sanalar — band qilingan kunlar."}
         </Text>
 
         <Calendar
@@ -197,7 +199,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   instruction: {
-    ...FONTS.body,
+    fontSize: 14,
+    fontWeight: '400',
     color: COLORS.textSecondary,
     marginBottom: 20,
     lineHeight: 20,

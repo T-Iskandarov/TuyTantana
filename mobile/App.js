@@ -1,12 +1,17 @@
 import React from 'react';
+import YaMap from 'react-native-yamap';
+
+YaMap.init('290be2f3-b2f2-4051-b51a-d091cfa2b388');
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { House, CalendarBlank, SquaresFour, User, Headset, Briefcase } from 'phosphor-react-native';
 import { ActivityIndicator, View, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+import { AlertProvider } from './src/context/AlertContext';
 import { COLORS } from './src/lib/theme';
 
 import LoginScreen from './src/screens/LoginScreen';
@@ -54,8 +59,8 @@ function HomeTabs() {
           borderTopWidth: 0,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.05,
-          shadowRadius: 15,
+          shadowOpacity: 0.1,
+          shadowRadius: 16,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
         tabBarIcon: ({ focused, color, size }) => {
@@ -98,7 +103,7 @@ function HomeTabs() {
         <Tab.Screen 
           name="ContactTab" 
           component={ContactScreen} 
-          options={{ tabBarLabel: 'Kontakt' }}
+          options={{ tabBarLabel: t('nav_contact') || 'Kontakt' }}
         />
       )}
       <Tab.Screen 
@@ -125,44 +130,42 @@ function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: COLORS.background },
         animation: 'slide_from_right',
+        contentStyle: { backgroundColor: COLORS.background },
       }}
     >
-      <Stack.Screen name="Main" component={HomeTabs} />
-      <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
+      <Stack.Screen name="MainTabs" component={HomeTabs} />
       <Stack.Screen name="AllServices" component={AllServicesScreen} />
-      
-      {!user ? (
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="ProviderServices" component={ProviderServicesScreen} />
-          <Stack.Screen name="ProviderServiceCalendar" component={ProviderServiceCalendarScreen} />
-          <Stack.Screen name="AddService" component={AddServiceScreen} />
-          <Stack.Screen name="MyReviews" component={MyReviewsScreen} />
-          <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
-          <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
-          <Stack.Screen name="AboutApp" component={AboutAppScreen} />
-          <Stack.Screen name="Contact" component={ContactScreen} />
-          <Stack.Screen name="Notifications" component={NotificationsScreen} />
-        </>
-      )}
+      <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="ProviderServices" component={ProviderServicesScreen} />
+      <Stack.Screen name="ProviderServiceCalendar" component={ProviderServiceCalendarScreen} />
+      <Stack.Screen name="AddService" component={AddServiceScreen} />
+      <Stack.Screen name="MyBookings" component={MyBookingsScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="MyReviews" component={MyReviewsScreen} />
+      <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
+      <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+      <Stack.Screen name="AboutApp" component={AboutAppScreen} />
+      <Stack.Screen name="Contact" component={ContactScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-      </AuthProvider>
-    </LanguageProvider>
+    <SafeAreaProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AlertProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </AlertProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </SafeAreaProvider>
   );
 }

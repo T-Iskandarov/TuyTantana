@@ -4,6 +4,7 @@ import { Star, MapPin, Users, ChatTeardropText } from 'phosphor-react-native';
 import { COLORS, SHADOWS, SERVICE_TYPES } from '../lib/theme';
 import { IMAGE_BASE } from '../lib/api';
 import { getPhosphorIcon } from '../lib/icons';
+import { useLanguage } from '../context/LanguageContext';
 
 function formatPrice(p) {
   if (!p && p !== 0) return '-';
@@ -11,7 +12,8 @@ function formatPrice(p) {
 }
 
 export default function ServiceCard({ item, onPress, style }) {
-  const typeInfo = SERVICE_TYPES.find((t) => t.value === item.type) || SERVICE_TYPES[0];
+  const { t } = useLanguage();
+  const typeInfo = SERVICE_TYPES.find((st) => st.value === item.type) || { label: item.type, icon: '📌' };
   const hasImage = item.images && item.images.length > 0;
   const avgRating = item.average_rating || item.averageRating || 0;
   const reviewCount = item.reviews_count || item.reviewsCount || 0;
@@ -44,30 +46,51 @@ export default function ServiceCard({ item, onPress, style }) {
 
       {/* Info */}
       <View style={styles.cardInfo}>
-        {/* Title & Rating */}
-        <View style={styles.titleRow}>
-          <Text style={styles.cardName} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
-            <Star size={16} color="#FFB800" weight="fill" />
-            <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.text }}>{Number(avgRating).toFixed(1)}</Text>
-          </View>
-        </View>
+        {/* Conditional Layout for TUYXONA vs Other Services */}
+        {(item.type === 'TUYXONA' || item.capacity) ? (
+          <>
+            <View style={styles.titleRow}>
+              <Text style={styles.cardName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                <Star size={16} color="#FFB800" weight="fill" />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.text }}>{Number(avgRating).toFixed(1)}</Text>
+              </View>
+            </View>
 
-        {/* Capacity & Reviews */}
-        <View style={[styles.infoLine, { justifyContent: 'space-between' }]}>
-          <View style={styles.capacityBadge}>
-            <Users size={14} color={COLORS.textSecondary} />
-            <Text style={styles.capacityText} numberOfLines={1}>
-              {item.capacity ? `Sig'im: ${item.capacity} kishi` : "Sig'imi noma'lum"}
+            <View style={[styles.infoLine, { justifyContent: 'space-between' }]}>
+              <View style={styles.capacityBadge}>
+                <Users size={14} color={COLORS.textSecondary} />
+                <Text style={styles.capacityText} numberOfLines={1}>
+                  {item.capacity ? `Sig'im: ${item.capacity} kishi` : "Sig'imi noma'lum"}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <ChatTeardropText size={14} color={COLORS.textSecondary} />
+                <Text style={{ fontSize: 13, color: COLORS.textSecondary }}>{reviewCount} ta izoh</Text>
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={[styles.cardName, { marginBottom: 6 }]} numberOfLines={1}>
+              {item.name}
             </Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <ChatTeardropText size={14} color={COLORS.textSecondary} />
-            <Text style={{ fontSize: 13, color: COLORS.textSecondary }}>{reviewCount} ta izoh</Text>
-          </View>
-        </View>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Star size={16} color="#FFB800" weight="fill" />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.text }}>{Number(avgRating).toFixed(1)}</Text>
+              </View>
+              <Text style={{ fontSize: 14, color: COLORS.textLight }}>•</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <ChatTeardropText size={14} color={COLORS.textSecondary} />
+                <Text style={{ fontSize: 13, color: COLORS.textSecondary }}>{reviewCount} ta izoh</Text>
+              </View>
+            </View>
+          </>
+        )}
 
         {/* Location */}
         <View style={styles.infoLine}>
@@ -81,9 +104,13 @@ export default function ServiceCard({ item, onPress, style }) {
 
         {/* Price */}
         <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Narxi</Text>
+          <Text style={styles.priceLabel}>{t('price') || 'Narxi'}</Text>
           <View style={styles.priceRow}>
-            <Text style={styles.priceValue}>{formatPrice(item.price)} <Text style={styles.priceCurrency}>so'm</Text></Text>
+            {(!item.price || item.price === 0 || item.price === '0') ? (
+              <Text style={[styles.priceValue, { color: COLORS.primary }]}>{t('negotiable_price') || 'Kelishilgan narxda'}</Text>
+            ) : (
+              <Text style={styles.priceValue}>{formatPrice(item.price)} <Text style={styles.priceCurrency}>so'm</Text></Text>
+            )}
           </View>
         </View>
       </View>
@@ -170,10 +197,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 8,
-  },
-  reviewCount: {
-    fontSize: 13,
-    color: COLORS.textLight,
   },
   locationText: {
     fontSize: 14,

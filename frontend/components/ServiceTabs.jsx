@@ -17,8 +17,8 @@ export default function ServiceTabs({ activeType, onTypeChange }) {
 
   return (
     <div className="w-full">
-      <div className="bg-[#FFFFFF] rounded-xl p-1.5 border border-gray-100">
-        <div className="flex overflow-x-auto gap-1 scrollbar-hide">
+      <div className="bg-[#FFFFFF] rounded-2xl p-2 border border-gray-100 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1.5">
           {TABS.map((tab) => {
             const isActive = activeType === tab.type;
             return (
@@ -26,16 +26,16 @@ export default function ServiceTabs({ activeType, onTypeChange }) {
                 key={tab.type}
                 onClick={() => onTypeChange(tab.type)}
                 className={`
-                  flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-medium
-                  whitespace-nowrap transition-all duration-300 flex-shrink-0
+                  flex flex-col xl:flex-row items-center justify-center gap-1.5 xl:gap-2 px-2 py-2.5 rounded-xl text-xs sm:text-sm font-medium
+                  transition-all duration-300 w-full text-center cursor-pointer
                   ${isActive
-                    ? 'bg-[#7C3AED]/10 text-[#7C3AED] border-b-2 border-[#7C3AED] shadow-lg shadow-[#7C3AED]/5'
-                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-[#7C3AED]/10 text-[#7C3AED] font-semibold border-b-2 border-[#7C3AED] shadow-sm'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }
                 `}
               >
-                <span className="flex items-center justify-center">{tab.icon}</span>
-                <span>{tab.label}</span>
+                <span className="flex items-center justify-center flex-shrink-0">{tab.icon}</span>
+                <span className="truncate max-w-full">{tab.label}</span>
               </button>
             );
           })}

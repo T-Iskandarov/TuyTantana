@@ -115,8 +115,11 @@ export default function HomePage() {
         {/* Search Bar and Service Type Tabs */}
         <div className="mb-8 animate-fadeIn flex flex-col gap-6">
           {/* Search Section Above Navbar */}
-          <div className="w-full max-w-2xl mx-auto">
-            <div className="relative w-full shadow-sm rounded-xl">
+          <div className="w-full max-w-3xl mx-auto">
+            <div className="relative w-full bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all p-1.5 flex items-center gap-2">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 ml-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               <input 
                 type="text"
                 value={filters.search}
@@ -125,22 +128,26 @@ export default function HomePage() {
                   if (e.key === 'Enter') handleApplyFilters();
                 }}
                 placeholder={t('search_placeholder')}
-                className="w-full pl-12 pr-10 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent outline-none transition-all text-sm sm:text-base shadow-sm hover:border-gray-300"
+                className="flex-1 bg-transparent border-none outline-none py-2.5 px-2 text-sm sm:text-base text-gray-900 placeholder-gray-400 w-full min-w-0"
               />
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
               {filters.search && (
                 <button 
                   onClick={() => {
                     setFilters({...filters, search: ''});
                     setAppliedFilters({...appliedFilters, search: ''});
                   }}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                  className="text-gray-400 hover:text-gray-600 p-1 mr-1 flex-shrink-0"
+                  title="Tozalash"
                 >
                   ✕
                 </button>
               )}
+              <button
+                onClick={handleApplyFilters}
+                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base flex items-center gap-2 shadow-md shadow-[#7C3AED]/20 transition-all active:scale-95 flex-shrink-0 cursor-pointer"
+              >
+                <span>{t('search_btn') || 'Qidirish'}</span>
+              </button>
             </div>
           </div>
 

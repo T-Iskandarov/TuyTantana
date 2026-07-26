@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { CaretLeft, CaretRight, CastleTurret, Camera, MicrophoneStage, Scissors, ForkKnife, Eye, Car, Crown, Sparkle, Hourglass, TShirt, Diamond } from '@phosphor-icons/react';
+import { CaretLeft, CaretRight, CastleTurret, Camera, MicrophoneStage, Scissors, ForkKnife, Eye, Car, Crown, Sparkle, Hourglass, TShirt, Diamond, ClipboardText } from '@phosphor-icons/react';
 import { api, IMAGE_BASE } from '@/lib/api';
 
 const TYPE_GRADIENTS = {
@@ -12,6 +12,8 @@ const TYPE_GRADIENTS = {
   RESTORAN: 'from-orange-500/20 via-red-500/20 to-rose-500/20',
   KORIK: 'from-emerald-500/20 via-teal-500/20 to-cyan-500/20',
   MOSHINA: 'from-slate-500/20 via-gray-500/20 to-zinc-500/20',
+  KORTEJ: 'from-slate-500/20 via-gray-500/20 to-zinc-500/20',
+  TASHKILOTCHI: 'from-indigo-500/20 via-purple-500/20 to-pink-500/20',
   LIBOS: 'from-pink-500/20 via-rose-500/20 to-fuchsia-500/20',
   BEZAK: 'from-violet-500/20 via-purple-500/20 to-indigo-500/20',
   KUTILISH: 'from-amber-500/20 via-yellow-500/20 to-orange-500/20',
@@ -25,6 +27,7 @@ const DEFAULT_IMAGES = {
   XONANDA: 'https://images.unsplash.com/photo-1516280440502-3c13749d6373?q=80&w=800&auto=format&fit=crop',
   SALON: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
   KORTEJ: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop',
+  TASHKILOTCHI: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop',
   LIBOSLAR: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=800&auto=format&fit=crop',
   AKSESSUARLAR: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
 };
@@ -38,6 +41,8 @@ const TYPE_ICONS = {
   RESTORAN: <ForkKnife weight="duotone" className="w-5 h-5 text-current" />,
   KORIK: <Eye weight="duotone" className="w-5 h-5 text-current" />,
   MOSHINA: <Car weight="duotone" className="w-5 h-5 text-current" />,
+  KORTEJ: <Car weight="duotone" className="w-5 h-5 text-current" />,
+  TASHKILOTCHI: <ClipboardText weight="duotone" className="w-5 h-5 text-current" />,
   LIBOS: <Crown weight="duotone" className="w-5 h-5 text-current" />,
   BEZAK: <Sparkle weight="duotone" className="w-5 h-5 text-current" />,
   KUTILISH: <Hourglass weight="duotone" className="w-5 h-5 text-current" />,
@@ -65,6 +70,8 @@ export default function HeroCarousel() {
     RESTORAN: 'Restoran',
     KORIK: "Ko'rik",
     MOSHINA: t('service_cars'),
+    KORTEJ: t('service_cars'),
+    TASHKILOTCHI: t('service_organizers'),
     LIBOS: 'Libos',
     BEZAK: 'Bezak',
     KUTILISH: 'Kutilish',

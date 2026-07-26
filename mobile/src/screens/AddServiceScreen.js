@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YaMap, { Marker } from 'react-native-yamap';
 import { ArrowLeft, Camera as CameraIcon, XCircle, Star } from 'phosphor-react-native';
@@ -19,6 +19,21 @@ export default function AddServiceScreen({ navigation, route }) {
   const { t } = useLanguage();
   const editItem = route.params?.editItem;
   
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  React.useEffect(() => {
+    const showSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates?.height || 300);
+    });
+    const hideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const [form, setForm] = useState({
     name: editItem?.name || '',
     type: editItem?.type || 'TUYXONA',
@@ -330,7 +345,7 @@ export default function AddServiceScreen({ navigation, route }) {
       >
         <ScrollView 
           ref={mainScrollRef} 
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(60, keyboardHeight + 60) }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -426,9 +441,9 @@ export default function AddServiceScreen({ navigation, route }) {
               onFocus={() => {
                 setTimeout(() => {
                   if (descY.current) {
-                    mainScrollRef.current?.scrollTo({ y: descY.current - 20, animated: true });
+                    mainScrollRef.current?.scrollTo({ y: Math.max(0, descY.current - 10), animated: true });
                   }
-                }, 400);
+                }, 350);
               }}
             />
           </View>
@@ -445,10 +460,8 @@ export default function AddServiceScreen({ navigation, route }) {
               onChangeText={(text) => setForm({ ...form, extra_services: text })}
               onFocus={() => {
                 setTimeout(() => {
-                  if (extraY.current) {
-                    mainScrollRef.current?.scrollTo({ y: extraY.current - 20, animated: true });
-                  }
-                }, 400);
+                  mainScrollRef.current?.scrollToEnd({ animated: true });
+                }, 350);
               }}
             />
           </View>

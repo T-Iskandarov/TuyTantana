@@ -14,6 +14,7 @@ import {
   RefreshControl,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Star, CaretLeft, CaretRight, Calendar, Lock, WarningCircle, ArrowsClockwise, MapPin, Users, CheckCircle, User, Phone, CalendarBlank, Chats, ChatCircleDots, PaperPlaneRight } from 'phosphor-react-native';
@@ -342,6 +343,21 @@ export default function ServiceDetailScreen({ route, navigation }) {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates?.height || 300);
+    });
+    const hideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const mainScrollRef = useRef(null);
 
   const fetchService = useCallback(async () => {
@@ -443,7 +459,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
       <ScrollView
         ref={mainScrollRef}
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: Math.max(40, keyboardHeight + 60) }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
@@ -671,7 +687,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
                   onFocus={() => {
                     setTimeout(() => {
                       mainScrollRef.current?.scrollToEnd({ animated: true });
-                    }, 400);
+                    }, 350);
                   }}
                   multiline
                   numberOfLines={3}

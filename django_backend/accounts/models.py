@@ -26,6 +26,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='USER')
+    telegram_chat_id = models.CharField(max_length=50, null=True, blank=True, unique=True, verbose_name="Telegram Chat ID")
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

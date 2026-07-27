@@ -17,6 +17,9 @@ run_cmd(client, 'cd /root/tuy-tantana && git reset --hard && git clean -fd -e up
 run_cmd(client, 'cd /root/tuy-tantana && git pull origin main')
 run_cmd(client, 'cd /root/tuy-tantana/django_backend && source venv/bin/activate && python manage.py makemigrations')
 run_cmd(client, 'cd /root/tuy-tantana/django_backend && source venv/bin/activate && python manage.py migrate')
+run_cmd(client, 'cd /root/tuy-tantana/django_backend && source venv/bin/activate && pip install -r /root/tuy-tantana/telegram_bot/requirements.txt')
+run_cmd(client, "cat << 'EOF' > /etc/systemd/system/tuytantana-bot.service\n[Unit]\nDescription=Tuy Tantana Telegram Bot Service\nAfter=network.target\n\n[Service]\nUser=root\nWorkingDirectory=/root/tuy-tantana/telegram_bot\nExecStart=/root/tuy-tantana/django_backend/venv/bin/python /root/tuy-tantana/telegram_bot/bot.py\nRestart=always\nRestartSec=3\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=multi-user.target\nEOF")
+run_cmd(client, 'systemctl daemon-reload && systemctl enable tuytantana-bot && systemctl restart tuytantana-bot')
 run_cmd(client, 'systemctl restart gunicorn')
 
 client.close()

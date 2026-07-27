@@ -163,6 +163,13 @@ class ServiceViewSet(viewsets.ModelViewSet):
             comment=comment
         )
 
+        from notifications.models import Notification
+        Notification.objects.create(
+            user=service.provider,
+            title="Yangi izoh!",
+            message=f"Sizning '{service.name}' xizmatingizga {request.user.name} tomonidan {rating} ⭐ baho va izoh qoldirildi:\n\n\"{comment}\""
+        )
+
         return Response({
             'success': True,
             'message': 'Izohingiz saqlandi!'

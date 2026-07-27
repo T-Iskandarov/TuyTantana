@@ -5,8 +5,8 @@ import threading
 import telebot
 from telebot import types
 
-# Initialize Django environment via config
-import config
+# Initialize Django environment via bot_config
+import bot_config as config
 from accounts.models import User
 from bookings.models import Booking
 from notifications.models import Notification

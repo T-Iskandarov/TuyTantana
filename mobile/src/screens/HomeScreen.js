@@ -371,7 +371,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.catHeaderRow}>
               <Text style={styles.catTitle}>{t('categories') || 'Bo\'limlar'}</Text>
               <View style={styles.scrollHintRow}>
-                <Text style={styles.scrollHintText}>{t('scroll_hint') || 'Surish'}</Text>
+                <Text style={styles.scrollHintText}>{t('scroll_hint') || 'Xizmatlarni topish uchun suring'}</Text>
                 <CaretRight size={14} color={COLORS.primary} weight="bold" />
               </View>
             </View>
@@ -379,7 +379,7 @@ export default function HomeScreen({ navigation }) {
             {/* Tabs */}
             <ScrollView 
               horizontal 
-              showsHorizontalScrollIndicator={true}
+              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.tabsContainer}
             >
               {[ {label: t('all') || 'Barchasi', value: 'ALL'}, ...SERVICE_TYPES].map((item) => {

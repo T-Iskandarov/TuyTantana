@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CalendarBlank, Image as ImageIcon, User, CheckCircle, Clock, XCircle, ListNumbers, Funnel, Calendar, ArrowCounterClockwise } from 'phosphor-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { api, IMAGE_BASE } from '../lib/api';
@@ -12,6 +13,14 @@ function formatPrice(p) {
   return Number(p).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
+function formatDate(date) {
+  if (!date) return '';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export default function MyBookingsScreen({ navigation }) {
   const { user, token } = useAuth();
   const { t } = useLanguage();
@@ -19,10 +28,10 @@ export default function MyBookingsScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [dateFilterType, setDateFilterType] = useState('ALL');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [showCustomDate, setShowCustomDate] = useState(false);
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     if (!token) {
@@ -90,26 +99,14 @@ export default function MyBookingsScreen({ navigation }) {
       if (statusFilter !== 'ALL' && bStatus !== statusFilter) {
         return false;
       }
-      if (dateFilterType === '7DAYS') {
-        const d = new Date(b.date);
-        const now = new Date();
-        const diff = (d - now) / (1000 * 60 * 60 * 24);
-        if (diff < -1 || diff > 7) return false;
-      } else if (dateFilterType === '30DAYS') {
-        const d = new Date(b.date);
-        const now = new Date();
-        const diff = (d - now) / (1000 * 60 * 60 * 24);
-        if (diff < -1 || diff > 30) return false;
-      } else if (dateFilterType === 'CUSTOM') {
-        if (fromDate && b.date < fromDate) return false;
-        if (toDate && b.date > toDate) return false;
-      }
+      if (fromDate && b.date < fromDate) return false;
+      if (toDate && b.date > toDate) return false;
       return true;
     });
   };
 
   const filteredBookings = getFilteredBookings();
-  const isFilterActive = statusFilter !== 'ALL' || dateFilterType !== 'ALL' || fromDate !== '' || toDate !== '';
+  const isFilterActive = statusFilter !== 'ALL' || fromDate !== '' || toDate !== '';
 
   const renderStatCard = (title, count, color, Icon, filterKey) => {
     const isSelected = statusFilter === filterKey;
@@ -117,7 +114,7 @@ export default function MyBookingsScreen({ navigation }) {
       <TouchableOpacity 
         style={[
           styles.statCard,
-          isSelected && { borderColor: color, borderWidth: 2, backgroundColor: color + '10' }
+          isSelected && { borderColor: color, borderWidth: 2 }
         ]} 
         key={title}
         activeOpacity={0.7}
@@ -226,18 +223,16 @@ export default function MyBookingsScreen({ navigation }) {
               <View style={styles.filterSection}>
                 <View style={styles.filterHeaderRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Funnel size={18} color={COLORS.primary} weight="bold" />
-                    <Text style={styles.filterSectionTitle}>Sana bo'yicha saralash:</Text>
+                    <Calendar size={18} color={COLORS.primary} weight="bold" />
+                    <Text style={styles.filterSectionTitle}>Sana bo'yicha saralash (Dan — Gacha):</Text>
                   </View>
                   {isFilterActive && (
                     <TouchableOpacity 
                       style={styles.resetFilterBtn}
                       onPress={() => {
                         setStatusFilter('ALL');
-                        setDateFilterType('ALL');
                         setFromDate('');
                         setToDate('');
-                        setShowCustomDate(false);
                       }}
                     >
                       <ArrowCounterClockwise size={14} color={COLORS.danger} weight="bold" />
@@ -246,68 +241,67 @@ export default function MyBookingsScreen({ navigation }) {
                   )}
                 </View>
 
-                <View style={styles.dateChipsRow}>
-                  <TouchableOpacity 
-                    style={[styles.dateChip, dateFilterType === 'ALL' && styles.dateChipActive]}
-                    onPress={() => { setDateFilterType('ALL'); setShowCustomDate(false); }}
-                  >
-                    <Text style={[styles.dateChipText, dateFilterType === 'ALL' && styles.dateChipTextActive]}>Barchasi</Text>
-                  </TouchableOpacity>
+                <View style={styles.customDateContainer}>
+                  <View style={styles.dateInputRow}>
+                    <TouchableOpacity 
+                      style={styles.dateInputBox}
+                      onPress={() => setShowFromPicker(true)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.dateInputLabel}>Dan:</Text>
+                      <View style={styles.datePickerBtn}>
+                        <Calendar size={16} color={COLORS.primary} weight="duotone" style={{ marginRight: 6 }} />
+                        <Text style={fromDate ? styles.dateValueText : styles.datePlaceholderText}>
+                          {fromDate || "Sanani tanlang"}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity 
-                    style={[styles.dateChip, dateFilterType === '7DAYS' && styles.dateChipActive]}
-                    onPress={() => { setDateFilterType('7DAYS'); setShowCustomDate(false); }}
-                  >
-                    <Text style={[styles.dateChipText, dateFilterType === '7DAYS' && styles.dateChipTextActive]}>7 kun ichida</Text>
-                  </TouchableOpacity>
+                    <Text style={{ marginHorizontal: 8, color: COLORS.textLight, marginTop: 16 }}>—</Text>
 
-                  <TouchableOpacity 
-                    style={[styles.dateChip, dateFilterType === '30DAYS' && styles.dateChipActive]}
-                    onPress={() => { setDateFilterType('30DAYS'); setShowCustomDate(false); }}
-                  >
-                    <Text style={[styles.dateChipText, dateFilterType === '30DAYS' && styles.dateChipTextActive]}>30 kun ichida</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={[styles.dateChip, (dateFilterType === 'CUSTOM' || showCustomDate) && styles.dateChipActive]}
-                    onPress={() => { 
-                      setDateFilterType('CUSTOM'); 
-                      setShowCustomDate(!showCustomDate); 
-                    }}
-                  >
-                    <Calendar size={14} color={(dateFilterType === 'CUSTOM' || showCustomDate) ? COLORS.white : COLORS.textSecondary} weight="bold" style={{ marginRight: 4 }} />
-                    <Text style={[styles.dateChipText, (dateFilterType === 'CUSTOM' || showCustomDate) && styles.dateChipTextActive]}>Oraliq tanlash</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.dateInputBox}
+                      onPress={() => setShowToPicker(true)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.dateInputLabel}>Gacha:</Text>
+                      <View style={styles.datePickerBtn}>
+                        <Calendar size={16} color={COLORS.primary} weight="duotone" style={{ marginRight: 6 }} />
+                        <Text style={toDate ? styles.dateValueText : styles.datePlaceholderText}>
+                          {toDate || "Sanani tanlang"}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
-                {(dateFilterType === 'CUSTOM' || showCustomDate) && (
-                  <View style={styles.customDateContainer}>
-                    <View style={styles.dateInputRow}>
-                      <View style={styles.dateInputBox}>
-                        <Text style={styles.dateInputLabel}>Dan (YYYY-MM-DD):</Text>
-                        <TextInput 
-                          style={styles.dateInput}
-                          placeholder="2026-07-01"
-                          placeholderTextColor={COLORS.textLight}
-                          value={fromDate}
-                          onChangeText={(t) => { setFromDate(t); setDateFilterType('CUSTOM'); }}
-                          maxLength={10}
-                        />
-                      </View>
-                      <Text style={{ marginHorizontal: 8, color: COLORS.textLight }}>—</Text>
-                      <View style={styles.dateInputBox}>
-                        <Text style={styles.dateInputLabel}>Gacha (YYYY-MM-DD):</Text>
-                        <TextInput 
-                          style={styles.dateInput}
-                          placeholder="2026-07-31"
-                          placeholderTextColor={COLORS.textLight}
-                          value={toDate}
-                          onChangeText={(t) => { setToDate(t); setDateFilterType('CUSTOM'); }}
-                          maxLength={10}
-                        />
-                      </View>
-                    </View>
-                  </View>
+                {showFromPicker && (
+                  <DateTimePicker
+                    value={fromDate ? new Date(fromDate) : new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowFromPicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        setFromDate(formatDate(selectedDate));
+                      }
+                    }}
+                  />
+                )}
+
+                {showToPicker && (
+                  <DateTimePicker
+                    value={toDate ? new Date(toDate) : new Date()}
+                    mode="date"
+                    display="default"
+                    minimumDate={fromDate ? new Date(fromDate) : undefined}
+                    onChange={(event, selectedDate) => {
+                      setShowToPicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        setToDate(formatDate(selectedDate));
+                      }
+                    }}
+                  />
                 )}
 
                 {isFilterActive && (
@@ -332,10 +326,8 @@ export default function MyBookingsScreen({ navigation }) {
                 style={styles.exploreBtn}
                 onPress={() => {
                   setStatusFilter('ALL');
-                  setDateFilterType('ALL');
                   setFromDate('');
                   setToDate('');
-                  setShowCustomDate(false);
                 }}
               >
                 <Text style={styles.exploreBtnText}>Filtrlarni tozalash</Text>
@@ -591,34 +583,6 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
     marginLeft: 4,
   },
-  dateChipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 10,
-  },
-  dateChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  dateChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  dateChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  dateChipTextActive: {
-    color: COLORS.white,
-  },
   customDateContainer: {
     backgroundColor: COLORS.white,
     padding: 12,
@@ -636,20 +600,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dateInputLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.textSecondary,
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  dateInput: {
+  datePickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  dateValueText: {
     fontSize: 13,
+    fontWeight: '600',
     color: COLORS.text,
+  },
+  datePlaceholderText: {
+    fontSize: 13,
+    color: COLORS.textLight,
   },
   activeFilterBanner: {
     backgroundColor: '#F0FDF4',

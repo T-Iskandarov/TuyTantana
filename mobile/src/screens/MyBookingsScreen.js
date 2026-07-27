@@ -224,7 +224,7 @@ export default function MyBookingsScreen({ navigation }) {
                 <View style={styles.filterHeaderRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Calendar size={18} color={COLORS.primary} weight="bold" />
-                    <Text style={styles.filterSectionTitle}>Sana bo'yicha saralash (Dan — Gacha):</Text>
+                    <Text style={styles.filterSectionTitle}>Sana bo'yicha saralash:</Text>
                   </View>
                   {isFilterActive && (
                     <TouchableOpacity 

@@ -16,9 +16,13 @@ __pycache__/
 *.sqlite3
 db.sqlite3
 media/
+uploads/
 venv/
 env/
 .env
+.secret_key
+*.log
+security.log
 
 # MacOS
 .DS_Store

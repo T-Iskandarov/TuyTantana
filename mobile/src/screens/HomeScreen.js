@@ -44,7 +44,16 @@ const DEFAULT_IMAGES = {
   FOTO_VIDEO: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
   XONANDA: 'https://images.unsplash.com/photo-1516280440502-3c13749d6373?q=80&w=800&auto=format&fit=crop',
   SALON: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
+  RESTORAN: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop',
+  KORIK: 'https://images.unsplash.com/photo-1519225355807-4e1168a6f30d?q=80&w=800&auto=format&fit=crop',
+  MOSHINA: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop',
   KORTEJ: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=800&auto=format&fit=crop',
+  TASHKILOTCHI: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop',
+  LIBOS: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=800&auto=format&fit=crop',
+  BEZAK: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop',
+  KUTILISH: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
+  LIBOSLAR: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=800&auto=format&fit=crop',
+  AKSESSUARLAR: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
 };
 
 const BANNERS = [
@@ -96,13 +105,17 @@ export default function HomeScreen({ navigation }) {
   const [featuredServices, setFeaturedServices] = useState(BANNERS);
   const scrollViewRef = useRef(null);
 
-  useEffect(() => {
-    api.getServices({ limit: 5 }).then(res => {
+  const fetchFeaturedServices = useCallback(() => {
+    api.getServices({ limit: 15 }).then(res => {
       if (res.success && res.data?.length > 0) {
-        setFeaturedServices(res.data.slice(0, 5));
+        setFeaturedServices(res.data.slice(0, 15));
       }
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetchFeaturedServices();
+  }, [fetchFeaturedServices]);
 
   useEffect(() => {
     if (featuredServices.length <= 1) return;
@@ -158,7 +171,8 @@ export default function HomeScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       fetchServices();
-    }, [activeType, fetchServices])
+      fetchFeaturedServices();
+    }, [activeType, fetchServices, fetchFeaturedServices])
   );
 
   // Debounced search
@@ -172,6 +186,7 @@ export default function HomeScreen({ navigation }) {
   const onRefresh = () => {
     setRefreshing(true);
     fetchServices(true);
+    fetchFeaturedServices();
   };
 
   const getServiceTypeInfo = (type) => {
@@ -479,12 +494,12 @@ export default function HomeScreen({ navigation }) {
                   style={styles.picker}
                   dropdownIconColor={COLORS.text}
                 >
-                  <Picker.Item label="Barcha baholar" value="" color={Platform.OS === 'android' ? undefined : COLORS.text} />
-                  <Picker.Item label={t('filter_rating_5') || "1 yulduz va undan yuqori"} value="1" color={Platform.OS === 'android' ? undefined : COLORS.text} />
-                  <Picker.Item label={t('filter_rating_4') || "2 yulduz va undan yuqori"} value="2" color={Platform.OS === 'android' ? undefined : COLORS.text} />
-                  <Picker.Item label="3 yulduz va undan yuqori" value="3" color={Platform.OS === 'android' ? undefined : COLORS.text} />
-                  <Picker.Item label="4 yulduz va undan yuqori" value="4" color={Platform.OS === 'android' ? undefined : COLORS.text} />
-                  <Picker.Item label="5 yulduz" value="5" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_all_ratings') || "Barcha baholar"} value="" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_5') || "⭐⭐⭐⭐⭐ (5)"} value="5" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_4') || "⭐⭐⭐⭐ va yuqori (4+)"} value="4" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_3') || "⭐⭐⭐ va yuqori (3+)"} value="3" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_2') || "⭐⭐ va yuqori (2+)"} value="2" color={Platform.OS === 'android' ? undefined : COLORS.text} />
+                  <Picker.Item label={t('filter_rating_1') || "⭐ va yuqori (1+)"} value="1" color={Platform.OS === 'android' ? undefined : COLORS.text} />
                 </Picker>
               </View>
             </ScrollView>

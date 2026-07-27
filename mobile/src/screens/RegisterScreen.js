@@ -67,7 +67,9 @@ export default function RegisterScreen({ navigation }) {
         password,
         role,
       });
-      if (!res.success) {
+      if (res.success) {
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+      } else {
         setError(res.message || t('register_error') || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
       }
     } catch (e) {

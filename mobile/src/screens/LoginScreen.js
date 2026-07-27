@@ -56,7 +56,9 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       const res = await login(`+998${cleanPhone}`, password);
-      if (!res.success) {
+      if (res.success) {
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+      } else {
         setError(res.message || t('login_error') || 'Login yoki parol noto\'g\'ri');
       }
     } catch (e) {

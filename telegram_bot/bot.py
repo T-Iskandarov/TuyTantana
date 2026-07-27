@@ -56,27 +56,27 @@ def handle_start(message):
         welcome_text = (
             "Assalomu alaykum! 🎉 *To'y Tantana* platformasining rasmiy bildirishnoma va yordamchi botiga xush kelibsiz.\n\n"
             "Botdan foydalanish va platformadan keluvchi buyurtma xabarlarini tezkor qabul qilib turish uchun hisobingizni ulashingiz zarur.\n\n"
-            "Iltimos, pastdagi **«📱 Telefon raqamni yuborish»** tugmasini bosing:"
+            "Iltimos, pastdagi **«📱 Telefon raqamni yuborish»** tugmasini bosing yoki telefon raqamingizni yozib yuboring (masalan: `+998901234567`):"
         )
         bot.send_message(chat_id, welcome_text, reply_markup=get_unlinked_keyboard())
 
-@bot.message_handler(content_types=['contact'])
-def handle_contact(message):
-    chat_id = message.chat.id
-    if not message.contact or not message.contact.phone_number:
-        bot.send_message(chat_id, "⚠️ Iltimos, telefon raqamingizni pastdagi maxsus tugma orqali yuboring.", reply_markup=get_unlinked_keyboard())
-        return
-        
-    raw_phone = message.contact.phone_number
-    digits = "".join(filter(str.isdigit, raw_phone))
-    
-    # Search in Django DB by matching phone digits
-    user = None
-    for pattern in [f"+{digits}", digits, f"+998{digits[-9:]}", digits[-9:]]:
-        user = User.objects.filter(phone_number__endswith=pattern[-9:]).first()
-        if user:
-            break
-            
+def find_user_by_phone(raw_phone):
+    if not raw_phone:
+        return None
+    digits = "".join(filter(str.isdigit, str(raw_phone)))
+    if len(digits) < 7:
+        return None
+    # We compare by the last 9 digits (e.g. 997757048 for Uzbekistan numbers)
+    target = digits[-9:]
+    for u in User.objects.all():
+        if u.phone_number:
+            u_digits = "".join(filter(str.isdigit, str(u.phone_number)))
+            if u_digits.endswith(target):
+                return u
+    return None
+
+def process_phone_linking(chat_id, raw_phone):
+    user = find_user_by_phone(raw_phone)
     if user:
         # Check if another user already linked this chat_id or clear old links
         old_linked = User.objects.filter(telegram_chat_id=str(chat_id)).exclude(id=user.id)
@@ -99,9 +99,17 @@ def handle_contact(message):
         err_text = (
             f"⚠️ *Hisob topilmadi!*\n\n"
             f"Siz yuborgan raqam (`{raw_phone}`) bo'yicha To'y Tantana platformasida ro'yxatdan o'tgan foydalanuvchi topilmadi.\n\n"
-            f"Iltimos, avval mobil ilova yoki veb-sayt orqali ro'yxatdan o'ting va so'ngra botga qayta urinib ko'ring."
+            f"💡 *Eslatma:* Iltimos, raqamni to'g'ri kiritganingizni tekshiring (masalan: `+998997757048` yoki `997757048`) va avval mobil ilova yoki veb-sayt orqali ro'yxatdan o'tgan bo'lishingiz zarur."
         )
         bot.send_message(chat_id, err_text, reply_markup=get_unlinked_keyboard())
+
+@bot.message_handler(content_types=['contact'])
+def handle_contact(message):
+    chat_id = message.chat.id
+    if not message.contact or not message.contact.phone_number:
+        bot.send_message(chat_id, "⚠️ Iltimos, telefon raqamingizni pastdagi maxsus tugma orqali yuboring yoki yozma tarzda yuboring.", reply_markup=get_unlinked_keyboard())
+        return
+    process_phone_linking(chat_id, message.contact.phone_number)
 
 @bot.message_handler(func=lambda m: m.text == "📋 Mening buyurtmalarim")
 def handle_my_bookings(message):
@@ -350,7 +358,16 @@ def handle_other_messages(message):
     chat_id = message.chat.id
     user = get_user_by_chat(chat_id)
     if not user:
-        bot.send_message(chat_id, "⚠️ Iltimos, avval hisobingizni ulash uchun pastdagi tugmani bosib telefon raqamingizni yuboring:", reply_markup=get_unlinked_keyboard())
+        # Check if the user typed a phone number manually (e.g. +998901234567, 99 775 70 48, etc.)
+        text_digits = "".join(filter(str.isdigit, message.text or ""))
+        if len(text_digits) >= 7:
+            process_phone_linking(chat_id, message.text)
+        else:
+            bot.send_message(
+                chat_id, 
+                "⚠️ Iltimos, avval hisobingizni ulash uchun pastdagi tugmani bosing yoki telefon raqamingizni yozma (masalan: `+998997757048`) ko'rinishida yuboring:", 
+                reply_markup=get_unlinked_keyboard()
+            )
     else:
         bot.send_message(chat_id, "💡 Iltimos, pastdagi asosiy menyu tugmalaridan birini tanlang yoki buyurtmalar haqida xabarni kuting.", reply_markup=get_main_keyboard(user))
 

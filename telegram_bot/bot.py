@@ -16,6 +16,8 @@ bot = telebot.TeleBot(config.TOKEN, parse_mode='Markdown')
 
 # Dictionary to track admin states for broadcasting: { chat_id: { 'step': str, 'msg_id': int, 'from_chat_id': int } }
 admin_states = {}
+# Dictionary to track password verification during linking: { chat_id: { 'user_id': int, 'phone': str } }
+linking_states = {}
 
 def get_user_by_chat(chat_id):
     return User.objects.filter(telegram_chat_id=str(chat_id)).first()
@@ -78,6 +80,56 @@ def find_user_by_phone(raw_phone):
 def process_phone_linking(chat_id, raw_phone):
     user = find_user_by_phone(raw_phone)
     if user:
+        # Store state waiting for password verification
+        linking_states[chat_id] = {'user_id': user.id, 'phone': user.phone_number}
+        
+        cancel_markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        cancel_markup.add(types.KeyboardButton("❌ Bekor qilish"))
+        
+        prompt_text = (
+            f"🔒 *Xavfsizlikni ta'minlash (Parol tekshiruv)*\n\n"
+            f"Siz kiritgan raqam (`{user.phone_number}`) bo'yicha To'y Tantana platformasida hisob topildi.\n\n"
+            f"Boshqa shaxs sizning hisobingizga ulanib olmasligini ta'minlash uchun, iltimos, ushbu profilning **parolini** yozib yuboring:\n\n"
+            f"💡 _(Yuborgan parolingiz xavfsizlik tekshiruvidan so'ng chatdan avtomatik o'chirib yuboriladi)_"
+        )
+        bot.send_message(chat_id, prompt_text, reply_markup=cancel_markup)
+    else:
+        err_text = (
+            f"⚠️ *Hisob topilmadi!*\n\n"
+            f"Siz yuborgan raqam (`{raw_phone}`) bo'yicha To'y Tantana platformasida ro'yxatdan o'tgan foydalanuvchi topilmadi.\n\n"
+            f"💡 *Eslatma:* Iltimos, raqamni to'g'ri kiritganingizni tekshiring (masalan: `+998997757048` yoki `997757048`) va avval mobil ilova yoki veb-sayt orqali ro'yxatdan o'tgan bo'lishingiz zarur."
+        )
+        bot.send_message(chat_id, err_text, reply_markup=get_unlinked_keyboard())
+
+@bot.message_handler(func=lambda message: message.chat.id in linking_states)
+def handle_password_verification(message):
+    chat_id = message.chat.id
+    state = linking_states.get(chat_id)
+    if not state:
+        return
+        
+    text = (message.text or "").strip()
+    
+    if text == "❌ Bekor qilish" or text == "/start":
+        del linking_states[chat_id]
+        bot.send_message(chat_id, "🚫 Amaliyot bekor qilindi. Hisobni ulash uchun telefon raqamingizni qayta yuboring:", reply_markup=get_unlinked_keyboard())
+        return
+        
+    user = User.objects.filter(id=state['user_id']).first()
+    if not user:
+        del linking_states[chat_id]
+        bot.send_message(chat_id, "⚠️ Hisob topilmadi. Iltimos, qaytadan urinib ko'ring.", reply_markup=get_unlinked_keyboard())
+        return
+        
+    if user.check_password(text):
+        del linking_states[chat_id]
+        
+        # Delete message containing password for security
+        try:
+            bot.delete_message(chat_id, message.message_id)
+        except Exception:
+            pass
+            
         # Check if another user already linked this chat_id or clear old links
         old_linked = User.objects.filter(telegram_chat_id=str(chat_id)).exclude(id=user.id)
         for old_u in old_linked:
@@ -88,7 +140,7 @@ def process_phone_linking(chat_id, raw_phone):
         user.save()
         
         success_text = (
-            f"✅ *Hisobingiz muvaffaqiyatli ulandi!*\n\n"
+            f"✅ *Parol tasdiqlandi va hisobingiz muvaffaqiyatli ulandi!*\n\n"
             f"👤 *Foydalanuvchi:* {user.name}\n"
             f"📱 *Telefon:* {user.phone_number}\n"
             f"🛡️ *Rol:* {user.get_role_display()}\n\n"
@@ -96,12 +148,21 @@ def process_phone_linking(chat_id, raw_phone):
         )
         bot.send_message(chat_id, success_text, reply_markup=get_main_keyboard(user))
     else:
+        # Delete wrong password attempt for security
+        try:
+            bot.delete_message(chat_id, message.message_id)
+        except Exception:
+            pass
+            
         err_text = (
-            f"⚠️ *Hisob topilmadi!*\n\n"
-            f"Siz yuborgan raqam (`{raw_phone}`) bo'yicha To'y Tantana platformasida ro'yxatdan o'tgan foydalanuvchi topilmadi.\n\n"
-            f"💡 *Eslatma:* Iltimos, raqamni to'g'ri kiritganingizni tekshiring (masalan: `+998997757048` yoki `997757048`) va avval mobil ilova yoki veb-sayt orqali ro'yxatdan o'tgan bo'lishingiz zarur."
+            f"❌ *Parol noto'g'ri!*\n\n"
+            f"Kiritilgan parol ushbu profilning paroli bilan mos kelmadi.\n\n"
+            f"Iltimos, parolingizni qayta tekshirib yana yuboring yoki amaliyotni bekor qilish uchun pastdagi **«❌ Bekor qilish»** tugmasini bosing."
         )
-        bot.send_message(chat_id, err_text, reply_markup=get_unlinked_keyboard())
+        cancel_markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+        cancel_markup.add(types.KeyboardButton("❌ Bekor qilish"))
+        bot.send_message(chat_id, err_text, reply_markup=cancel_markup)
+
 
 @bot.message_handler(content_types=['contact'])
 def handle_contact(message):
@@ -180,6 +241,7 @@ def handle_about(message):
 @bot.message_handler(func=lambda m: m.text == "🔄 Boshqa raqam ulash")
 def handle_relink(message):
     chat_id = message.chat.id
+    linking_states.pop(chat_id, None)
     user = get_user_by_chat(chat_id)
     if user:
         user.telegram_chat_id = None

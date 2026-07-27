@@ -21,7 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders } from 'phosphor-react-native';
+import { Star, MapPin, MagnifyingGlass, Bell, XCircle, Faders, CaretRight } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SHADOWS, SERVICE_TYPES } from '../lib/theme';
 import { api, IMAGE_BASE } from '../lib/api';
@@ -367,10 +367,19 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
+            {/* Tabs Header with Swipe Hint */}
+            <View style={styles.catHeaderRow}>
+              <Text style={styles.catTitle}>{t('categories') || 'Bo\'limlar'}</Text>
+              <View style={styles.scrollHintRow}>
+                <Text style={styles.scrollHintText}>{t('scroll_hint') || 'Surish'}</Text>
+                <CaretRight size={14} color={COLORS.primary} weight="bold" />
+              </View>
+            </View>
+
             {/* Tabs */}
             <ScrollView 
               horizontal 
-              showsHorizontalScrollIndicator={false}
+              showsHorizontalScrollIndicator={true}
               contentContainerStyle={styles.tabsContainer}
             >
               {[ {label: t('all') || 'Barchasi', value: 'ALL'}, ...SERVICE_TYPES].map((item) => {
@@ -720,14 +729,40 @@ const styles = StyleSheet.create({
   },
 
   /* Tabs Sq */
+  catHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  catTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  scrollHintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '12',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  scrollHintText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginRight: 2,
+  },
   tabsContainer: {
     paddingHorizontal: 16,
     gap: 12,
     marginBottom: 24,
   },
   tabSq: {
-    width: 76,
-    height: 80,
+    width: 84,
+    height: 84,
     borderRadius: 16,
     backgroundColor: COLORS.white,
     alignItems: 'center',

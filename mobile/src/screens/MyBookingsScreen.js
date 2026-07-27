@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Image, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CalendarBlank, Image as ImageIcon, User, CheckCircle, Clock, XCircle, ListNumbers } from 'phosphor-react-native';
+import { CalendarBlank, Image as ImageIcon, User, CheckCircle, Clock, XCircle, ListNumbers, Funnel, Calendar, ArrowCounterClockwise } from 'phosphor-react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { api, IMAGE_BASE } from '../lib/api';
@@ -18,6 +18,11 @@ export default function MyBookingsScreen({ navigation }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [dateFilterType, setDateFilterType] = useState('ALL');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [showCustomDate, setShowCustomDate] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     if (!token) {
@@ -73,26 +78,65 @@ export default function MyBookingsScreen({ navigation }) {
 
   const getStats = () => {
     const total = bookings.length;
-    const confirmed = bookings.filter(b => b.status === 'CONFIRMED').length;
-    const pending = bookings.filter(b => b.status === 'PENDING').length;
-    const cancelled = bookings.filter(b => b.status === 'CANCELLED').length;
+    const confirmed = bookings.filter(b => b.status?.toUpperCase() === 'CONFIRMED').length;
+    const pending = bookings.filter(b => b.status?.toUpperCase() === 'PENDING').length;
+    const cancelled = bookings.filter(b => b.status?.toUpperCase() === 'CANCELLED').length;
     return { total, confirmed, pending, cancelled };
   };
 
-  const renderStatCard = (title, count, color, Icon) => (
-    <View style={styles.statCard} key={title}>
-      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
-        <Icon size={24} color={color} weight="fill" />
-      </View>
-      <View style={styles.statInfo}>
-        <Text style={styles.statCount}>{count}</Text>
-        <Text style={styles.statTitle}>{title}</Text>
-      </View>
-    </View>
-  );
+  const getFilteredBookings = () => {
+    return bookings.filter(b => {
+      const bStatus = b.status?.toUpperCase();
+      if (statusFilter !== 'ALL' && bStatus !== statusFilter) {
+        return false;
+      }
+      if (dateFilterType === '7DAYS') {
+        const d = new Date(b.date);
+        const now = new Date();
+        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        if (diff < -1 || diff > 7) return false;
+      } else if (dateFilterType === '30DAYS') {
+        const d = new Date(b.date);
+        const now = new Date();
+        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        if (diff < -1 || diff > 30) return false;
+      } else if (dateFilterType === 'CUSTOM') {
+        if (fromDate && b.date < fromDate) return false;
+        if (toDate && b.date > toDate) return false;
+      }
+      return true;
+    });
+  };
+
+  const filteredBookings = getFilteredBookings();
+  const isFilterActive = statusFilter !== 'ALL' || dateFilterType !== 'ALL' || fromDate !== '' || toDate !== '';
+
+  const renderStatCard = (title, count, color, Icon, filterKey) => {
+    const isSelected = statusFilter === filterKey;
+    return (
+      <TouchableOpacity 
+        style={[
+          styles.statCard,
+          isSelected && { borderColor: color, borderWidth: 2, backgroundColor: color + '10' }
+        ]} 
+        key={title}
+        activeOpacity={0.7}
+        onPress={() => setStatusFilter(filterKey)}
+      >
+        <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+          <Icon size={24} color={color} weight="fill" />
+        </View>
+        <View style={styles.statInfo}>
+          <Text style={styles.statCount}>{count}</Text>
+          <Text style={styles.statTitle}>{title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderBookingCard = ({ item }) => {
-    const statusMap = STATUS_MAP[item.status?.toLowerCase()] || STATUS_MAP.PENDING;
+    const statusKey = item.status?.toUpperCase() || 'PENDING';
+    const statusMap = STATUS_MAP[statusKey] || STATUS_MAP.PENDING;
     const service = item.service || {};
     const serviceImg = service.images && service.images.length > 0 
       ? { uri: `${IMAGE_BASE}${service.images[0].image_path}` } 
@@ -161,7 +205,7 @@ export default function MyBookingsScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={bookings}
+        data={filteredBookings}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderBookingCard}
         contentContainerStyle={styles.listContainer}
@@ -171,26 +215,145 @@ export default function MyBookingsScreen({ navigation }) {
         }
         ListHeaderComponent={
           bookings.length > 0 ? (
-            <View style={styles.statsGrid}>
-              {renderStatCard(t('total') || 'Jami', stats.total, COLORS.primary, ListNumbers)}
-              {renderStatCard(t('confirmed') || 'Tasdiqlangan', stats.confirmed, COLORS.success, CheckCircle)}
-              {renderStatCard(t('pending') || 'Kutilmoqda', stats.pending, COLORS.warning, Clock)}
-              {renderStatCard(t('cancelled') || 'Bekor qilingan', stats.cancelled, COLORS.danger, XCircle)}
+            <View>
+              <View style={styles.statsGrid}>
+                {renderStatCard(t('total') || 'Jami', stats.total, COLORS.primary, ListNumbers, 'ALL')}
+                {renderStatCard(t('confirmed') || 'Tasdiqlangan', stats.confirmed, COLORS.success, CheckCircle, 'CONFIRMED')}
+                {renderStatCard(t('pending') || 'Kutilmoqda', stats.pending, COLORS.warning, Clock, 'PENDING')}
+                {renderStatCard(t('cancelled') || 'Bekor qilingan', stats.cancelled, COLORS.danger, XCircle, 'CANCELLED')}
+              </View>
+
+              <View style={styles.filterSection}>
+                <View style={styles.filterHeaderRow}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Funnel size={18} color={COLORS.primary} weight="bold" />
+                    <Text style={styles.filterSectionTitle}>Sana bo'yicha saralash:</Text>
+                  </View>
+                  {isFilterActive && (
+                    <TouchableOpacity 
+                      style={styles.resetFilterBtn}
+                      onPress={() => {
+                        setStatusFilter('ALL');
+                        setDateFilterType('ALL');
+                        setFromDate('');
+                        setToDate('');
+                        setShowCustomDate(false);
+                      }}
+                    >
+                      <ArrowCounterClockwise size={14} color={COLORS.danger} weight="bold" />
+                      <Text style={styles.resetFilterText}>Tozalash</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <View style={styles.dateChipsRow}>
+                  <TouchableOpacity 
+                    style={[styles.dateChip, dateFilterType === 'ALL' && styles.dateChipActive]}
+                    onPress={() => { setDateFilterType('ALL'); setShowCustomDate(false); }}
+                  >
+                    <Text style={[styles.dateChipText, dateFilterType === 'ALL' && styles.dateChipTextActive]}>Barchasi</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.dateChip, dateFilterType === '7DAYS' && styles.dateChipActive]}
+                    onPress={() => { setDateFilterType('7DAYS'); setShowCustomDate(false); }}
+                  >
+                    <Text style={[styles.dateChipText, dateFilterType === '7DAYS' && styles.dateChipTextActive]}>7 kun ichida</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.dateChip, dateFilterType === '30DAYS' && styles.dateChipActive]}
+                    onPress={() => { setDateFilterType('30DAYS'); setShowCustomDate(false); }}
+                  >
+                    <Text style={[styles.dateChipText, dateFilterType === '30DAYS' && styles.dateChipTextActive]}>30 kun ichida</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.dateChip, (dateFilterType === 'CUSTOM' || showCustomDate) && styles.dateChipActive]}
+                    onPress={() => { 
+                      setDateFilterType('CUSTOM'); 
+                      setShowCustomDate(!showCustomDate); 
+                    }}
+                  >
+                    <Calendar size={14} color={(dateFilterType === 'CUSTOM' || showCustomDate) ? COLORS.white : COLORS.textSecondary} weight="bold" style={{ marginRight: 4 }} />
+                    <Text style={[styles.dateChipText, (dateFilterType === 'CUSTOM' || showCustomDate) && styles.dateChipTextActive]}>Oraliq tanlash</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {(dateFilterType === 'CUSTOM' || showCustomDate) && (
+                  <View style={styles.customDateContainer}>
+                    <View style={styles.dateInputRow}>
+                      <View style={styles.dateInputBox}>
+                        <Text style={styles.dateInputLabel}>Dan (YYYY-MM-DD):</Text>
+                        <TextInput 
+                          style={styles.dateInput}
+                          placeholder="2026-07-01"
+                          placeholderTextColor={COLORS.textLight}
+                          value={fromDate}
+                          onChangeText={(t) => { setFromDate(t); setDateFilterType('CUSTOM'); }}
+                          maxLength={10}
+                        />
+                      </View>
+                      <Text style={{ marginHorizontal: 8, color: COLORS.textLight }}>—</Text>
+                      <View style={styles.dateInputBox}>
+                        <Text style={styles.dateInputLabel}>Gacha (YYYY-MM-DD):</Text>
+                        <TextInput 
+                          style={styles.dateInput}
+                          placeholder="2026-07-31"
+                          placeholderTextColor={COLORS.textLight}
+                          value={toDate}
+                          onChangeText={(t) => { setToDate(t); setDateFilterType('CUSTOM'); }}
+                          maxLength={10}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                )}
+
+                {isFilterActive && (
+                  <View style={styles.activeFilterBanner}>
+                    <Text style={styles.activeFilterText}>
+                      🔍 Natija: <Text style={{ fontWeight: '700' }}>{filteredBookings.length} ta</Text> bron topildi
+                      {statusFilter !== 'ALL' ? ` (${STATUS_MAP[statusFilter]?.label || statusFilter})` : ''}
+                    </Text>
+                  </View>
+                )}
+              </View>
             </View>
           ) : null
         }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <CalendarBlank size={64} color={COLORS.primaryLight} weight="duotone" />
-            <Text style={styles.emptyText}>{t('no_bookings_yet') || "Hali bronlaringiz yo'q"}</Text>
-            <Text style={styles.emptySubtext}>{t('explore_services_msg') || "Yangi xizmatlarni toping va o'z bayramingizni rejalashtiring"}</Text>
-            <TouchableOpacity 
-              style={styles.exploreBtn}
-              onPress={() => navigation.navigate('HomeTab')}
-            >
-              <Text style={styles.exploreBtnText}>{t('search_services') || 'Xizmatlarni izlash'}</Text>
-            </TouchableOpacity>
-          </View>
+          isFilterActive ? (
+            <View style={styles.emptyContainer}>
+              <Funnel size={64} color={COLORS.warning} weight="duotone" />
+              <Text style={styles.emptyText}>Tanlangan filtrlarda hech narsa topilmadi</Text>
+              <Text style={styles.emptySubtext}>Boshqa sanalarni yoki boshqa holat filtrini tanlab ko'ring</Text>
+              <TouchableOpacity 
+                style={styles.exploreBtn}
+                onPress={() => {
+                  setStatusFilter('ALL');
+                  setDateFilterType('ALL');
+                  setFromDate('');
+                  setToDate('');
+                  setShowCustomDate(false);
+                }}
+              >
+                <Text style={styles.exploreBtnText}>Filtrlarni tozalash</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <CalendarBlank size={64} color={COLORS.primaryLight} weight="duotone" />
+              <Text style={styles.emptyText}>{t('no_bookings_yet') || "Hali bronlaringiz yo'q"}</Text>
+              <Text style={styles.emptySubtext}>{t('explore_services_msg') || "Yangi xizmatlarni toping va o'z bayramingizni rejalashtiring"}</Text>
+              <TouchableOpacity 
+                style={styles.exploreBtn}
+                onPress={() => navigation.navigate('HomeTab')}
+              >
+                <Text style={styles.exploreBtnText}>{t('search_services') || 'Xizmatlarni izlash'}</Text>
+              </TouchableOpacity>
+            </View>
+          )
         }
       />
     </SafeAreaView>
@@ -397,5 +560,107 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.primary,
+  },
+  filterSection: {
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  filterHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  filterSectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginLeft: 6,
+  },
+  resetFilterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.danger + '15',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  resetFilterText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.danger,
+    marginLeft: 4,
+  },
+  dateChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 10,
+  },
+  dateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  dateChipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  dateChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  dateChipTextActive: {
+    color: COLORS.white,
+  },
+  customDateContainer: {
+    backgroundColor: COLORS.white,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
+  },
+  dateInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateInputBox: {
+    flex: 1,
+  },
+  dateInputLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+  },
+  dateInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 13,
+    color: COLORS.text,
+  },
+  activeFilterBanner: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  activeFilterText: {
+    fontSize: 13,
+    color: '#15803D',
   },
 });

@@ -278,105 +278,45 @@ export default function Header() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
-                aria-label="Menyu"
-              >
-                {mobileOpen ? (
-                  <X className="w-6 h-6" weight="bold" />
-                ) : (
-                  <List className="w-6 h-6" weight="bold" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileOpen ? 'max-h-[500px] opacity-100 border-t border-gray-100' : 'max-h-0 opacity-0'
-          } bg-white shadow-lg absolute w-full`}
-        >
-          <div className="px-4 py-4 space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] rounded-xl hover:bg-[#7C3AED]/5 transition-colors"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
-            
-            <div className="pt-4 mt-2 border-t border-gray-100 space-y-3">
-              {loading ? null : user ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center text-[#F8F7FF] shadow-sm">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-gray-900">{user.name}</span>
-                      <span className="text-xs font-semibold text-gray-500 uppercase">{user.role === 'PROVIDER' ? 'Provider' : 'Foydalanuvchi'}</span>
-                    </div>
-                  </div>
-                  
-                  <a href="/notifications" onClick={() => setMobileOpen(false)} className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] hover:bg-[#7C3AED]/5 rounded-xl transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Bell className="w-5 h-5" weight="duotone" />
-                      Bildirishnomalar
-                    </div>
+              
+              {/* Mobile Notification Bell */}
+              {user && (
+                <div className="relative" ref={notifRef}>
+                  <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-600 hover:text-[#7C3AED]">
+                    <Bell className="w-6 h-6" weight="duotone" />
                     {unreadCount > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>
+                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                     )}
-                  </a>
-
-                  {user.role === 'PROVIDER' && (
-                    <a href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] hover:bg-[#7C3AED]/5 rounded-xl transition-colors">
-                      <House className="w-5 h-5" weight="duotone" />
-                      {t('nav_cabinet')}
-                    </a>
-                  )}
-                  {user.role === 'USER' && (
-                    <a href="/my-bookings" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-[#7C3AED] hover:bg-[#7C3AED]/5 rounded-xl transition-colors">
-                      <CalendarCheck className="w-5 h-5" weight="duotone" />
-                      {t('nav_my_bookings')}
-                    </a>
-                  )}
-                  {user.role === 'SUPERADMIN' && (
-                    <a href="/admin" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-colors">
-                      <ShieldCheck className="w-5 h-5" weight="duotone" />
-                      {t('nav_admin')}
-                    </a>
-                  )}
-                  
-                  <button
-                    onClick={() => { logout(); setMobileOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left"
-                  >
-                    <SignOut className="w-5 h-5" weight="duotone" />
-                    {t('nav_logout')}
                   </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 px-2">
-                  <button
-                    onClick={() => { openLogin(); setMobileOpen(false); }}
-                    className="w-full px-4 py-3 text-sm font-semibold text-gray-700 hover:text-gray-900 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors text-center"
-                  >
-                    {t('nav_login')}
-                  </button>
-                  <button
-                    onClick={() => { openRegister(); setMobileOpen(false); }}
-                    className="w-full px-4 py-3 text-sm font-semibold text-white bg-[#7C3AED] rounded-xl hover:bg-[#6D28D9] transition-colors text-center"
-                  >
-                    {t('nav_register')}
-                  </button>
+                  {notifOpen && (
+                    <div className="absolute top-full mt-2 right-0 w-80 max-w-[90vw] bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-fadeIn origin-top-right z-50">
+                      <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <span className="font-bold text-gray-900">Bildirishnomalar</span>
+                        <a href="/notifications" onClick={() => setNotifOpen(false)} className="text-xs font-semibold text-[#7C3AED] hover:text-[#6D28D9]">Barchasi</a>
+                      </div>
+                      <div className="max-h-[360px] overflow-y-auto">
+                        {notifications.length === 0 ? (
+                          <div className="p-6 text-center text-sm text-gray-500 flex flex-col items-center">
+                            <Bell className="w-8 h-8 text-gray-300 mb-2" weight="duotone" />
+                            Xabarlar yo'q
+                          </div>
+                        ) : (
+                          notifications.slice(0, 5).map(notif => (
+                            <div key={notif.id} onClick={() => markAsRead(notif.id)} className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${notif.is_read ? 'bg-white' : 'bg-[#7C3AED]/5'}`}>
+                              <div className="flex justify-between items-start mb-1">
+                                <span className={`text-sm font-semibold pr-4 leading-tight ${notif.is_read ? 'text-gray-700' : 'text-[#7C3AED]'}`}>{notif.title}</span>
+                                {!notif.is_read && <span className="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-0.5 shadow-sm shadow-red-500/20"></span>}
+                              </div>
+                              <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">{notif.message}</p>
+                              <span className="text-[10px] font-medium text-gray-400">
+                                {new Date(notif.created_at).toLocaleString('uz-UZ', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

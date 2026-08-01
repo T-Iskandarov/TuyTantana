@@ -12,6 +12,10 @@
     "android": {
       "package": "com.tuytantana.app",
       "versionCode": 1,
+      "navigationBar": {
+        "backgroundColor": "#FDFBFA",
+        "barStyle": "dark-content"
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,7 +32,8 @@
         "expo-build-properties",
         {
           "android": {
-            "newArchEnabled": false
+            "newArchEnabled": false,
+            "minSdkVersion": 26
           },
           "ios": {
             "newArchEnabled": false

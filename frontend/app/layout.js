@@ -20,6 +20,16 @@ export const metadata = {
   authors: [{ name: 'CUBO kompaniyasi' }],
   creator: 'CUBO kompaniyasi',
   publisher: "To'y Tantana",
+  manifest: "/manifest.json",
+  themeColor: "#7C3AED",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "To'y Tantana",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   robots: {
     index: true,
     follow: true,
@@ -65,6 +75,7 @@ export const metadata = {
   },
 };
 import { LanguageProvider } from '@/context/LanguageContext';
+import BottomNav from '@/components/BottomNav';
 
 export default function RootLayout({ children }) {
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -162,6 +173,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <ToastProvider>
               {children}
+              <BottomNav />
             </ToastProvider>
           </AuthProvider>
         </LanguageProvider>

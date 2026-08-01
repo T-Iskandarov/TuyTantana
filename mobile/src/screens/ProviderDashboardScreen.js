@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   listContainer: {
-    padding: 16,
+    paddingTop: 20,
     paddingBottom: 100,
   },
   
@@ -515,6 +515,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 20,
     marginBottom: 16,
+    marginHorizontal: 16,
     padding: 16,
     ...SHADOWS.sm,
     shadowOpacity: 0.05,

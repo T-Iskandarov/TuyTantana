@@ -481,6 +481,7 @@ export default function HomeScreen({ navigation }) {
                 <TextInput 
                   style={[styles.filterInput, {flex: 1}]} 
                   placeholder="Dan"
+                  placeholderTextColor={COLORS.textLight}
                   keyboardType="numeric"
                   value={filterPriceMin}
                   onChangeText={setFilterPriceMin}
@@ -489,6 +490,7 @@ export default function HomeScreen({ navigation }) {
                 <TextInput 
                   style={[styles.filterInput, {flex: 1}]} 
                   placeholder="Gacha"
+                  placeholderTextColor={COLORS.textLight}
                   keyboardType="numeric"
                   value={filterPriceMax}
                   onChangeText={setFilterPriceMax}

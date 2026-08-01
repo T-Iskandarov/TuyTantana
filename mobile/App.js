@@ -13,7 +13,6 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { AlertProvider } from './src/context/AlertContext';
 import { COLORS } from './src/lib/theme';
-import * as NavigationBar from 'expo-navigation-bar';
 
 
 
@@ -159,13 +158,6 @@ function AppNavigator() {
 }
 
 export default function App() {
-  React.useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('transparent');
-      NavigationBar.setButtonStyleAsync('dark');
-      NavigationBar.setPositionAsync('absolute');
-    }
-  }, []);
 
   return (
     <SafeAreaProvider>

@@ -12,6 +12,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useLanguage();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   useEffect(() => {
     // Keep empty or remove entirely if not needed anymore
   }, [user, token, pathname]);
@@ -65,8 +66,31 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[#F8F7FF] flex">
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white/90 backdrop-blur-xl border-b border-gray-200 z-30 flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-[1.35]" />
+          </div>
+          <span className="font-bold text-[#7C3AED]">Kabinet</span>
+        </div>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-gray-700">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/20 z-40 backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-[#F3F0FF] border-r border-gray-100 flex flex-col shrink-0 fixed h-full z-40">
+      <aside className={`w-64 bg-[#F3F0FF] border-r border-gray-100 flex flex-col shrink-0 fixed h-full z-50 transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Logo */}
         <div className="p-5 border-b border-gray-100">
           <Link href="/" className="flex items-center gap-2">
@@ -135,7 +159,7 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-6 lg:p-8">
+      <main className="flex-1 lg:ml-64 p-4 lg:p-8 pt-20 lg:pt-8 pb-20 lg:pb-8 w-full">
         {children}
       </main>
     </div>

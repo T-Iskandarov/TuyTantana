@@ -21,7 +21,6 @@ export const metadata = {
   creator: 'CUBO kompaniyasi',
   publisher: "To'y Tantana",
   manifest: "/manifest.json",
-  themeColor: "#7C3AED",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -74,6 +73,11 @@ export const metadata = {
     canonical: '/',
   },
 };
+
+export const viewport = {
+  themeColor: '#7C3AED',
+};
+
 import { LanguageProvider } from '@/context/LanguageContext';
 import BottomNav from '@/components/BottomNav';
 

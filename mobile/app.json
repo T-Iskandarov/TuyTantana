@@ -3,6 +3,7 @@
     "name": "Tuy Tantana",
     "slug": "tuy-tantana",
     "version": "1.0.0",
+    "newArchEnabled": false,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,11 +33,7 @@
         "expo-build-properties",
         {
           "android": {
-            "newArchEnabled": false,
             "minSdkVersion": 26
-          },
-          "ios": {
-            "newArchEnabled": false
           }
         }
       ]

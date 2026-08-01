@@ -13,6 +13,13 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { AlertProvider } from './src/context/AlertContext';
 import { COLORS } from './src/lib/theme';
+import * as NavigationBar from 'expo-navigation-bar';
+
+if (Platform.OS === 'android') {
+  NavigationBar.setBackgroundColorAsync('transparent');
+  NavigationBar.setButtonStyleAsync('dark');
+  NavigationBar.setPositionAsync('absolute'); // Overlay behind navigation bar
+}
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';

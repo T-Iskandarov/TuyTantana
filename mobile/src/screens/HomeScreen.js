@@ -237,7 +237,7 @@ export default function HomeScreen({ navigation }) {
           <Image source={require('../../assets/logo.png')} style={styles.logoImg} resizeMode="contain" />
           <View>
             <Text style={styles.logoTitle}>To'y Tantana</Text>
-            <Text style={styles.logoSubtitle}>{t('all_services_in_one') || "TO'Y XIZMATLARI BIR JOYDA"}</Text>
+            <Text style={styles.logoSubtitle}>{t('all_services_in_one') || "UYINGIZDA TO'Y-TANTANA ARIMASIN!"}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.notifBtn} onPress={() => {

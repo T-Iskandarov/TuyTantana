@@ -426,6 +426,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginTop: 16,
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   filterSection: {
     paddingHorizontal: 16,

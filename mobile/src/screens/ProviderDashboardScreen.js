@@ -123,8 +123,8 @@ export default function ProviderDashboardScreen({ navigation }) {
           {icon}
         </View>
         <View style={styles.statTexts}>
+          <Text style={styles.statCount}>{count}</Text>
           <Text style={styles.statTitle}>{title}</Text>
-          <Text style={[styles.statCount, { color }]}>{count}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -225,10 +225,10 @@ export default function ProviderDashboardScreen({ navigation }) {
         ListHeaderComponent={
           <>
             <View style={styles.statsGrid}>
-              {renderStatCard(t('total_bookings') || 'Jami bronlar', stats.totalBookings, <ListNumbers size={22} color="#3B82F6" weight="duotone" />, '#3B82F6', '#DBEAFE', 'ALL')}
-              {renderStatCard(t('status_pending') || 'Kutilmoqda', stats.pending, <Clock size={22} color={COLORS.warning} weight="duotone" />, COLORS.warning, COLORS.warningLight, 'PENDING')}
-              {renderStatCard(t('status_confirmed') || 'Tasdiqlangan', stats.confirmed, <CheckCircle size={22} color={COLORS.success} weight="duotone" />, COLORS.success, COLORS.successLight, 'CONFIRMED')}
-              {renderStatCard(t('status_cancelled') || 'Bekor qilingan', stats.cancelled, <XCircle size={22} color={COLORS.danger} weight="duotone" />, COLORS.danger, COLORS.dangerLight, 'CANCELLED')}
+              {renderStatCard(t('total_bookings') || 'Jami', stats.totalBookings, <ListNumbers size={24} color="#3B82F6" weight="fill" />, '#3B82F6', '#DBEAFE', 'ALL')}
+              {renderStatCard(t('status_pending') || 'Kutilmoqda', stats.pending, <Clock size={24} color={COLORS.warning} weight="fill" />, COLORS.warning, COLORS.warningLight, 'PENDING')}
+              {renderStatCard(t('status_confirmed') || 'Tasdiqlangan', stats.confirmed, <CheckCircle size={24} color={COLORS.success} weight="fill" />, COLORS.success, COLORS.successLight, 'CONFIRMED')}
+              {renderStatCard(t('status_cancelled') || 'Bekor qilingan', stats.cancelled, <XCircle size={24} color={COLORS.danger} weight="fill" />, COLORS.danger, COLORS.dangerLight, 'CANCELLED')}
             </View>
 
             <View style={styles.filterSection}>

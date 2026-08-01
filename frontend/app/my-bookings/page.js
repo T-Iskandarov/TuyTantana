@@ -120,38 +120,47 @@ export default function MyBookingsPage() {
                 const img = s?.images?.[0]?.image_path;
 
                 return (
-                  <div key={booking.id} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 hover:border-[#7C3AED]/20 hover:shadow-sm transition-all">
-                    {/* Rasm */}
-                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-50">
-                      {img ? (
-                        <img src={`${IMAGE_BASE}${img}`} alt={s?.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xl">{'\\u{1F3E2}'}</div>
-                      )}
+                  <div key={booking.id} className="bg-white rounded-2xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-4 hover:border-[#7C3AED]/20 hover:shadow-sm transition-all">
+                    
+                    {/* Top section (Mobile) / Left section (Desktop) */}
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      {/* Image */}
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-50">
+                        {img ? (
+                          <img src={`${IMAGE_BASE}${img}`} alt={s?.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xl">{'\\u{1F3E2}'}</div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">{s?.name}</h3>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+                          {s?.provider?.name}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+                          {s?.location_name}
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Malumot */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate">{s?.name}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {s?.provider?.name} - {s?.location_name}
-                      </p>
-                    </div>
+                    {/* Bottom section (Mobile) / Right section (Desktop) */}
+                    <div className="flex items-center sm:flex-col justify-between sm:justify-center sm:items-end shrink-0 border-t border-gray-100 sm:border-0 pt-3 sm:pt-0">
+                      <div className="sm:text-right">
+                        <p className="text-sm text-gray-900 font-medium">
+                          {new Date(booking.date).toLocaleDateString('uz-UZ')}
+                        </p>
+                        <p className="text-xs text-[#7C3AED] font-semibold mt-0.5">
+                          {(!s?.price || s?.price === 0 || s?.price === '0') ? (t('negotiable_price') || 'Kelishilgan narxda') : `${formatPrice(s?.price)} ${t('currency_uzs')}`}
+                        </p>
+                      </div>
 
-                    {/* Sana */}
-                    <div className="text-right shrink-0">
-                      <p className="text-sm text-gray-900 font-medium">
-                        {new Date(booking.date).toLocaleDateString('uz-UZ')}
-                      </p>
-                      <p className="text-xs text-[#7C3AED] font-semibold mt-0.5">
-                        {(!s?.price || s?.price === 0 || s?.price === '0') ? (t('negotiable_price') || 'Kelishilgan narxda') : `${formatPrice(s?.price)} ${t('currency_uzs')}`}
-                      </p>
+                      {/* Status */}
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ml-4 sm:ml-0 sm:mt-2 ${st.cls}`}>
+                        {st.label}
+                      </span>
                     </div>
-
-                    {/* Status */}
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${st.cls}`}>
-                      {st.label}
-                    </span>
                   </div>
                 );
               })}

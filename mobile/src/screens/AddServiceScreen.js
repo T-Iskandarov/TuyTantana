@@ -370,6 +370,7 @@ export default function AddServiceScreen({ navigation, route }) {
 
           <Text style={styles.label}>{t('service_name') || 'Nomi *'}</Text>
           <TextInput
+            placeholderTextColor={COLORS.textLight}
             style={styles.input}
             placeholder={getPlaceholder(form.type)}
             value={form.name}
@@ -409,6 +410,7 @@ export default function AddServiceScreen({ navigation, route }) {
 
           <Text style={styles.label}>{t('price_optional_hint') || "Narxi (so'm) — majburiy emas, o'rtacha narx"}</Text>
           <TextInput
+            placeholderTextColor={COLORS.textLight}
             style={styles.input}
             placeholder="0"
             keyboardType="numeric"
@@ -420,6 +422,7 @@ export default function AddServiceScreen({ navigation, route }) {
             <>
               <Text style={styles.label}>{t('capacity_people_label') || "Sig'imi (odam)"}</Text>
               <TextInput
+                placeholderTextColor={COLORS.textLight}
                 style={styles.input}
                 placeholder={t('placeholder_capacity') || "Masalan: 500"}
                 keyboardType="numeric"
@@ -432,6 +435,7 @@ export default function AddServiceScreen({ navigation, route }) {
           <View onLayout={(e) => { descY.current = e.nativeEvent.layout.y; }}>
             <Text style={styles.label}>{t('description') || 'Tavsif'}</Text>
             <TextInput
+              placeholderTextColor={COLORS.textLight}
               style={[styles.input, styles.textArea]}
               placeholder={t('description_placeholder') || "Xizmat haqida batafsil ma'lumot..."}
               multiline
@@ -454,6 +458,7 @@ export default function AddServiceScreen({ navigation, route }) {
               <Text style={styles.hintText}>{t('comma_separated') || "(vergul bilan ajrating)"}</Text>
             </View>
             <TextInput
+              placeholderTextColor={COLORS.textLight}
               style={styles.input}
               placeholder={getExtraServicesPlaceholder(form.type)}
               value={form.extra_services}

@@ -78,7 +78,6 @@ export default function Header() {
     { label: t('nav_services'), href: '/#services' },
     { label: t('nav_about'), href: '/about' },
     { label: t('nav_contact'), href: '/contact' },
-    { label: t('nav_privacy_policy') || 'Maxfiylik siyosati', href: '/privacy-policy' },
   ];
 
   const openLogin = () => setAuthModal({ open: true, mode: 'login' });

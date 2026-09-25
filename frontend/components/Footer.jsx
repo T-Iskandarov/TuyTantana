@@ -31,6 +31,7 @@ import { Phone, Envelope, MapPin } from '@phosphor-icons/react';export default f
                 { label: t('nav_services'), href: '/#services' },
                 { label: t('nav_about'), href: '/about' },
                 { label: t('nav_contact'), href: '/contact' },
+                { label: t('nav_privacy_policy') || 'Maxfiylik siyosati', href: '/privacy-policy' },
               ].map((link) => (
                 <li key={link.href}>
                   <a

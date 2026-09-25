@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Dimensions, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CaretLeft, Info, FileText, ShieldCheck, X, CheckCircle } from 'phosphor-react-native';
+import { CaretLeft, Info, FileText, ShieldCheck, X, CheckCircle, ArrowSquareOut } from 'phosphor-react-native';
 import { COLORS, SHADOWS } from '../lib/theme';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -28,7 +28,32 @@ export default function AboutAppScreen({ navigation }) {
     if (modalType === 'terms') {
       return t('terms_of_use_desc') || "1. Umumiy qoidalar:\nUshbu platformadan foydalanish orqali siz CUBO kompaniyasi tomonidan belgilangan barcha shartlar va qoidalarga rozilik bildirasiz.\n\n2. Xizmatlarni bron qilish:\nPlatforma foydalanuvchilari va xizmat ko'rsatuvchilar o'zaro ishonch, halollik va qonunchilik asosida harakat qilishlari shart. Bron qilingan xizmatlarning o'z vaqtida va sifatli ko'rsatilishi bo'yicha mas'uliyat xizmat ko'rsatuvchi zimmasidadir.\n\n3. Bekor qilish qoidalari:\nBron qilingan xizmatni bekor qilish kamida 3 kun oldin amalga oshirilishi tavsiya etiladi. Noto'g'ri ma'lumot kiritgan yoki qoidalarni buzgan hisoblar admin tomonidan bloklanishi mumkin.";
     }
-    return t('privacy_policy_desc') || "1. Ma'lumotlar xavfsizligi:\nCUBO kompaniyasi sizning shaxsiy ma'lumotlaringiz (ism-sharif, telefon raqam va bron tarixlari) xavfsizligini to'liq ta'minlaydi va ularni zamonaviy shifrlash usullari bilan himoyalaydi.\n\n2. Ma'lumotlardan foydalanish:\nBiz ma'lumotlaringizni uchinchi shaxslarga bermaymiz va sotmaymiz. Ma'lumotlar faqatgina platformaning ishlashini ta'minlash, xizmat sifatini oshirish va bron jarayonlarida tomonlarni bog'lash maqsadida foydalaniladi.\n\n3. Foydalanuvchi huquqlari:\nSiz istalgan vaqtda o'z profil ma'lumotlaringizni tahrirlashingiz yoki hisobingizni o'chirishni so'rab murojaat qilishingiz mumkin.";
+    return (
+      "Oxirgi yangilanish: 2026-yil, 25-sentabr\n\n" +
+      "Ushbu Maxfiylik siyosati «CUBO MChJ» tomonidan ishlab chiqilgan va boshqariladigan «To'y Tantana» platformasi (mobil ilova va tuytantana.uz veb-sayti) orqali shaxsiy ma'lumotlarni to'plash, qayta ishlash va himoya qilish tartibini belgilaydi.\n\n" +
+      "1. To'planadigan ma'lumotlar:\n" +
+      "• Shaxsiy ma'lumotlar: Ism-sharif, telefon raqami (asosiy identifikator), xeshlangan parol, elektron pochta.\n" +
+      "• Xizmat ko'rsatuvchilar uchun: Xizmat nomi, manzili, tavsifi, narxlari va fotosuratlari.\n" +
+      "• Texnik ma'lumotlar: Qurilma modeli, operatsion tizim, IP-manzil va geolokatsiya (yaqin atrofdagi to'yxonalarni xaritada topish uchun foydalanuvchi ruxsati bilan).\n\n" +
+      "2. Ma'lumotlardan foydalanish:\n" +
+      "• To'y xizmatlarini ko'rish, izlash va onlayn bron qilish;\n" +
+      "• Mijoz va ijrochi o'rtasida to'g'ridan-to'g'ri aloqa va sanani kelishish;\n" +
+      "• Buyurtma holatlari bo'yicha tezkor bildirishnomalar (Push va Telegram bot) yuborish;\n" +
+      "• Firibgarlikning oldini olish va tizim xavfsizligini ta'minlash.\n\n" +
+      "3. Ma'lumotlarni uchinchi tomonlar bilan almashish:\n" +
+      "«CUBO MChJ» foydalanuvchilarning shaxsiy ma'lumotlarini hech kimga sotmaydi. Ma'lumotlar faqatgina bron tasdiqlanishi uchun tanlangan xizmat ko'rsatuvchiga hamda qonunchilikda belgilangan davlat organlari so'roviga binoan berilishi mumkin.\n\n" +
+      "4. Ma'lumotlar xavfsizligi:\n" +
+      "Barcha so'rovlar SSL/TLS (HTTPS) shifrlash va JWT xavfsizlik tokenlari bilan himoyalangan. Parollar xeshlangan holda saqlanadi.\n\n" +
+      "5. Bolalar maxfiyligi:\n" +
+      "Ilova 16 yoshga to'lmagan shaxslarning mustaqil foydalanishi uchun mo'ljallanmagan.\n\n" +
+      "6. Hisobni o'chirish (Account Deletion):\n" +
+      "Foydalanuvchi istalgan vaqtda o'z profilini va barcha shaxsiy ma'lumotlarini butunlay o'chirishni talab qilish huquqiga ega. Buning uchun profil sozlamalaridan «Hisobni o'chirish» so'rovini yuborishi yoki tursunpulatiskandarov@gmail.com manziliga murojaat qilishi kifoya.\n\n" +
+      "7. Bog'lanish:\n" +
+      "Kompaniya: «CUBO MChJ»\n" +
+      "Mas'ul shaxs: Tursunpo'lat Iskandarov\n" +
+      "Telefon: +998 97 317 34 97\n" +
+      "Pochta: tursunpulatiskandarov@gmail.com"
+    );
   };
 
   return (
@@ -114,6 +139,30 @@ export default function AboutAppScreen({ navigation }) {
 
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
               <Text style={styles.modalBodyText}>{getModalContent()}</Text>
+              {modalType === 'privacy' && (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    marginTop: 18,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    backgroundColor: '#F3E8FF',
+                    borderRadius: 14,
+                    borderWidth: 1,
+                    borderColor: '#E9D5FF',
+                  }}
+                  onPress={() => Linking.openURL('https://tuytantana.uz/privacy-policy')}
+                  activeOpacity={0.7}
+                >
+                  <ArrowSquareOut size={18} color={COLORS.primary} weight="bold" />
+                  <Text style={{ color: COLORS.primary, fontWeight: '700', fontSize: 13 }}>
+                    To'liq matnni veb-saytda ochish (tuytantana.uz)
+                  </Text>
+                </TouchableOpacity>
+              )}
               <View style={{ height: 24 }} />
             </ScrollView>
 
